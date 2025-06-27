@@ -1,0 +1,17 @@
+/* Dashboard-specific styles */
+/* Most styling is handled by TailwindCSS classes in the template */
+
+.dashboard-container {
+  /* Custom styles if needed */
+}
+
+/* Animation for loading spinner is already handled by TailwindCSS animate-spin */
+
+/* Smooth transitions for hover effects */
+.hover-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+  transform: translateY(-2px);
+} 

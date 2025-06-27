@@ -1,0 +1,111 @@
+/* Layout Component Styles */
+
+/* Smooth transitions for sidebar */
+.sidebar-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile menu slide animations */
+.mobile-menu-enter {
+  transform: translateX(-100%);
+}
+
+.mobile-menu-enter-active {
+  transform: translateX(0);
+  transition: transform 0.3s ease-in-out;
+}
+
+.mobile-menu-exit {
+  transform: translateX(0);
+}
+
+.mobile-menu-exit-active {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Overlay fade animations */
+.overlay-enter {
+  opacity: 0;
+}
+
+.overlay-enter-active {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.overlay-exit {
+  opacity: 1;
+}
+
+.overlay-exit-active {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Custom scrollbar for sidebar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 2px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* Active menu item styles */
+.menu-item-active {
+  background-color: rgb(238 242 255);
+  border-color: rgb(99 102 241);
+  color: rgb(67 56 202);
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-1px);
+}
+
+/* Badge animations */
+.badge-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+  .sidebar-desktop {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sidebar-mobile {
+    display: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.focus-ring:focus {
+  outline: 2px solid rgb(99 102 241);
+  outline-offset: 2px;
+} 

@@ -1,0 +1,686 @@
+# Cursor Rules for Auction.io - Angular 20+ + Supabase + Material + TailwindCSS
+
+## 🎯 Project Context
+This is an Angular 20+ auction management application using:
+- **Frontend**: Angular 20+ with standalone components
+- **Backend**: Supabase (PostgreSQL + Auth + Storage + Real-time)
+- **UI Framework**: Angular Material + TailwindCSS
+- **State Management**: RxJS + Services
+- **Authentication**: Supabase Auth with JWT
+
+## 📋 General Development Guidelines
+
+### Code Style & Structure
+- Use standalone components (avoid NgModules)
+- Prefer composition over inheritance
+- Follow Angular style guide strictly
+- Use TypeScript strict mode
+- Implement proper error handling
+- Always include loading states
+- Make components mobile-responsive by default
+
+### File Naming Conventions
+- Components: `feature-name.component.ts`
+- Services: `feature-name.service.ts`
+- Guards: `feature-name.guard.ts`
+- Interfaces: `feature-name.interface.ts`
+- Types: `feature-name.types.ts`
+
+### ❌ AVOID - Legacy Patterns (Pre-v17)
+```typescript
+// ❌ Don't use regular properties
+export class OldComponent {
+  data: any[] = [];
+  loading = false;
+  
+  // ❌ Don't use manual subscriptions unnecessarily
+  ngOnInit() {
+    this.dataService.getData().subscribe(data => {
+      this.data = data;
+    });
+  }
+}
+```
+
+```html
+<!-- ❌ Don't use old structural directives -->
+<div *ngIf="loading">Loading...</div>
+<div *ngFor="let item of items; trackBy: trackByFn">{{ item.name }}</div>
+<div [ngSwitch]="status">
+  <div *ngSwitchCase="'loading'">Loading...</div>
+  <div *ngSwitchDefault>Default</div>
+</div>
+```
+
+### ✅ PREFER - Modern Patterns (v17+)
+```typescript
+// ✅ Use signals and computed values
+export class ModernComponent {
+  data = signal<any[]>([]);
+  loading = signal(false);
+  
+  filteredData = computed(() => 
+    this.data().filter(item => item.active)
+  );
+  
+  // ✅ Use effects when needed
+  constructor() {
+    effect(() => {
+      if (this.loading()) {
+        console.log('Loading started');
+      }
+    });
+  }
+}
+```
+
+```html
+<!-- ✅ Use modern control flow -->
+@if (loading()) {
+  <div>Loading...</div>
+}
+
+@for (item of items(); track item.id) {
+  <div>{{ item.name }}</div>
+} @empty {
+  <div>No items</div>
+}
+
+@switch (status()) {
+  @case ('loading') {
+    <div>Loading...</div>
+  }
+  @default {
+    <div>Default</div>
+  }
+}
+```
+
+## 🏗️ Angular-Specific Rules
+
+### Modern Angular Patterns (v17+)
+```typescript
+// ✅ Always use signals for reactive state management
+import { signal, computed, effect } from '@angular/core';
+
+export class MyComponent {
+  // ✅ Use signals instead of regular properties
+  count = signal(0);
+  name = signal('');
+  users = signal<User[]>([]);
+  
+  // ✅ Use computed signals for derived state
+  doubleCount = computed(() => this.count() * 2);
+  filteredUsers = computed(() => 
+    this.users().filter(user => user.name.includes(this.name()))
+  );
+  
+  // ✅ Use effects for side effects
+  logEffect = effect(() => {
+    console.log('Count changed:', this.count());
+  });
+  
+  // ✅ Update signals using .set(), .update(), or .mutate()
+  increment() {
+    this.count.update(value => value + 1);
+  }
+  
+  addUser(user: User) {
+    this.users.update(users => [...users, user]);
+  }
+}
+```
+
+### Modern Control Flow Syntax
+```html
+<!-- ✅ Use @if instead of *ngIf -->
+@if (user(); as currentUser) {
+  <div>Welcome, {{ currentUser.name }}!</div>
+} @else {
+  <div>Please log in</div>
+}
+
+<!-- ✅ Use @for instead of *ngFor -->
+@for (item of items(); track item.id) {
+  <div class="item">{{ item.name }}</div>
+} @empty {
+  <div>No items available</div>
+}
+
+<!-- ✅ Use @switch instead of *ngSwitch -->
+@switch (status()) {
+  @case ('loading') {
+    <div>Loading...</div>
+  }
+  @case ('error') {
+    <div class="error">Error occurred</div>
+  }
+  @case ('success') {
+    <div class="success">Success!</div>
+  }
+  @default {
+    <div>Unknown status</div>
+  }
+}
+
+<!-- ✅ Complex conditional rendering -->
+@if (loading()) {
+  <mat-spinner></mat-spinner>
+} @else if (error()) {
+  <mat-error>{{ error() }}</mat-error>
+} @else if (data().length > 0) {
+  @for (item of data(); track item.id) {
+    <mat-card>{{ item.title }}</mat-card>
+  } @empty {
+    <div>No data found</div>
+  }
+} @else {
+  <div>Welcome! Start by adding some data.</div>
+}
+```
+
+### Component Development
+```typescript
+// ✅ Always use standalone components
+@Component({
+  selector: 'app-feature-name',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, /* Material imports */],
+  template: `<!-- template here -->`,
+  styleUrls: ['./feature-name.component.scss']
+})
+
+// ✅ Always define proper interfaces
+interface FeatureData {
+  id: string;
+  name: string;
+  createdAt: Date;
+}
+
+// ✅ Always use signals instead of regular properties
+loading = signal(false);
+data = signal<FeatureData[]>([]);
+error = signal<string | null>(null);
+
+// ✅ Use computed signals for derived state
+filteredData = computed(() => 
+  this.data().filter(item => item.name.includes(this.searchTerm()))
+);
+
+// ✅ Always handle async operations properly with signals
+async loadData() {
+  this.loading.set(true);
+  this.error.set(null);
+  try {
+    const { data, error } = await this.supabaseService.getData();
+    if (error) throw error;
+    this.data.set(data || []);
+  } catch (error) {
+    this.error.set(error.message);
+    this.handleError(error);
+  } finally {
+    this.loading.set(false);
+  }
+}
+```
+
+### Service Development
+```typescript
+// ✅ Always use Injectable with providedIn: 'root'
+@Injectable({
+  providedIn: 'root'
+})
+export class FeatureService {
+  
+  // ✅ Always return proper types
+  async getData(): Promise<{ data: FeatureData[] | null, error: any }> {
+    return this.supabase.from('table_name').select('*');
+  }
+  
+  // ✅ Always handle errors gracefully
+  private handleError(error: any): Observable<never> {
+    console.error('Service Error:', error);
+    return throwError(() => new Error(error.message || 'An error occurred'));
+  }
+}
+```
+
+## 📊 Supabase Integration Rules
+
+### Database Operations
+```typescript
+// ✅ Always use type-safe queries
+const { data, error } = await this.supabase
+  .from('auctions')
+  .select('id, title, end_date, teams(*)')
+  .eq('status', 'active')
+  .order('created_at', { ascending: false });
+
+// ✅ Always handle database errors
+if (error) {
+  this.snackBar.open(`Database Error: ${error.message}`, 'Close', {
+    duration: 5000,
+    panelClass: ['error-snackbar']
+  });
+  return;
+}
+
+// ✅ Always validate data before operations
+if (!this.validateAuctionData(auctionData)) {
+  throw new Error('Invalid auction data provided');
+}
+```
+
+### Authentication Patterns
+```typescript
+// ✅ Always check auth state in guards
+export const authGuard: CanActivateFn = (route, state) => {
+  const supabase = inject(SupabaseService);
+  const router = inject(Router);
+  
+  return supabase.currentUser.pipe(
+    map(user => {
+      if (user) return true;
+      router.navigate(['/login']);
+      return false;
+    })
+  );
+};
+
+// ✅ Always handle auth errors gracefully
+async signIn(email: string, password: string) {
+  const { data, error } = await this.supabase.auth.signInWithPassword({
+    email, password
+  });
+  
+  if (error) {
+    throw new Error(`Authentication failed: ${error.message}`);
+  }
+  
+  return data;
+}
+```
+
+### Real-time Subscriptions
+```typescript
+// ✅ Always clean up subscriptions
+private subscription?: RealtimeChannel;
+
+ngOnInit() {
+  this.subscription = this.supabase
+    .channel('auction-updates')
+    .on('postgres_changes', 
+      { event: '*', schema: 'public', table: 'auctions' },
+      this.handleRealtimeUpdate.bind(this)
+    )
+    .subscribe();
+}
+
+ngOnDestroy() {
+  this.subscription?.unsubscribe();
+}
+```
+
+## 🎨 UI/UX Development Rules
+
+### Angular Material Usage
+```typescript
+// ✅ Always import specific Material modules
+imports: [
+  MatCardModule,
+  MatButtonModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatTableModule,
+  MatPaginatorModule,
+  MatSortModule
+]
+
+// ✅ Always use Material themes consistently
+<mat-card class="elevation-2">
+  <mat-card-header>
+    <mat-card-title>{{ title }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <!-- content -->
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-button>Cancel</button>
+    <button mat-raised-button color="primary">Save</button>
+  </mat-card-actions>
+</mat-card>
+```
+
+### TailwindCSS Integration
+```html
+<!-- ✅ Use Tailwind for layout, Material for components -->
+<div class="container mx-auto p-4 space-y-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <mat-card class="col-span-1">
+      <!-- Material component content -->
+    </mat-card>
+  </div>
+</div>
+
+<!-- ✅ Use responsive design classes -->
+<div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+  <!-- Responsive layout -->
+</div>
+```
+
+### Form Development
+```typescript
+// ✅ Always use reactive forms with validation and signals
+auctionForm = this.fb.group({
+  title: ['', [Validators.required, Validators.minLength(3)]],
+  description: ['', [Validators.required]],
+  endDate: ['', [Validators.required, this.futureDateValidator]],
+  maxBudget: [0, [Validators.required, Validators.min(1)]]
+});
+
+// ✅ Use signals for form state management
+formSubmitting = signal(false);
+formErrors = signal<string[]>([]);
+
+// ✅ Use computed signals for form validation status
+isFormValid = computed(() => this.auctionForm.valid);
+titleControl = computed(() => this.auctionForm.get('title'));
+
+// ✅ Always show validation errors with modern control flow
+<mat-form-field class="w-full">
+  <mat-label>Auction Title</mat-label>
+  <input matInput formControlName="title" required>
+  @if (titleControl()?.hasError('required')) {
+    <mat-error>Title is required</mat-error>
+  }
+  @if (titleControl()?.hasError('minlength')) {
+    <mat-error>Title must be at least 3 characters</mat-error>
+  }
+</mat-form-field>
+
+// ✅ Form submission with signals
+async onSubmit() {
+  if (!this.isFormValid()) return;
+  
+  this.formSubmitting.set(true);
+  this.formErrors.set([]);
+  
+  try {
+    const formData = this.auctionForm.value;
+    await this.auctionService.createAuction(formData);
+    // Handle success
+  } catch (error) {
+    this.formErrors.set([error.message]);
+  } finally {
+    this.formSubmitting.set(false);
+  }
+}
+```
+
+## 🔒 Security & Performance Rules
+
+### Security Best Practices
+```typescript
+// ✅ Always validate user input
+private validateInput(input: any): boolean {
+  return input && typeof input === 'string' && input.trim().length > 0;
+}
+
+// ✅ Always use RLS policies in Supabase
+// ✅ Never expose sensitive data in client-side code
+// ✅ Always sanitize user-generated content
+
+// ✅ Use environment variables for config
+private readonly supabaseUrl = environment.supabase.url;
+private readonly supabaseKey = environment.supabase.anonKey;
+```
+
+### Performance Optimization
+```typescript
+// ✅ Use OnPush change detection for performance (or signals for automatic optimization)
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+// ✅ Use signals instead of observables when possible
+data = signal<DataType[]>([]);
+loading = signal(false);
+
+// ✅ Use computed signals for derived state
+filteredData = computed(() => this.data().filter(item => item.active));
+
+// ✅ Use modern control flow syntax (@if, @for, @else)
+template: `
+  @if (loading()) {
+    <div>Loading...</div>
+  } @else if (error()) {
+    <div class="error">{{ error() }}</div>
+  } @else {
+    <div class="content">
+      @for (item of data(); track item.id) {
+        <div class="item">{{ item.title }}</div>
+      } @empty {
+        <div>No items found</div>
+      }
+    </div>
+  }
+`
+
+// ✅ Implement virtual scrolling for large lists
+<cdk-virtual-scroll-viewport itemSize="50" class="h-96">
+  @for (item of items(); track item.id) {
+    <div>{{ item.name }}</div>
+  }
+</cdk-virtual-scroll-viewport>
+
+// ✅ Always use track expressions in @for loops
+@for (item of items(); track item.id) {
+  <div>{{ item.name }}</div>
+}
+```
+
+## 🧪 Testing & Debugging Rules
+
+### Component Testing Pattern
+```typescript
+// ✅ Always test component behavior, not implementation
+describe('AuctionComponent', () => {
+  it('should display auction title when data is loaded', async () => {
+    const mockData = { title: 'Test Auction' };
+    component.auction = mockData;
+    fixture.detectChanges();
+    
+    const titleElement = fixture.debugElement.query(By.css('[data-testid="auction-title"]'));
+    expect(titleElement.nativeElement.textContent).toContain('Test Auction');
+  });
+});
+```
+
+### Error Handling Pattern
+```typescript
+// ✅ Always implement comprehensive error handling
+private handleError(error: any, userMessage: string = 'An error occurred'): void {
+  console.error('Error details:', error);
+  
+  this.snackBar.open(userMessage, 'Close', {
+    duration: 5000,
+    panelClass: ['error-snackbar']
+  });
+  
+  // Report to error tracking service if needed
+  // this.errorTrackingService.reportError(error);
+}
+```
+
+## 📱 Accessibility & Mobile Rules
+
+### Accessibility Requirements
+```html
+<!-- ✅ Always include ARIA labels -->
+<button mat-icon-button aria-label="Delete auction" (click)="deleteAuction()">
+  <mat-icon>delete</mat-icon>
+</button>
+
+<!-- ✅ Use semantic HTML -->
+<main role="main">
+  <section aria-labelledby="auction-title">
+    <h2 id="auction-title">Active Auctions</h2>
+  </section>
+</main>
+
+<!-- ✅ Ensure keyboard navigation -->
+<div tabindex="0" (keydown.enter)="selectItem()" (keydown.space)="selectItem()">
+```
+
+### Mobile-First Development
+```scss
+// ✅ Always start with mobile styles
+.auction-card {
+  @apply p-4 mb-4;
+  
+  @screen md {
+    @apply p-6 mb-6;
+  }
+  
+  @screen lg {
+    @apply p-8 mb-8;
+  }
+}
+```
+
+## 🚀 Build & Deployment Rules
+
+### Production Build Configuration
+```typescript
+// ✅ Always use production configuration for builds
+ng build --configuration production
+
+// ✅ Always check bundle size
+ng build --stats-json
+npx webpack-bundle-analyzer dist/auction-io/stats.json
+```
+
+### Environment Configuration
+```typescript
+// ✅ Always use environment-specific settings
+export const environment = {
+  production: true,
+  supabase: {
+    url: process.env['SUPABASE_URL'],
+    anonKey: process.env['SUPABASE_ANON_KEY']
+  },
+  features: {
+    enableAnalytics: true,
+    enableRealtime: true
+  }
+};
+```
+
+## 🔧 Development Workflow
+
+### Automatic TODO Tracking
+```typescript
+// ✅ ALWAYS update TODO.md when completing tasks
+// When any development task is completed, automatically:
+// 1. Mark the corresponding task as [x] in docs/TODO.md
+// 2. Add timestamp and brief description of what was completed
+// 3. Update progress percentages if applicable
+// 4. Mark deliverables as complete when all related tasks are done
+
+// Examples of automatic updates:
+// - Creating components → Mark component creation tasks as complete
+// - Implementing features → Update feature-specific TODO items
+// - Setting up services → Check off service setup tasks
+// - Completing authentication → Mark auth-related items as done
+// - Database operations → Update database setup tasks
+// - UI/UX work → Mark design and styling tasks complete
+
+// Always search for related TODO items when completing work and update them
+```
+
+### Git Commit Standards
+```bash
+# ✅ Use conventional commits
+feat: add auction creation component
+fix: resolve user authentication bug
+docs: update README with setup instructions
+style: format code with prettier
+refactor: simplify auction service logic
+test: add unit tests for auction component
+```
+
+### Code Review Checklist
+- [ ] All components are standalone and properly typed
+- [ ] Error handling is implemented for all async operations
+- [ ] Loading states are shown for all user actions
+- [ ] Mobile responsiveness is maintained
+- [ ] Accessibility standards are met
+- [ ] Supabase operations include proper error handling
+- [ ] Form validation is comprehensive
+- [ ] Security best practices are followed
+
+### Project Progress Tracking Rules
+```typescript
+// ✅ MANDATORY: Update TODO.md after every significant task completion
+// 
+// WHEN TO UPDATE:
+// - After creating any new component/service/guard
+// - After implementing any database operation
+// - After completing any feature or sub-feature
+// - After fixing any major bug or issue
+// - After setting up any configuration or tooling
+// - After completing any UI/UX work
+// - After implementing any authentication/authorization
+//
+// HOW TO UPDATE:
+// 1. Search docs/TODO.md for related task items
+// 2. Change [ ] to [x] for completed tasks
+// 3. Add completion date if specified in the task
+// 4. Update any progress indicators or deliverable status
+// 5. Add any relevant notes about implementation details
+//
+// EXAMPLE UPDATE PATTERN:
+// Before: - [ ] **Day 8**: Create teams feature module with routing
+// After:  - [x] **Day 8**: Create teams feature module with routing ✅ (Completed: 2024-01-15)
+//
+// DELIVERABLE UPDATES:
+// When all tasks in a section are complete, update the deliverable status:
+// Before: **Week 2 Deliverable**: 🚧 In Progress
+// After:  **Week 2 Deliverable**: ✅ Complete
+```
+
+## 💡 Quick Reference Commands
+
+```bash
+# Component generation
+ng generate component components/feature-name --standalone
+
+# Service generation  
+ng generate service services/feature-name
+
+# Build and serve
+ng serve --host 0.0.0.0 --port 4200
+ng build --configuration production
+
+# Testing
+ng test
+ng e2e
+```
+
+## ⚡ CRITICAL AUTOMATION RULES
+
+### ALWAYS Execute These Actions:
+1. **After ANY code creation/modification**: Immediately update docs/TODO.md with completed tasks
+2. **After ANY feature implementation**: Mark related TODO items as complete with timestamp
+3. **After ANY service/component generation**: Update corresponding checklist items
+4. **After ANY database work**: Mark database-related tasks as done
+5. **After ANY authentication work**: Update auth-related TODO items
+6. **After ANY UI/styling work**: Mark design/UX tasks as complete
+
+### NEVER Skip These Steps:
+- Search docs/TODO.md for related tasks before finishing any work
+- Update progress tracking immediately after task completion
+- Mark deliverables as complete when all sub-tasks are done
+- Add completion dates and brief notes for major milestones
+
+Remember: Always prioritize user experience, security, and maintainability in your development decisions! 

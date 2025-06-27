@@ -1,289 +1,457 @@
-# 🗄️ Auction.io Simplified Database Schema (Supabase)
+# 🗄️ Auction.io Database Schema Design (Supabase PostgreSQL)
 
-## Overview
+## 🎯 Database Design Overview
 
-This document outlines the simplified database schema for the Auction.io platform using Supabase PostgreSQL, focusing on single admin auction management.
+This database schema is designed for a **simplified fantasy sports auction platform** with single admin management. The design focuses on:
 
-## 📊 Simplified Entity Relationship Diagram
+- **Single Admin Use**: No complex multi-user authentication
+- **Manual Auction Control**: Admin-controlled bidding process
+- **Team & Player Management**: Simple CRUD operations
+- **Budget Tracking**: Real-time budget calculations
+- **Historical Data**: Auction results and analytics
 
+## 📊 Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    TEAMS ||--o{ TEAM_PLAYERS : has
+    PLAYERS ||--o{ TEAM_PLAYERS : "assigned to"
+    PLAYERS ||--o{ PLAYER_QUEUE : "queued in"
+    AUCTION_CONFIG ||--o{ PLAYER_QUEUE : manages
+    AUCTION_CONFIG ||--o{ AUCTION_HISTORY : tracks
+    TEAMS ||--o{ AUCTION_HISTORY : participates
+    PLAYERS ||--o{ AUCTION_HISTORY : featured
+    
+    TEAMS {
+        uuid id PK
+        string name
+        string short_name
+        string logo_url
+        string primary_color
+        decimal budget_cap
+        decimal budget_spent
+        integer players_count
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PLAYERS {
+        uuid id PK
+        string name
+        string position
+        string category
+        decimal base_price
+        string image_url
+        string nationality
+        integer age
+        boolean is_sold
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    AUCTION_CONFIG {
+        uuid id PK
+        string name
+        decimal budget_cap
+        integer max_players_per_team
+        string status
+        uuid current_player_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PLAYER_QUEUE {
+        uuid id PK
+        uuid player_id FK
+        integer queue_order
+        string status
+        timestamp created_at
+    }
+    
+    TEAM_PLAYERS {
+        uuid id PK
+        uuid team_id FK
+        uuid player_id FK
+        decimal purchase_price
+        timestamp purchased_at
+    }
+    
+    AUCTION_HISTORY {
+        uuid id PK
+        uuid player_id FK
+        uuid winning_team_id FK
+        decimal final_price
+        timestamp sold_at
+        string notes
+    }
 ```
-┌─────────────┐    ┌─────────────┐
-│    Teams    │────│TeamPlayers  │
-└─────────────┘    └─────────────┘
-       │                   │
-       │                   │
-┌─────────────┐    ┌─────────────┐
-│AuctionConfig│    │   Players   │
-└─────────────┘    └─────────────┘
-       │                   │
-       │                   │
-┌─────────────┐    ┌─────────────┐
-│PlayerQueue  │────│             │
-└─────────────┘    └─────────────┘
-```
 
-## 📋 Simplified Database Tables
+## 📋 Detailed Table Specifications
 
-### 1. Teams Table
-**Purpose**: Store team information and settings
+### 1. `teams` - Team Management
+**Purpose**: Store team information, logos, and budget tracking
 
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| id | UUID | PRIMARY KEY | Unique team identifier |
-| name | VARCHAR(100) | NOT NULL | Team name |
-| short_name | VARCHAR(10) | NULL | Team abbreviation |
-| logo_url | TEXT | NULL | Team logo URL (Supabase Storage) |
-| primary_color | VARCHAR(7) | NULL | Hex color code |
-| budget_cap | DECIMAL(12,2) | DEFAULT 0 | Team budget limit |
-| budget_spent | DECIMAL(12,2) | DEFAULT 0 | Amount spent |
-| players_count | INTEGER | DEFAULT 0 | Current players count |
-| is_active | BOOLEAN | DEFAULT TRUE | Team status |
-| created_at | TIMESTAMP | DEFAULT NOW() | Team creation time |
-| updated_at | TIMESTAMP | DEFAULT NOW() | Last team update |
-
-### 2. Players Table
-**Purpose**: Store player information and attributes
-
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| id | UUID | PRIMARY KEY | Unique player identifier |
-| name | VARCHAR(100) | NOT NULL | Player full name |
-| position | VARCHAR(50) | NOT NULL | Player position |
-| category | VARCHAR(50) | NOT NULL | Player category (e.g., Batsman, Bowler) |
-| base_price | DECIMAL(10,2) | NOT NULL | Minimum bid amount |
-| image_url | TEXT | NULL | Player photo URL (Supabase Storage) |
-| nationality | VARCHAR(50) | NULL | Player nationality |
-| age | INTEGER | NULL | Player age |
-| is_sold | BOOLEAN | DEFAULT FALSE | Whether player is sold |
-| is_active | BOOLEAN | DEFAULT TRUE | Player availability |
-| created_at | TIMESTAMP | DEFAULT NOW() | Player creation time |
-| updated_at | TIMESTAMP | DEFAULT NOW() | Last player update |
-
-### 3. Auction Config Table
-**Purpose**: Store single auction configuration (only one active auction)
-
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| id | UUID | PRIMARY KEY | Unique auction identifier |
-| name | VARCHAR(200) | NOT NULL | Auction title |
-| budget_cap | DECIMAL(12,2) | NOT NULL | Maximum team budget |
-| max_players_per_team | INTEGER | NOT NULL | Player limit per team |
-| status | VARCHAR(20) | NOT NULL | 'DRAFT', 'ACTIVE', 'COMPLETED' |
-| current_player_id | UUID | NULL | Currently auctioned player |
-| created_at | TIMESTAMP | DEFAULT NOW() | Auction creation time |
-| updated_at | TIMESTAMP | DEFAULT NOW() | Last auction update |
-
-### 4. Player Queue Table
-**Purpose**: Manage player order in auction
-
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| id | UUID | PRIMARY KEY | Unique queue identifier |
-| player_id | UUID | REFERENCES players(id) | Player reference |
-| queue_order | INTEGER | NOT NULL | Player position in queue |
-| status | VARCHAR(20) | DEFAULT 'PENDING' | 'PENDING', 'CURRENT', 'SOLD', 'UNSOLD' |
-| created_at | TIMESTAMP | DEFAULT NOW() | Creation time |
-
-### 5. Team Players Table
-**Purpose**: Store final team rosters after auction completion
-
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| id | UUID | PRIMARY KEY | Unique roster identifier |
-| team_id | UUID | REFERENCES teams(id) | Team reference |
-| player_id | UUID | REFERENCES players(id) | Player reference |
-| purchase_price | DECIMAL(10,2) | NOT NULL | Final purchase price |
-| purchased_at | TIMESTAMP | DEFAULT NOW() | Purchase timestamp |
-
-## 🗂️ Supabase SQL Schema
-
-### Create Tables Script
 ```sql
--- Teams table
 CREATE TABLE teams (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  short_name VARCHAR(10),
-  logo_url TEXT,
-  primary_color VARCHAR(7),
-  budget_cap DECIMAL(12,2) DEFAULT 0,
-  budget_spent DECIMAL(12,2) DEFAULT 0,
-  players_count INTEGER DEFAULT 0,
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    short_name VARCHAR(10) UNIQUE,
+    logo_url TEXT,
+    primary_color VARCHAR(7) DEFAULT '#1976d2',
+    secondary_color VARCHAR(7) DEFAULT '#424242',
+    budget_cap DECIMAL(12,2) NOT NULL DEFAULT 10000000,
+    budget_spent DECIMAL(12,2) DEFAULT 0,
+    budget_remaining DECIMAL(12,2) GENERATED ALWAYS AS (budget_cap - budget_spent) STORED,
+    players_count INTEGER DEFAULT 0,
+    max_players INTEGER DEFAULT 25,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    
+    -- Constraints
+    CONSTRAINT teams_budget_spent_check CHECK (budget_spent >= 0),
+    CONSTRAINT teams_players_count_check CHECK (players_count >= 0),
+    CONSTRAINT teams_max_players_check CHECK (max_players > 0)
 );
-
--- Players table
-CREATE TABLE players (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  position VARCHAR(50) NOT NULL,
-  category VARCHAR(50) NOT NULL,
-  base_price DECIMAL(10,2) NOT NULL,
-  image_url TEXT,
-  nationality VARCHAR(50),
-  age INTEGER,
-  is_sold BOOLEAN DEFAULT FALSE,
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- Auction config table (single auction)
-CREATE TABLE auction_config (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name VARCHAR(200) NOT NULL,
-  budget_cap DECIMAL(12,2) NOT NULL,
-  max_players_per_team INTEGER NOT NULL,
-  status VARCHAR(20) DEFAULT 'DRAFT',
-  current_player_id UUID REFERENCES players(id),
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- Player queue table
-CREATE TABLE player_queue (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  player_id UUID REFERENCES players(id),
-  queue_order INTEGER NOT NULL,
-  status VARCHAR(20) DEFAULT 'PENDING',
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Team players table (final rosters)
-CREATE TABLE team_players (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  team_id UUID REFERENCES teams(id),
-  player_id UUID REFERENCES players(id),
-  purchase_price DECIMAL(10,2) NOT NULL,
-  purchased_at TIMESTAMP DEFAULT NOW(),
-  UNIQUE(team_id, player_id)
-);
-
--- Create indexes for better performance
-CREATE INDEX idx_players_position ON players(position);
-CREATE INDEX idx_players_category ON players(category);
-CREATE INDEX idx_player_queue_order ON player_queue(queue_order);
-CREATE INDEX idx_team_players_team_id ON team_players(team_id);
 ```
 
-## 🔗 Foreign Key Relationships
+**Computed Fields:**
+- `budget_remaining`: Automatically calculated as `budget_cap - budget_spent`
 
-### Primary Relationships
-1. **Users → Teams**: One-to-Many (owner_id)
-2. **Teams → AuctionTeams**: One-to-Many (team_id)
-3. **Auctions → AuctionTeams**: One-to-Many (auction_id)
-4. **Auctions → Bids**: One-to-Many (auction_id)
-5. **Players → Bids**: One-to-Many (player_id)
-6. **Teams → Bids**: One-to-Many (team_id)
-7. **Auctions → TeamPlayers**: One-to-Many (auction_id)
-8. **Teams → TeamPlayers**: One-to-Many (team_id)
-9. **Players → TeamPlayers**: One-to-Many (player_id)
+### 2. `players` - Player Pool Management
+**Purpose**: Store all available players for auction
 
-### Secondary Relationships
-1. **Users → Players**: One-to-Many (created_by)
-2. **Users → Auctions**: One-to-Many (created_by)
-3. **Auctions → Players**: Many-to-One (current_player_id)
-4. **Auctions → Teams**: Many-to-One (current_bid_team_id)
-
-## 📈 Database Views
-
-### 1. AuctionTeamStats View
 ```sql
-CREATE VIEW auction_team_stats AS
-SELECT 
-    at.auction_id,
-    at.team_id,
-    t.name as team_name,
-    at.budget_remaining,
-    at.total_spent,
-    at.players_count,
-    COALESCE(tp.sold_players, 0) as players_bought,
-    (a.budget_cap - at.total_spent) as budget_left,
-    (a.max_players_per_team - at.players_count) as spots_remaining
-FROM auction_teams at
-JOIN teams t ON at.team_id = t.id
-JOIN auctions a ON at.auction_id = a.id
-LEFT JOIN (
-    SELECT team_id, auction_id, COUNT(*) as sold_players
-    FROM team_players
-    GROUP BY team_id, auction_id
-) tp ON at.team_id = tp.team_id AND at.auction_id = tp.auction_id;
+CREATE TABLE players (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    position VARCHAR(50) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    subcategory VARCHAR(50),
+    base_price DECIMAL(10,2) NOT NULL DEFAULT 100000,
+    image_url TEXT,
+    nationality VARCHAR(50),
+    age INTEGER,
+    experience_years INTEGER,
+    stats JSONB, -- Store player statistics as JSON
+    is_sold BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    
+    -- Constraints
+    CONSTRAINT players_base_price_check CHECK (base_price > 0),
+    CONSTRAINT players_age_check CHECK (age > 0 AND age < 100),
+    CONSTRAINT players_experience_check CHECK (experience_years >= 0)
+);
 ```
 
-### 2. AuctionProgress View
+**Example Categories:**
+- **Cricket**: Batsman, Bowler, All-rounder, Wicket-keeper
+- **Football**: Forward, Midfielder, Defender, Goalkeeper
+- **Basketball**: Point Guard, Shooting Guard, Small Forward, etc.
+
+### 3. `auction_config` - Auction Settings
+**Purpose**: Single auction configuration (only one active auction at a time)
+
+```sql
+CREATE TABLE auction_config (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    description TEXT,
+    budget_cap DECIMAL(12,2) NOT NULL DEFAULT 10000000,
+    max_players_per_team INTEGER NOT NULL DEFAULT 25,
+    min_players_per_team INTEGER DEFAULT 15,
+    status VARCHAR(20) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED')),
+    current_player_id UUID REFERENCES players(id),
+    current_player_position INTEGER DEFAULT 0,
+    total_players INTEGER DEFAULT 0,
+    auction_type VARCHAR(20) DEFAULT 'MANUAL' CHECK (auction_type IN ('MANUAL', 'TIMER')),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+-- Ensure only one active auction at a time
+CREATE UNIQUE INDEX idx_auction_config_active ON auction_config (status) 
+WHERE status IN ('ACTIVE', 'PAUSED');
+```
+
+### 4. `player_queue` - Auction Order Management
+**Purpose**: Manage the order of players in auction
+
+```sql
+CREATE TABLE player_queue (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    player_id UUID REFERENCES players(id) ON DELETE CASCADE,
+    queue_order INTEGER NOT NULL,
+    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'CURRENT', 'SOLD', 'UNSOLD', 'SKIPPED')),
+    created_at TIMESTAMP DEFAULT NOW(),
+    
+    -- Ensure unique order and player
+    UNIQUE(player_id),
+    UNIQUE(queue_order)
+);
+```
+
+### 5. `team_players` - Final Team Rosters
+**Purpose**: Store final team compositions after auction
+
+```sql
+CREATE TABLE team_players (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    player_id UUID REFERENCES players(id) ON DELETE CASCADE,
+    purchase_price DECIMAL(10,2) NOT NULL,
+    purchased_at TIMESTAMP DEFAULT NOW(),
+    position_in_team VARCHAR(50), -- Position assigned in team
+    is_captain BOOLEAN DEFAULT FALSE,
+    is_vice_captain BOOLEAN DEFAULT FALSE,
+    
+    -- Ensure player is only in one team
+    UNIQUE(player_id),
+    
+    -- Constraints
+    CONSTRAINT team_players_price_check CHECK (purchase_price > 0)
+);
+```
+
+### 6. `auction_history` - Auction Transaction Log
+**Purpose**: Track all auction activities for analytics and history
+
+```sql
+CREATE TABLE auction_history (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    player_id UUID REFERENCES players(id),
+    winning_team_id UUID REFERENCES teams(id),
+    final_price DECIMAL(10,2),
+    auction_date DATE DEFAULT CURRENT_DATE,
+    sold_at TIMESTAMP DEFAULT NOW(),
+    auction_round INTEGER,
+    bidding_duration INTERVAL, -- How long the bidding lasted
+    notes TEXT,
+    status VARCHAR(20) DEFAULT 'SOLD' CHECK (status IN ('SOLD', 'UNSOLD', 'WITHDRAWN'))
+);
+```
+
+### 7. `storage_buckets` - File Storage Configuration
+**Purpose**: Supabase storage bucket configuration
+
+```sql
+-- This will be created in Supabase Storage, not as a table
+-- Buckets: 'team-logos', 'player-images', 'exports'
+```
+
+## 🔐 Row Level Security (RLS) Policies
+
+Since this is a single admin application, RLS policies will be simple:
+
+```sql
+-- Enable RLS on all tables
+ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE players ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auction_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE player_queue ENABLE ROW LEVEL SECURITY;
+ALTER TABLE team_players ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auction_history ENABLE ROW LEVEL SECURITY;
+
+-- Allow authenticated users (admin) full access
+CREATE POLICY "Enable all operations for authenticated users" ON teams
+    FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Enable all operations for authenticated users" ON players
+    FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Enable all operations for authenticated users" ON auction_config
+    FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Enable all operations for authenticated users" ON player_queue
+    FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Enable all operations for authenticated users" ON team_players
+    FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Enable all operations for authenticated users" ON auction_history
+    FOR ALL USING (auth.role() = 'authenticated');
+```
+
+## 📊 Database Views for Analytics
+
+### 1. Team Statistics View
+```sql
+CREATE VIEW team_stats AS
+SELECT 
+    t.id,
+    t.name,
+    t.budget_cap,
+    t.budget_spent,
+    t.budget_remaining,
+    t.players_count,
+    COUNT(tp.id) as actual_players_count,
+    COALESCE(AVG(tp.purchase_price), 0) as avg_purchase_price,
+    COALESCE(MAX(tp.purchase_price), 0) as highest_purchase,
+    COALESCE(MIN(tp.purchase_price), 0) as lowest_purchase
+FROM teams t
+LEFT JOIN team_players tp ON t.id = tp.team_id
+GROUP BY t.id, t.name, t.budget_cap, t.budget_spent, t.budget_remaining, t.players_count;
+```
+
+### 2. Auction Progress View
 ```sql
 CREATE VIEW auction_progress AS
 SELECT 
-    a.id as auction_id,
-    a.name as auction_name,
-    a.status,
-    COUNT(DISTINCT pq.player_id) as total_players,
-    COUNT(DISTINCT CASE WHEN pq.status = 'SOLD' THEN pq.player_id END) as sold_players,
-    COUNT(DISTINCT CASE WHEN pq.status = 'UNSOLD' THEN pq.player_id END) as unsold_players,
-    COUNT(DISTINCT CASE WHEN pq.status = 'PENDING' THEN pq.player_id END) as pending_players,
-    SUM(CASE WHEN tp.purchase_price IS NOT NULL THEN tp.purchase_price ELSE 0 END) as total_money_spent
-FROM auctions a
-LEFT JOIN player_queue pq ON a.id = pq.auction_id
-LEFT JOIN team_players tp ON a.id = tp.auction_id
-GROUP BY a.id, a.name, a.status;
+    ac.name as auction_name,
+    ac.status,
+    COUNT(pq.id) as total_players,
+    COUNT(CASE WHEN pq.status = 'SOLD' THEN 1 END) as players_sold,
+    COUNT(CASE WHEN pq.status = 'UNSOLD' THEN 1 END) as players_unsold,
+    COUNT(CASE WHEN pq.status = 'PENDING' THEN 1 END) as players_remaining,
+    COALESCE(SUM(ah.final_price), 0) as total_amount_spent,
+    ac.current_player_position,
+    (COUNT(CASE WHEN pq.status IN ('SOLD', 'UNSOLD') THEN 1 END) * 100.0 / NULLIF(COUNT(pq.id), 0)) as completion_percentage
+FROM auction_config ac
+LEFT JOIN player_queue pq ON true
+LEFT JOIN auction_history ah ON ah.auction_date = CURRENT_DATE
+GROUP BY ac.id, ac.name, ac.status, ac.current_player_position;
 ```
 
-## 🔧 Database Functions & Triggers
-
-### 1. Update Team Stats Trigger
+### 3. Player Categories Summary
 ```sql
-CREATE OR REPLACE FUNCTION update_team_stats()
+CREATE VIEW player_category_stats AS
+SELECT 
+    p.category,
+    p.position,
+    COUNT(*) as total_players,
+    COUNT(CASE WHEN p.is_sold = true THEN 1 END) as sold_players,
+    COALESCE(AVG(tp.purchase_price), 0) as avg_price,
+    COALESCE(MAX(tp.purchase_price), 0) as max_price,
+    COALESCE(MIN(tp.purchase_price), 0) as min_price
+FROM players p
+LEFT JOIN team_players tp ON p.id = tp.player_id
+GROUP BY p.category, p.position
+ORDER BY p.category, p.position;
+```
+
+## 🗃️ Database Functions and Triggers
+
+### 1. Update Team Budget Trigger
+```sql
+-- Function to update team budget when player is purchased
+CREATE OR REPLACE FUNCTION update_team_budget()
 RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        UPDATE auction_teams 
-        SET 
+        -- Update team budget and player count
+        UPDATE teams 
+        SET budget_spent = budget_spent + NEW.purchase_price,
             players_count = players_count + 1,
-            total_spent = total_spent + NEW.purchase_price,
-            budget_remaining = budget_remaining - NEW.purchase_price
-        WHERE team_id = NEW.team_id AND auction_id = NEW.auction_id;
+            updated_at = NOW()
+        WHERE id = NEW.team_id;
+        
+        -- Mark player as sold
+        UPDATE players 
+        SET is_sold = true, updated_at = NOW()
+        WHERE id = NEW.player_id;
+        
         RETURN NEW;
+    ELSIF TG_OP = 'DELETE' THEN
+        -- Reverse the operation
+        UPDATE teams 
+        SET budget_spent = budget_spent - OLD.purchase_price,
+            players_count = players_count - 1,
+            updated_at = NOW()
+        WHERE id = OLD.team_id;
+        
+        -- Mark player as unsold
+        UPDATE players 
+        SET is_sold = false, updated_at = NOW()
+        WHERE id = OLD.player_id;
+        
+        RETURN OLD;
     END IF;
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER tr_update_team_stats
-    AFTER INSERT ON team_players
-    FOR EACH ROW
-    EXECUTE FUNCTION update_team_stats();
+-- Create trigger
+CREATE TRIGGER trigger_update_team_budget
+    AFTER INSERT OR DELETE ON team_players
+    FOR EACH ROW EXECUTE FUNCTION update_team_budget();
 ```
 
-## 📊 Performance Considerations
+### 2. Auction Queue Management Function
+```sql
+-- Function to get next player in queue
+CREATE OR REPLACE FUNCTION get_next_player()
+RETURNS UUID AS $$
+DECLARE
+    next_player_id UUID;
+BEGIN
+    SELECT player_id INTO next_player_id
+    FROM player_queue
+    WHERE status = 'PENDING'
+    ORDER BY queue_order
+    LIMIT 1;
+    
+    IF next_player_id IS NOT NULL THEN
+        -- Update current player status
+        UPDATE player_queue 
+        SET status = 'CURRENT'
+        WHERE player_id = next_player_id;
+        
+        -- Update auction config
+        UPDATE auction_config 
+        SET current_player_id = next_player_id,
+            current_player_position = (
+                SELECT queue_order 
+                FROM player_queue 
+                WHERE player_id = next_player_id
+            );
+    END IF;
+    
+    RETURN next_player_id;
+END;
+$$ LANGUAGE plpgsql;
+```
 
-### Indexing Strategy
-- **Primary Keys**: All tables use UUID primary keys with clustered indexes
-- **Foreign Keys**: All foreign key columns are indexed
-- **Query Optimization**: Composite indexes on frequently queried column combinations
-- **Search Optimization**: Full-text search indexes on name and description fields
+## 📈 Indexes for Performance
 
-### Partitioning Strategy
-- **Bids Table**: Partition by auction_id for better query performance
-- **BidHistory Table**: Partition by created_at (monthly) for historical data management
+```sql
+-- Performance indexes
+CREATE INDEX idx_players_category_position ON players(category, position);
+CREATE INDEX idx_players_is_sold ON players(is_sold);
+CREATE INDEX idx_player_queue_status_order ON player_queue(status, queue_order);
+CREATE INDEX idx_team_players_team_id ON team_players(team_id);
+CREATE INDEX idx_team_players_purchased_at ON team_players(purchased_at);
+CREATE INDEX idx_auction_history_auction_date ON auction_history(auction_date);
+CREATE INDEX idx_teams_is_active ON teams(is_active);
 
-### Caching Strategy
-- **Redis Cache**: Frequently accessed auction data
-- **Query Result Cache**: Complex analytical queries
-- **Session Cache**: User authentication and team data
+-- Full text search indexes
+CREATE INDEX idx_players_name_search ON players USING gin(to_tsvector('english', name));
+CREATE INDEX idx_teams_name_search ON teams USING gin(to_tsvector('english', name));
+```
 
-## 🔒 Security Considerations
+## 🧪 Sample Data Setup
 
-### Data Protection
-- **Sensitive Data**: Password hashes using bcrypt
-- **Input Validation**: All inputs validated at application level
-- **SQL Injection**: Prevented through Prisma ORM
-- **Access Control**: Role-based permissions at application level
+### Sample Teams
+```sql
+INSERT INTO teams (name, short_name, primary_color, budget_cap) VALUES
+('Mumbai Warriors', 'MW', '#0066cc', 10000000),
+('Delhi Capitals', 'DC', '#cc0000', 10000000),
+('Chennai Super Kings', 'CSK', '#ffcc00', 10000000),
+('Kolkata Knight Riders', 'KKR', '#6600cc', 10000000);
+```
 
-### Audit Trail
-- **User Actions**: All critical actions logged in BidHistory
-- **Data Changes**: Timestamps on all records
-- **System Events**: Application-level logging for monitoring
+### Sample Players
+```sql
+INSERT INTO players (name, position, category, base_price, nationality, age) VALUES
+('Virat Kohli', 'Batsman', 'Top Order', 2000000, 'India', 35),
+('Rohit Sharma', 'Batsman', 'Top Order', 2000000, 'India', 36),
+('Jasprit Bumrah', 'Bowler', 'Fast Bowler', 1800000, 'India', 30),
+('Rashid Khan', 'Bowler', 'Spinner', 1500000, 'Afghanistan', 25);
+```
 
-This comprehensive database schema provides a solid foundation for the Auction.io platform, ensuring data integrity, performance, and scalability. 
+This database schema provides a robust foundation for your auction.io platform with proper normalization, performance optimization, and data integrity constraints. The design supports both the current simplified requirements and future enhancements. 

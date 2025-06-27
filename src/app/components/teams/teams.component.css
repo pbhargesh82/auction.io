@@ -1,0 +1,155 @@
+/* Teams Component Styles */
+
+/* Table enhancements */
+.table-hover-row:hover {
+  background-color: #f9fafb;
+}
+
+/* Form input focus styles */
+.form-input:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #6366f1;
+  border-color: #6366f1;
+}
+
+/* Color picker styling */
+input[type="color"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.375rem;
+}
+
+input[type="color"]::-moz-color-swatch {
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Modal backdrop animation */
+.modal-backdrop {
+  backdrop-filter: blur(4px);
+}
+
+/* Budget progress bar */
+.budget-progress {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Status badge styles */
+.status-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Button hover effects */
+.btn-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Table sort indicators */
+.sort-indicator {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Responsive table scroll */
+.table-container {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Focus visible for accessibility */
+.focus-visible:focus {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar for table */
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Team logo placeholder */
+.team-logo-placeholder {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Form validation styles */
+.form-error {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .mobile-stack {
+    flex-direction: column;
+    space-y: 1rem;
+  }
+  
+  .mobile-full-width {
+    width: 100%;
+  }
+  
+  .mobile-text-center {
+    text-align: center;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-table {
+    break-inside: avoid;
+  }
+}

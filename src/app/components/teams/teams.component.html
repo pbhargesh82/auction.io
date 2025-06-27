@@ -1,0 +1,408 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <!-- Header Section -->
+  <div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Teams Management</h1>
+        <p class="mt-2 text-sm text-gray-700">Manage your auction teams, budgets, and player rosters</p>
+      </div>
+      <div class="mt-4 sm:mt-0">
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="openCreateForm()"
+          class="inline-flex items-center">
+          <mat-icon>add</mat-icon>
+          Add New Team
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Display -->
+  @if (error()) {
+    <mat-card class="mb-6 bg-red-50 border-l-4 border-red-400">
+      <mat-card-content>
+        <div class="flex items-center">
+          <mat-icon class="text-red-400 mr-3">error</mat-icon>
+          <div class="flex-1">
+            <h3 class="text-sm font-medium text-red-800">Error</h3>
+            <p class="mt-1 text-sm text-red-700">{{ error() }}</p>
+          </div>
+          <button mat-icon-button (click)="clearError()" class="text-red-500">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Search and Filters -->
+  <mat-card class="mb-6">
+    <mat-card-content>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+        <div class="flex-1 max-w-lg">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Search teams</mat-label>
+            <input matInput 
+                   (input)="onSearch($event)"
+                   placeholder="Search by name, short name, or color">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+        
+        @if (selectedCount() > 0) {
+          <div class="flex items-center space-x-3">
+            <mat-chip-set>
+              <mat-chip>{{ selectedCount() }} selected</mat-chip>
+            </mat-chip-set>
+            <button 
+              mat-raised-button 
+              color="warn"
+              (click)="deleteSelectedTeams()">
+              <mat-icon>delete</mat-icon>
+              Delete Selected
+            </button>
+          </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Teams Table -->
+  <mat-card>
+    <mat-card-content class="p-0">
+      @if (loading()) {
+        <div class="p-8 text-center">
+          <mat-spinner class="mx-auto"></mat-spinner>
+          <p class="mt-4 text-gray-600">Loading teams...</p>
+        </div>
+      } @else if (filteredTeams().length === 0) {
+        <div class="p-8 text-center">
+          <mat-icon class="text-6xl text-gray-400 mb-4">groups</mat-icon>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No teams found</h3>
+          <p class="text-gray-500 mb-6">
+            @if (searchTerm()) {
+              No teams match your search criteria. Try adjusting your search.
+            } @else {
+              Get started by creating your first team.
+            }
+          </p>
+          @if (!searchTerm()) {
+            <button 
+              mat-raised-button 
+              color="primary"
+              (click)="openCreateForm()">
+              <mat-icon>add</mat-icon>
+              Add New Team
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table mat-table [dataSource]="dataSource()" class="w-full">
+            
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox 
+                  [checked]="isAllSelected()"
+                  [indeterminate]="selectedCount() > 0 && !isAllSelected()"
+                  (change)="toggleSelectAll()">
+                </mat-checkbox>
+              </th>
+              <td mat-cell *matCellDef="let team">
+                <mat-checkbox 
+                  [checked]="selectedTeams().has(team.id)"
+                  (change)="toggleSelectTeam(team.id)">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+
+            <!-- Team Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Team Name</th>
+              <td mat-cell *matCellDef="let team" class="py-4">
+                <div class="flex items-center">
+                  @if (team.logo_url) {
+                    <img class="h-10 w-10 rounded-full object-cover mr-4" [src]="team.logo_url" [alt]="team.name">
+                  } @else {
+                    <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold mr-4" 
+                         [style.background-color]="team.primary_color">
+                      {{ team.name.charAt(0).toUpperCase() }}
+                    </div>
+                  }
+                  <div>
+                    <div class="font-medium text-gray-900">{{ team.name }}</div>
+                    @if (team.short_name) {
+                      <div class="text-sm text-gray-500">{{ team.short_name }}</div>
+                    }
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Colors Column -->
+            <ng-container matColumnDef="colors">
+              <th mat-header-cell *matHeaderCellDef>Colors</th>
+              <td mat-cell *matCellDef="let team">
+                <div class="flex items-center space-x-2">
+                  <div class="w-6 h-6 rounded border border-gray-300" 
+                       [style.background-color]="team.primary_color"
+                       [matTooltip]="'Primary: ' + team.primary_color"></div>
+                  <div class="w-6 h-6 rounded border border-gray-300" 
+                       [style.background-color]="team.secondary_color"
+                       [matTooltip]="'Secondary: ' + team.secondary_color"></div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Budget Column -->
+            <ng-container matColumnDef="budget">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="budget_cap">Budget</th>
+              <td mat-cell *matCellDef="let team">
+                <div class="text-sm">
+                  <div class="font-medium text-gray-900">
+                    {{ formatCurrency(team.budget_spent) }} / {{ formatCurrency(team.budget_cap) }}
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                    <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="getBudgetPercentage(team)"></div>
+                  </div>
+                  <div class="text-xs text-gray-500 mt-1">{{ getBudgetPercentage(team) | number:'1.0-1' }}% used</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Players Column -->
+            <ng-container matColumnDef="players">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="players_count">Players</th>
+              <td mat-cell *matCellDef="let team" class="text-sm">
+                <span class="font-medium">{{ team.players_count }}</span>
+                <span class="text-gray-500">/ {{ team.max_players }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let team">
+                <mat-chip-set>
+                  <mat-chip [class]="team.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                    {{ team.is_active ? 'Active' : 'Inactive' }}
+                  </mat-chip>
+                </mat-chip-set>
+              </td>
+            </ng-container>
+
+            <!-- Created Column -->
+            <ng-container matColumnDef="created">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="created_at">Created</th>
+              <td mat-cell *matCellDef="let team" class="text-sm text-gray-500">
+                {{ formatDate(team.created_at) }}
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let team">
+                <div class="flex items-center space-x-1">
+                  <button 
+                    mat-icon-button 
+                    [color]="team.is_active ? 'warn' : 'primary'"
+                    (click)="toggleTeamStatus(team)"
+                    [matTooltip]="team.is_active ? 'Deactivate team' : 'Activate team'">
+                    <mat-icon>{{ team.is_active ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <button 
+                    mat-icon-button 
+                    color="primary"
+                    (click)="openEditForm(team)"
+                    matTooltip="Edit team">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button 
+                    mat-icon-button 
+                    color="warn"
+                    (click)="deleteTeam(team)"
+                    matTooltip="Delete team">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Teams Statistics -->
+  @if (teams().length > 0) {
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+      <mat-card>
+        <mat-card-content>
+          <div class="flex items-center">
+            <mat-icon class="text-2xl text-gray-400 mr-4">groups</mat-icon>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Total Teams</div>
+              <div class="text-2xl font-bold text-gray-900">{{ teams().length }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-content>
+          <div class="flex items-center">
+            <mat-icon class="text-2xl text-green-500 mr-4">check_circle</mat-icon>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Active Teams</div>
+              <div class="text-2xl font-bold text-gray-900">{{ activeTeamsCount() }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-content>
+          <div class="flex items-center">
+            <mat-icon class="text-2xl text-blue-500 mr-4">person</mat-icon>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Total Players</div>
+              <div class="text-2xl font-bold text-gray-900">{{ totalPlayersCount() }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-content>
+          <div class="flex items-center">
+            <mat-icon class="text-2xl text-yellow-500 mr-4">attach_money</mat-icon>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Total Budget</div>
+              <div class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalBudget()) }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>
+
+<!-- Team Form Modal -->
+@if (showForm()) {
+  <div class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <mat-card class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <mat-card-header>
+        <mat-card-title>
+          {{ editingTeam() ? 'Edit Team' : 'Create New Team' }}
+        </mat-card-title>
+      </mat-card-header>
+
+      <form [formGroup]="teamForm" (ngSubmit)="onSubmit()">
+        <mat-card-content class="space-y-6">
+          
+          <!-- Team Name -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Team Name *</mat-label>
+            <input matInput formControlName="name" placeholder="Enter team name">
+            @if (teamForm.get('name')?.invalid && teamForm.get('name')?.touched) {
+              <mat-error>
+                @if (teamForm.get('name')?.errors?.['required']) {
+                  Team name is required
+                } @else if (teamForm.get('name')?.errors?.['minlength']) {
+                  Team name must be at least 2 characters
+                } @else if (teamForm.get('name')?.errors?.['maxlength']) {
+                  Team name cannot exceed 100 characters
+                }
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Short Name -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Short Name</mat-label>
+            <input matInput formControlName="short_name" placeholder="e.g., NYC, LA, CHI">
+            @if (teamForm.get('short_name')?.invalid && teamForm.get('short_name')?.touched) {
+              <mat-error>Short name cannot exceed 10 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Logo URL -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Logo URL</mat-label>
+            <input matInput formControlName="logo_url" placeholder="https://example.com/logo.png">
+            <mat-icon matSuffix>image</mat-icon>
+          </mat-form-field>
+
+          <!-- Colors -->
+          <div class="grid grid-cols-2 gap-4">
+            <mat-form-field appearance="outline">
+              <mat-label>Primary Color *</mat-label>
+              <input matInput formControlName="primary_color" placeholder="#1976d2">
+              <input type="color" 
+                     formControlName="primary_color"
+                     class="absolute right-12 top-4 w-8 h-8 border-0 rounded cursor-pointer">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Secondary Color *</mat-label>
+              <input matInput formControlName="secondary_color" placeholder="#424242">
+              <input type="color" 
+                     formControlName="secondary_color"
+                     class="absolute right-12 top-4 w-8 h-8 border-0 rounded cursor-pointer">
+            </mat-form-field>
+          </div>
+
+          <!-- Budget Cap -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Budget Cap *</mat-label>
+            <input matInput type="number" formControlName="budget_cap" placeholder="10000000">
+            <span matPrefix>$&nbsp;</span>
+            <span matSuffix>USD</span>
+            @if (teamForm.get('budget_cap')?.invalid && teamForm.get('budget_cap')?.touched) {
+              <mat-error>Budget cap must be at least $1,000,000</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Max Players -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Maximum Players *</mat-label>
+            <input matInput type="number" formControlName="max_players" min="15" max="50" placeholder="25">
+            @if (teamForm.get('max_players')?.invalid && teamForm.get('max_players')?.touched) {
+              <mat-error>Maximum players must be between 15 and 50</mat-error>
+            }
+          </mat-form-field>
+
+        </mat-card-content>
+
+        <mat-card-actions align="end">
+          <button 
+            mat-button 
+            type="button"
+            (click)="closeForm()"
+            [disabled]="formSubmitting()">
+            Cancel
+          </button>
+          <button 
+            mat-raised-button 
+            color="primary"
+            type="submit"
+            [disabled]="!isFormValid() || formSubmitting()">
+            @if (formSubmitting()) {
+              <mat-icon class="animate-spin mr-2">refresh</mat-icon>
+              {{ editingTeam() ? 'Updating...' : 'Creating...' }}
+            } @else {
+              {{ editingTeam() ? 'Update Team' : 'Create Team' }}
+            }
+          </button>
+        </mat-card-actions>
+      </form>
+    </mat-card>
+  </div>
+}
