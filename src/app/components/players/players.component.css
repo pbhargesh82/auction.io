@@ -1,0 +1,106 @@
+/* Players Component Styles */
+
+/* Success snackbar styling */
+::ng-deep .success-snackbar {
+  background-color: #4CAF50 !important;
+  color: white !important;
+}
+
+/* Error snackbar styling */
+::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+/* Table hover effects */
+.mat-mdc-row:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Custom chip styling */
+.mat-mdc-chip {
+  font-size: 0.75rem;
+  height: 24px;
+}
+
+/* Modal overlay */
+.fixed.inset-0 {
+  backdrop-filter: blur(4px);
+}
+
+/* Form modal styling */
+.bg-white.rounded-lg {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Statistics cards */
+.mat-mdc-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon colors for statistics */
+.text-blue-500 {
+  color: #3b82f6;
+}
+
+.text-green-500 {
+  color: #10b981;
+}
+
+.text-orange-500 {
+  color: #f59e0b;
+}
+
+.text-purple-500 {
+  color: #8b5cf6;
+}
+
+/* Player avatar fallback */
+.rounded-full.bg-blue-500 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Status chip colors */
+.bg-blue-100 {
+  background-color: #dbeafe;
+}
+
+.text-blue-800 {
+  color: #1e40af;
+}
+
+.bg-green-100 {
+  background-color: #dcfce7;
+}
+
+.text-green-800 {
+  color: #166534;
+}
+
+.bg-red-100 {
+  background-color: #fee2e2;
+}
+
+.text-red-800 {
+  color: #991b1b;
+}
+
+/* Loading spinner */
+.mat-mdc-progress-spinner {
+  margin: 0 auto;
+}
+
+/* Form field improvements */
+.mat-mdc-form-field {
+  margin-bottom: 8px;
+}
+
+/* Button spacing */
+.space-x-1 > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 0.25rem;
+}
+
+.space-x-3 > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 0.75rem;
+} 

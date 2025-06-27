@@ -2,20 +2,18 @@ import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
+import { TeamsService, Team } from '../../services/teams.service';
+import { PlayersService, Player } from '../../services/players.service';
 
-interface AuctionStats {
-  totalAuctions: number;
-  activeAuctions: number;
-  completedAuctions: number;
-  totalBids: number;
+interface PlayerStats {
+  totalPlayers: number;
+  soldPlayers: number;
+  availablePlayers: number;
+  totalBasePrice: number;
 }
 
-interface RecentAuction {
-  id: string;
-  title: string;
-  endDate: Date;
-  currentBid: number;
-  status: 'active' | 'completed' | 'pending';
+interface TeamWithPlayers extends Team {
+  players: Player[];
 }
 
 @Component({
@@ -29,13 +27,8 @@ export class DashboardComponent implements OnInit {
   // Signals for reactive state management
   loading = signal(true);
   user = signal<any>(null);
-  stats = signal<AuctionStats>({
-    totalAuctions: 0,
-    activeAuctions: 0,
-    completedAuctions: 0,
-    totalBids: 0
-  });
-  recentAuctions = signal<RecentAuction[]>([]);
+  teams = signal<TeamWithPlayers[]>([]);
+  players = signal<Player[]>([]);
   error = signal<string | null>(null);
 
   // Computed signals
@@ -48,8 +41,36 @@ export class DashboardComponent implements OnInit {
     return 'Welcome to your dashboard!';
   });
 
+  playerStats = computed((): PlayerStats => {
+    const allPlayers = this.players();
+    const playersOnTeams = this.teams().reduce((sum, team) => sum + team.players.length, 0);
+    const soldPlayers = allPlayers.filter(p => p.is_sold).length;
+    const availablePlayers = Math.max(0, allPlayers.length - playersOnTeams);
+    
+    return {
+      totalPlayers: allPlayers.length,
+      soldPlayers: soldPlayers,
+      availablePlayers: availablePlayers,
+      totalBasePrice: allPlayers.reduce((sum, p) => sum + p.base_price, 0)
+    };
+  });
+
+  totalBudgetSpent = computed(() => 
+    this.teams().reduce((sum, team) => sum + team.budget_spent, 0)
+  );
+
+  totalBudgetRemaining = computed(() => 
+    this.teams().reduce((sum, team) => sum + (team.budget_cap - team.budget_spent), 0)
+  );
+
+  totalBudgetCap = computed(() =>
+    this.teams().reduce((sum, team) => sum + team.budget_cap, 0)
+  );
+
   constructor(
     private supabaseService: SupabaseService,
+    private teamsService: TeamsService,
+    private playersService: PlayersService,
     private router: Router
   ) {}
 
@@ -71,8 +92,9 @@ export class DashboardComponent implements OnInit {
       
       this.user.set(currentUser);
 
-      // Load mock data for now (replace with real API calls later)
-      await this.loadMockData();
+      // Load teams and players data
+      await this.loadTeamsData();
+      await this.loadPlayersData();
 
     } catch (error: any) {
       this.error.set('Failed to load dashboard data. Please try again.');
@@ -82,87 +104,106 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  private async loadMockData() {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  private async loadTeamsData() {
+    const { data: teamsData, error: teamsError } = await this.teamsService.getTeams();
+    if (teamsError) {
+      console.error('Error loading teams:', teamsError);
+      return;
+    }
 
-    // Mock stats data
-    this.stats.set({
-      totalAuctions: 24,
-      activeAuctions: 8,
-      completedAuctions: 16,
-      totalBids: 156
+    // Initialize teams with empty players arrays
+    const teamsWithPlayers: TeamWithPlayers[] = (teamsData || []).map(team => ({
+      ...team,
+      players: []
+    }));
+
+    this.teams.set(teamsWithPlayers);
+  }
+
+  private async loadPlayersData() {
+    const { data: playersData, error: playersError } = await this.playersService.getPlayers();
+    if (playersError) {
+      console.error('Error loading players:', playersError);
+      return;
+    }
+
+    this.players.set(playersData || []);
+
+    // Group players by team (for now, we'll simulate team assignments)
+    // In a real app, you'd have a team_id field in the players table
+    this.assignPlayersToTeams(playersData || []);
+  }
+
+  private assignPlayersToTeams(players: Player[]) {
+    const teams = this.teams();
+    if (teams.length === 0) return;
+
+    // Simulate player assignments - distribute players among teams
+    const updatedTeams = teams.map((team, index) => {
+      const teamPlayers = players.filter((_, playerIndex) => 
+        playerIndex % teams.length === index
+      );
+      
+      return {
+        ...team,
+        players: teamPlayers,
+        // Update budget spent based on assigned players
+        budget_spent: teamPlayers
+          .filter(p => p.is_sold)
+          .reduce((sum, p) => sum + p.base_price, 0)
+      };
     });
 
-    // Mock recent auctions data
-    this.recentAuctions.set([
-      {
-        id: '1',
-        title: 'Vintage Camera Collection',
-        endDate: new Date(Date.now() + 86400000 * 2), // 2 days from now
-        currentBid: 450,
-        status: 'active'
-      },
-      {
-        id: '2',
-        title: 'Art Supplies Bundle',
-        endDate: new Date(Date.now() + 86400000 * 5), // 5 days from now
-        currentBid: 125,
-        status: 'active'
-      },
-      {
-        id: '3',
-        title: 'Electronics Lot',
-        endDate: new Date(Date.now() - 86400000), // 1 day ago
-        currentBid: 890,
-        status: 'completed'
-      },
-      {
-        id: '4',
-        title: 'Furniture Set',
-        endDate: new Date(Date.now() + 86400000 * 7), // 7 days from now
-        currentBid: 0,
-        status: 'pending'
-      }
-    ]);
+    this.teams.set(updatedTeams);
   }
 
-  onCreateAuction() {
-    // Navigate to create auction page (to be implemented)
-    alert('Create auction feature coming soon!');
+  navigateToTeams() {
+    this.router.navigate(['/teams']);
   }
 
-  onViewAuction(auctionId: string) {
-    // Navigate to auction details (to be implemented)
-    alert(`View auction ${auctionId} - coming soon!`);
+  navigateToPlayers() {
+    this.router.navigate(['/players']);
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'active':
-        return 'text-green-600 bg-green-100';
-      case 'completed':
-        return 'text-gray-600 bg-gray-100';
-      case 'pending':
-        return 'text-yellow-600 bg-yellow-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
+  startAuction() {
+    // Navigate to auction page (to be implemented)
+    // For now, show a confirmation dialog
+    if (confirm('Are you ready to start the auction? Make sure all teams and players are configured properly.')) {
+      // TODO: Navigate to auction control panel
+      alert('Auction feature coming soon! This will redirect to the auction control panel.');
     }
   }
 
+  getBudgetPercentage(team: TeamWithPlayers): number {
+    if (team.budget_cap === 0) return 0;
+    return Math.round((team.budget_spent / team.budget_cap) * 100);
+  }
+
+  getTeamStatusColor(team: TeamWithPlayers): string {
+    if (!team.is_active) return 'bg-red-100 text-red-800';
+    
+    const budgetUsed = this.getBudgetPercentage(team);
+    if (budgetUsed > 80) return 'bg-yellow-100 text-yellow-800';
+    if (budgetUsed > 50) return 'bg-blue-100 text-blue-800';
+    return 'bg-green-100 text-green-800';
+  }
+
+  getPlayerStatusColor(player: Player): string {
+    if (player.is_sold) return 'bg-green-100 text-green-800';
+    if (!player.is_active) return 'bg-red-100 text-red-800';
+    return 'bg-blue-100 text-blue-800';
+  }
+
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(amount);
   }
 
-  formatDate(date: Date): string {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+  formatNumber(num: number): string {
+    return new Intl.NumberFormat('en-IN').format(num);
   }
 } 

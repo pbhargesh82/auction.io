@@ -55,6 +55,7 @@ export class TeamsComponent implements OnInit {
   // Form
   teamForm: FormGroup;
   formSubmitting = signal(false);
+  formValid = signal(false);
 
   // Computed values
   filteredTeams = computed(() => {
@@ -96,12 +97,9 @@ export class TeamsComponent implements OnInit {
     this.filteredTeams().length > 0 && 
     this.selectedTeams().size === this.filteredTeams().length
   );
-  isFormValid = computed(() => this.teamForm?.valid || false);
+  isFormValid = computed(() => this.formValid());
 
-  // Statistics computed properties
-  activeTeamsCount = computed(() => this.teams().filter(t => t.is_active).length);
-  totalPlayersCount = computed(() => this.teams().reduce((sum, t) => sum + t.players_count, 0));
-  totalBudget = computed(() => this.teams().reduce((sum, t) => sum + t.budget_cap, 0));
+
 
   // Table configuration
   displayedColumns: string[] = ['select', 'name', 'colors', 'budget', 'players', 'status', 'created', 'actions'];
@@ -127,6 +125,15 @@ export class TeamsComponent implements OnInit {
     this.teams = this.teamsService.teams;
     this.loading = this.teamsService.loading;
     this.error = this.teamsService.error;
+    
+    // Subscribe to form changes to update validity signal
+    this.teamForm.statusChanges.subscribe(() => {
+      this.formValid.set(this.teamForm.valid);
+    });
+    
+    this.teamForm.valueChanges.subscribe(() => {
+      this.formValid.set(this.teamForm.valid);
+    });
   }
 
   async ngOnInit() {
@@ -144,7 +151,8 @@ export class TeamsComponent implements OnInit {
   // Form operations
   openCreateForm() {
     this.editingTeam.set(null);
-    this.teamForm.reset({
+    this.teamForm.reset();
+    this.teamForm.patchValue({
       name: '',
       short_name: '',
       logo_url: '',
@@ -153,6 +161,9 @@ export class TeamsComponent implements OnInit {
       budget_cap: 10000000,
       max_players: 25
     });
+    this.teamForm.markAsUntouched();
+    this.teamForm.updateValueAndValidity();
+    this.formValid.set(this.teamForm.valid);
     this.showForm.set(true);
   }
 

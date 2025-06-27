@@ -1,0 +1,102 @@
+/* Team Roster Component Styles */
+
+/* Dropdown animation */
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+/* Smooth hover transitions */
+.team-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Player card hover effects */
+.player-card {
+  transition: all 0.2s ease;
+}
+
+.player-card:hover {
+  background-color: rgba(249, 250, 251, 0.8);
+  border-left: 4px solid #4f46e5;
+}
+
+/* Custom scrollbar for dropdown */
+.dropdown-menu {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 3px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Team color accent */
+.team-accent {
+  position: relative;
+}
+
+.team-accent::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--team-color);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Status indicators */
+.status-active {
+  position: relative;
+}
+
+.status-active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: #10b981;
+  border-radius: 50%;
+}
+
+/* Budget progress bar animations */
+.budget-progress {
+  transition: width 0.8s ease-in-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .team-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .budget-grid {
+    grid-template-columns: 1fr;
+  }
+} 

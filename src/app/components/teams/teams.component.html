@@ -1,23 +1,25 @@
-<div class="p-6 bg-gray-50 min-h-screen">
+<div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
   <!-- Header Section -->
-  <div class="mb-8">
+  <div class="mb-6 lg:mb-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Teams Management</h1>
-        <p class="mt-2 text-sm text-gray-700">Manage your auction teams, budgets, and player rosters</p>
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900">Teams Management</h1>
+        <p class="mt-2 text-sm lg:text-base text-gray-700">Manage your auction teams, budgets, and player rosters</p>
       </div>
       <div class="mt-4 sm:mt-0">
         <button 
           mat-raised-button 
           color="primary"
           (click)="openCreateForm()"
-          class="inline-flex items-center">
+          class="inline-flex items-center min-h-[48px] px-4 py-2 text-sm lg:text-base">
           <mat-icon>add</mat-icon>
           Add New Team
         </button>
       </div>
     </div>
   </div>
+
+
 
   <!-- Error Display -->
   @if (error()) {
@@ -38,28 +40,30 @@
   }
 
   <!-- Search and Filters -->
-  <mat-card class="mb-6">
-    <mat-card-content>
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div class="flex-1 max-w-lg">
+  <mat-card class="mb-4 lg:mb-6">
+    <mat-card-content class="p-4 lg:p-6">
+      <div class="space-y-4">
+        <div class="w-full">
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Search teams</mat-label>
+            <mat-label>Search</mat-label>
             <input matInput 
                    (input)="onSearch($event)"
-                   placeholder="Search by name, short name, or color">
+                   placeholder="Search by name, short name, or color"
+                   class="text-sm lg:text-base">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
         </div>
         
         @if (selectedCount() > 0) {
-          <div class="flex items-center space-x-3">
+          <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
             <mat-chip-set>
               <mat-chip>{{ selectedCount() }} selected</mat-chip>
             </mat-chip-set>
             <button 
               mat-raised-button 
               color="warn"
-              (click)="deleteSelectedTeams()">
+              (click)="deleteSelectedTeams()"
+              class="min-h-[40px] text-sm">
               <mat-icon>delete</mat-icon>
               Delete Selected
             </button>
@@ -240,58 +244,7 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Teams Statistics -->
-  @if (teams().length > 0) {
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-      <mat-card>
-        <mat-card-content>
-          <div class="flex items-center">
-            <mat-icon class="text-2xl text-gray-400 mr-4">groups</mat-icon>
-            <div>
-              <div class="text-sm font-medium text-gray-500">Total Teams</div>
-              <div class="text-2xl font-bold text-gray-900">{{ teams().length }}</div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
 
-      <mat-card>
-        <mat-card-content>
-          <div class="flex items-center">
-            <mat-icon class="text-2xl text-green-500 mr-4">check_circle</mat-icon>
-            <div>
-              <div class="text-sm font-medium text-gray-500">Active Teams</div>
-              <div class="text-2xl font-bold text-gray-900">{{ activeTeamsCount() }}</div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-content>
-          <div class="flex items-center">
-            <mat-icon class="text-2xl text-blue-500 mr-4">person</mat-icon>
-            <div>
-              <div class="text-sm font-medium text-gray-500">Total Players</div>
-              <div class="text-2xl font-bold text-gray-900">{{ totalPlayersCount() }}</div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-content>
-          <div class="flex items-center">
-            <mat-icon class="text-2xl text-yellow-500 mr-4">attach_money</mat-icon>
-            <div>
-              <div class="text-sm font-medium text-gray-500">Total Budget</div>
-              <div class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalBudget()) }}</div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  }
 </div>
 
 <!-- Team Form Modal -->
@@ -389,18 +342,27 @@
             [disabled]="formSubmitting()">
             Cancel
           </button>
-          <button 
-            mat-raised-button 
-            color="primary"
-            type="submit"
-            [disabled]="!isFormValid() || formSubmitting()">
-            @if (formSubmitting()) {
+          
+          <!-- Loading state button -->
+          @if (formSubmitting()) {
+            <button 
+              mat-raised-button 
+              color="primary"
+              type="submit"
+              disabled>
               <mat-icon class="animate-spin mr-2">refresh</mat-icon>
               {{ editingTeam() ? 'Updating...' : 'Creating...' }}
-            } @else {
+            </button>
+          } @else {
+            <!-- Normal state button -->
+            <button 
+              mat-raised-button 
+              color="primary"
+              type="submit"
+              [disabled]="!isFormValid()">
               {{ editingTeam() ? 'Update Team' : 'Create Team' }}
-            }
-          </button>
+            </button>
+          }
         </mat-card-actions>
       </form>
     </mat-card>

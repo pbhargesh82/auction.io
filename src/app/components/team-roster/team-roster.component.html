@@ -1,0 +1,257 @@
+<div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
+  
+  @if (loading()) {
+    <!-- Loading State -->
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center space-y-4">
+        <svg class="animate-spin w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-gray-600">Loading team rosters...</p>
+      </div>
+    </div>
+  } @else if (error()) {
+    <!-- Error State -->
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 lg:p-6">
+      <div class="flex items-center">
+        <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-red-800 font-medium">{{ error() }}</p>
+      </div>
+    </div>
+  } @else {
+    <!-- Team Roster Content -->
+    
+    <!-- Header with Team Selector -->
+    <div class="mb-6 lg:mb-8">
+      <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Team Roster</h2>
+      <p class="text-gray-600 text-sm lg:text-base mb-4">View detailed information about each team and their players</p>
+      
+      <!-- Team Dropdown Selector -->
+      <div class="relative inline-block text-left">
+        <button
+          type="button"
+          (click)="toggleDropdown()"
+          class="inline-flex items-center justify-between w-72 px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+          
+          @if (selectedTeam()) {
+            <div class="flex items-center space-x-3">
+              @if (selectedTeam()!.logo_url) {
+                <img class="w-8 h-8 rounded-full object-cover" [src]="selectedTeam()!.logo_url" [alt]="selectedTeam()!.name">
+              } @else {
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" 
+                     [style.background-color]="selectedTeam()!.primary_color">
+                  {{ selectedTeam()!.name.charAt(0).toUpperCase() }}
+                </div>
+              }
+              <div class="text-left">
+                <p class="font-medium text-gray-900">{{ selectedTeam()!.name }}</p>
+                <p class="text-sm text-gray-500">{{ selectedTeam()!.players.length }} players</p>
+              </div>
+            </div>
+          } @else {
+            <span class="text-gray-500">Select a team...</span>
+          }
+          
+          <svg class="w-5 h-5 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        @if (dropdownOpen()) {
+          <div class="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+            <div class="py-2 max-h-64 overflow-y-auto">
+              @for (team of teams(); track team.id) {
+                <button
+                  (click)="selectTeam(team)"
+                  class="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors">
+                  
+                  @if (team.logo_url) {
+                    <img class="w-8 h-8 rounded-full object-cover" [src]="team.logo_url" [alt]="team.name">
+                  } @else {
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" 
+                         [style.background-color]="team.primary_color">
+                      {{ team.name.charAt(0).toUpperCase() }}
+                    </div>
+                  }
+                  
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">{{ team.name }}</p>
+                    <p class="text-sm text-gray-500">{{ team.players.length }}/{{ team.max_players }} players</p>
+                  </div>
+                  
+                  @if (team.id === selectedTeam()?.id) {
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Team Details -->
+    @if (selectedTeam()) {
+      <div class="space-y-6">
+        
+        <!-- Team Overview Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center space-x-4 mb-6">
+            @if (selectedTeam()!.logo_url) {
+              <img class="w-16 h-16 rounded-full object-cover" [src]="selectedTeam()!.logo_url" [alt]="selectedTeam()!.name">
+            } @else {
+              <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl" 
+                   [style.background-color]="selectedTeam()!.primary_color">
+                {{ selectedTeam()!.name.charAt(0).toUpperCase() }}
+              </div>
+            }
+            
+            <div class="flex-1">
+              <h3 class="text-2xl font-bold text-gray-900">{{ selectedTeam()!.name }}</h3>
+              @if (selectedTeam()!.short_name) {
+                <p class="text-lg text-gray-600">{{ selectedTeam()!.short_name }}</p>
+              }
+              <div class="flex items-center mt-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                      [class]="selectedTeam()!.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                  {{ selectedTeam()!.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Statistics -->
+          @if (selectedTeamStats()) {
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <p class="text-sm font-medium text-blue-600 mb-1">Total Players</p>
+                <p class="text-2xl font-bold text-blue-900">{{ formatNumber(selectedTeamStats()!.totalPlayers) }}</p>
+              </div>
+              <div class="text-center p-4 bg-green-50 rounded-lg">
+                <p class="text-sm font-medium text-green-600 mb-1">Sold Players</p>
+                <p class="text-2xl font-bold text-green-900">{{ formatNumber(selectedTeamStats()!.soldPlayers) }}</p>
+              </div>
+              <div class="text-center p-4 bg-orange-50 rounded-lg">
+                <p class="text-sm font-medium text-orange-600 mb-1">Available</p>
+                <p class="text-2xl font-bold text-orange-900">{{ formatNumber(selectedTeamStats()!.availablePlayers) }}</p>
+              </div>
+              <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <p class="text-sm font-medium text-purple-600 mb-1">Open Spots</p>
+                <p class="text-2xl font-bold text-purple-900">{{ formatNumber(selectedTeamStats()!.openSpots) }}</p>
+              </div>
+            </div>
+
+            <!-- Budget Information -->
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h4 class="text-lg font-semibold text-gray-900 mb-3">Budget Information</h4>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <p class="text-sm text-gray-600">Budget Used</p>
+                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(selectedTeamStats()!.budgetUsed) }}</p>
+                  <p class="text-sm text-gray-500">{{ selectedTeamStats()!.budgetPercentage }}% of budget</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Budget Remaining</p>
+                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(selectedTeamStats()!.budgetRemaining) }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Total Budget</p>
+                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(selectedTeam()!.budget_cap) }}</p>
+                </div>
+              </div>
+              
+              <!-- Budget Progress Bar -->
+              <div class="mt-4">
+                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>Budget Usage</span>
+                  <span>{{ selectedTeamStats()!.budgetPercentage }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div class="h-3 rounded-full transition-all duration-300" 
+                       [class]="selectedTeamStats()!.budgetPercentage > 80 ? 'bg-red-500' : selectedTeamStats()!.budgetPercentage > 50 ? 'bg-yellow-500' : 'bg-green-500'"
+                       [style.width.%]="selectedTeamStats()!.budgetPercentage">
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Players List -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div class="p-6 border-b border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-900">Team Players</h4>
+            <p class="text-sm text-gray-600">{{ selectedTeam()!.players.length }} players assigned to this team</p>
+          </div>
+          
+          @if (selectedTeam()!.players.length > 0) {
+            <div class="divide-y divide-gray-200">
+              @for (player of selectedTeam()!.players; track player.id) {
+                <div class="p-6 hover:bg-gray-50 transition-colors">
+                  <div class="flex items-center space-x-4">
+                    @if (player.image_url) {
+                      <img class="w-12 h-12 rounded-full object-cover" [src]="player.image_url" [alt]="player.name">
+                    } @else {
+                      <div class="w-12 h-12 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
+                        {{ player.name.charAt(0).toUpperCase() }}
+                      </div>
+                    }
+                    
+                    <div class="flex-1">
+                      <h5 class="font-semibold text-gray-900">{{ player.name }}</h5>
+                      <div class="flex items-center space-x-4 text-sm text-gray-600">
+                        <span>{{ player.position }}</span>
+                        <span>{{ player.category }}</span>
+                        @if (player.nationality) {
+                          <span>{{ player.nationality }}</span>
+                        }
+                        @if (player.age) {
+                          <span>{{ player.age }} years</span>
+                        }
+                      </div>
+                    </div>
+                    
+                    <div class="text-right">
+                      <p class="font-semibold text-gray-900">{{ formatCurrency(player.base_price) }}</p>
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ getPlayerStatusColor(player) }}">
+                        {{ getPlayerStatusText(player) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="p-12 text-center">
+              <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">No players assigned</h3>
+              <p class="text-gray-600">This team doesn't have any players assigned yet.</p>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- No Team Selected -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Select a team to view roster</h3>
+        <p class="text-gray-600">Choose a team from the dropdown above to see detailed information.</p>
+      </div>
+    }
+  }
+
+  <!-- Overlay to close dropdown when clicking outside -->
+  @if (dropdownOpen()) {
+    <div class="fixed inset-0 z-5" (click)="closeDropdown()"></div>
+  }
+</div> 
