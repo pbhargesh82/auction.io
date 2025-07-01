@@ -19,47 +19,48 @@
     </div>
   </div>
 
-  <!-- Statistics Cards -->
-  <div class="grid grid-cols-3 gap-2 mb-4">
-    <!-- Active Players -->
-    <mat-card class="shadow-sm">
-      <mat-card-content class="p-3">
-        <div class="flex items-center">
-          <mat-icon class="text-lg text-blue-500 mr-2">sports_cricket</mat-icon>
-          <div>
-            <div class="text-lg font-bold text-gray-900">{{ activePlayersCount() }}</div>
-            <div class="text-xs text-gray-500">Active</div>
+  <!-- Players Statistics -->
+  @if (players().length > 0) {
+    <div class="my-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <mat-card>
+        <mat-card-content class="p-4">
+          <div class="flex items-center">
+            <mat-icon class="text-xl text-blue-500 mr-3">sports_cricket</mat-icon>
+            <div>
+              <div class="text-xl font-bold text-gray-900">{{ activePlayersCount() }}</div>
+              <div class="text-xs text-gray-500">Active Players</div>
+            </div>
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+        </mat-card-content>
+      </mat-card>
 
-    <!-- Sold Players -->
-    <mat-card class="shadow-sm">
-      <mat-card-content class="p-3">
-        <div class="flex items-center">
-          <mat-icon class="text-lg text-green-500 mr-2">check_circle</mat-icon>
-          <div>
-            <div class="text-lg font-bold text-gray-900">{{ soldPlayersCount() }}</div>
-            <div class="text-xs text-gray-500">Sold</div>
+      <mat-card>
+        <mat-card-content class="p-4">
+          <div class="flex items-center">
+            <mat-icon class="text-xl text-green-500 mr-3">check_circle</mat-icon>
+            <div>
+              <div class="text-xl font-bold text-gray-900">{{ soldPlayersCount() }}</div>
+              <div class="text-xs text-gray-500">Sold Players</div>
+            </div>
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+        </mat-card-content>
+      </mat-card>
 
-    <!-- Unsold Players -->
-    <mat-card class="shadow-sm">
-      <mat-card-content class="p-3">
-        <div class="flex items-center">
-          <mat-icon class="text-lg text-orange-500 mr-2">hourglass_empty</mat-icon>
-          <div>
-            <div class="text-lg font-bold text-gray-900">{{ unsoldPlayersCount() }}</div>
-            <div class="text-xs text-gray-500">Available</div>
+      <mat-card>
+        <mat-card-content class="p-4">
+          <div class="flex items-center">
+            <mat-icon class="text-xl text-orange-500 mr-3">hourglass_empty</mat-icon>
+            <div>
+              <div class="text-xl font-bold text-gray-900">{{ unsoldPlayersCount() }}</div>
+              <div class="text-xs text-gray-500">Available Players</div>
+            </div>
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+        </mat-card-content>
+      </mat-card>
+
+
+    </div>
+  }
 
   <!-- Error Display -->
   @if (error()) {
@@ -202,11 +203,7 @@
                 <div class="flex items-center">
                   @if (player.image_url) {
                     <img class="h-10 w-10 rounded-full object-cover mr-4" [src]="player.image_url" [alt]="player.name">
-                  } @else {
-                    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-4">
-                      {{ player.name.charAt(0).toUpperCase() }}
-                    </div>
-                  }
+                  } 
                   <div>
                     <div class="font-medium text-gray-900">{{ player.name }}</div>
                     @if (player.age) {
@@ -234,9 +231,9 @@
               <th mat-header-cell *matHeaderCellDef mat-sort-header="position">Position</th>
               <td mat-cell *matCellDef="let player" class="text-sm">
                 <div class="font-medium">{{ player.position }}</div>
-                @if (player.subcategory) {
+                <!-- @if (player.subcategory) {
                   <div class="text-gray-500">{{ player.subcategory }}</div>
-                }
+                } -->
               </td>
             </ng-container>
 
@@ -315,49 +312,6 @@
       }
     </mat-card-content>
   </mat-card>
-
-  <!-- Players Statistics -->
-  @if (players().length > 0) {
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-      <mat-card>
-        <mat-card-content class="p-4">
-          <div class="flex items-center">
-            <mat-icon class="text-xl text-blue-500 mr-3">sports_cricket</mat-icon>
-            <div>
-              <div class="text-xl font-bold text-gray-900">{{ activePlayersCount() }}</div>
-              <div class="text-xs text-gray-500">Active Players</div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-content class="p-4">
-          <div class="flex items-center">
-            <mat-icon class="text-xl text-green-500 mr-3">check_circle</mat-icon>
-            <div>
-              <div class="text-xl font-bold text-gray-900">{{ soldPlayersCount() }}</div>
-              <div class="text-xs text-gray-500">Sold Players</div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-content class="p-4">
-          <div class="flex items-center">
-            <mat-icon class="text-xl text-orange-500 mr-3">hourglass_empty</mat-icon>
-            <div>
-              <div class="text-xl font-bold text-gray-900">{{ unsoldPlayersCount() }}</div>
-              <div class="text-xs text-gray-500">Available</div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-
-    </div>
-  }
 </div>
 
 <!-- Player Form Modal -->

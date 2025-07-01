@@ -158,6 +158,32 @@
 - [x] **Modern UI/UX**: Beautiful card-based layout with color-coded status indicators
 - [x] **Real-time Data**: Connected to Supabase for live team and player data
 
+### ✅ **BUG FIX (2024-01-15): Player Assignment Issue Resolved**
+- [x] **Fixed Automatic Team Assignment**: Removed simulated player assignment logic in team-roster component
+- [x] **Fixed Dashboard Assignment Logic**: Removed automatic player distribution in dashboard component  
+- [x] **Player Creation Bug**: New players are no longer automatically assigned to any team
+- [x] **Team Roster Logic**: Players now only appear in teams when explicitly assigned through proper database relationships
+- [x] **Dashboard Statistics Fix**: Updated player stats calculation to show correct available/sold counts
+- [x] **Data Integrity**: Eliminated all fake player-team assignments, ensuring accurate team rosters and statistics
+
+### ✅ **AUTHENTICATION FIX (2024-01-15): Session Persistence Resolved**
+- [x] **Fixed Page Refresh Logout**: Users now stay logged in after page refresh/reload
+- [x] **Proper Session Initialization**: Added proper auth state initialization in SupabaseService
+- [x] **Session Persistence**: Configured localStorage storage and auto-refresh for Supabase sessions
+- [x] **Auth Guard Enhancement**: Guard now waits for auth initialization before checking user state
+- [x] **Return URL Support**: Added returnUrl parameter to redirect users back after login
+- [x] **Better UX**: No more unexpected logouts on page refresh or navigation
+
+### ✅ **DATABASE RELATIONSHIPS FIX (2024-01-15): Proper Team-Player Assignments**
+- [x] **Created TeamPlayersService**: New service to handle team_players table relationships
+- [x] **Fixed Sold Players Logic**: Replaced fake sold count with actual database queries
+- [x] **Real Team Assignments**: Teams now show only players actually assigned via team_players table
+- [x] **Updated Dashboard Statistics**: Player stats now use real team assignment data
+- [x] **Fixed Players Component**: Sold status based on actual team_players relationships
+- [x] **Fixed Team Roster**: Shows real player assignments from database
+- [x] **Eliminated Fake Data**: Removed all simulated player-team assignment logic
+- [x] **Database Integrity**: System now uses proper relational data for all team-player operations
+
 ---
 
 ## 📅 Phase 5: Polish & Deployment (Days 29-35)

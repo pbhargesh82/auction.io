@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 flex">
+<div class="h-screen bg-gray-50 flex">
   
   <!-- Mobile Menu Overlay -->
   @if (mobileMenuOpen()) {
@@ -50,10 +50,7 @@
               class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
               
               <!-- Icon -->
-              <svg class="flex-shrink-0 w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-500" 
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"/>
-              </svg>
+              <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
               
               <!-- Label and Badge -->
               @if (!sidebarCollapsed()) {
@@ -164,10 +161,7 @@
               (click)="closeMobileMenu()"
               class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
               
-              <svg class="flex-shrink-0 w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-500" 
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"/>
-              </svg>
+              <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
               
               <div class="flex items-center justify-between w-full">
                 <span>{{ item.label }}</span>

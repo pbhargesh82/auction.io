@@ -2,6 +2,7 @@ import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PlayersService, Player, CreatePlayerData, UpdatePlayerData } from '../../services/players.service';
+import { TeamPlayersService } from '../../services/team-players.service';
 
 // Angular Material imports
 import { MatTableModule } from '@angular/material/table';
@@ -55,6 +56,7 @@ export class PlayersComponent implements OnInit {
   sortDirection = signal<'asc' | 'desc'>('asc');
   filterCategory = signal<string>('');
   filterPosition = signal<string>('');
+  soldPlayerIds = signal<string[]>([]);
 
   // Form
   playerForm: FormGroup;
@@ -124,16 +126,15 @@ export class PlayersComponent implements OnInit {
   // Statistics computed properties
   activePlayersCount = computed(() => this.players().filter(p => p.is_active).length);
   soldPlayersCount = computed(() => {
-    // Players are considered sold if they have been assigned to teams
-    // For now, we'll simulate the assignment logic that distributes all active players among teams
-    const activePlayers = this.players().filter(p => p.is_active);
-    return activePlayers.length; // All active players are assigned to teams
+    // Players are considered sold if they are assigned to teams in the team_players table
+    const soldIds = this.soldPlayerIds();
+    return this.players().filter(p => soldIds.includes(p.id)).length;
   });
   unsoldPlayersCount = computed(() => {
-    // Available players = Total players - Players assigned to teams
-    const totalPlayers = this.players().filter(p => p.is_active).length;
-    const soldPlayers = this.soldPlayersCount();
-    return Math.max(0, totalPlayers - soldPlayers);
+    // Available players = Active players - Players assigned to teams
+    const activePlayers = this.players().filter(p => p.is_active);
+    const soldIds = this.soldPlayerIds();
+    return activePlayers.filter(p => !soldIds.includes(p.id)).length;
   });
 
   // Table configuration
@@ -142,6 +143,7 @@ export class PlayersComponent implements OnInit {
 
   constructor(
     private playersService: PlayersService,
+    private teamPlayersService: TeamPlayersService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
@@ -175,6 +177,7 @@ export class PlayersComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadPlayers();
+    await this.loadSoldPlayers();
   }
 
   // Data operations
@@ -182,6 +185,15 @@ export class PlayersComponent implements OnInit {
     const { error } = await this.playersService.getPlayers();
     if (error) {
       console.error('Error loading players:', error);
+    }
+  }
+
+  async loadSoldPlayers() {
+    const { data: soldIds, error } = await this.teamPlayersService.getSoldPlayers();
+    if (error) {
+      console.error('Error loading sold players:', error);
+    } else {
+      this.soldPlayerIds.set(soldIds || []);
     }
   }
 
@@ -401,13 +413,15 @@ export class PlayersComponent implements OnInit {
   }
 
   getStatusColor(player: Player): string {
-    if (player.is_sold) return 'accent';
+    const soldIds = this.soldPlayerIds();
+    if (soldIds.includes(player.id)) return 'accent';
     if (!player.is_active) return 'warn';
     return 'primary';
   }
 
   getStatusText(player: Player): string {
-    if (player.is_sold) return 'Sold';
+    const soldIds = this.soldPlayerIds();
+    if (soldIds.includes(player.id)) return 'Sold';
     if (!player.is_active) return 'Inactive';
     return 'Available';
   }

@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { TeamsService, Team } from '../../services/teams.service';
 import { PlayersService, Player } from '../../services/players.service';
+import { TeamPlayersService } from '../../services/team-players.service';
+import { MatIconModule } from '@angular/material/icon';
 
 interface PlayerStats {
   totalPlayers: number;
@@ -19,7 +21,7 @@ interface TeamWithPlayers extends Team {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -29,6 +31,7 @@ export class DashboardComponent implements OnInit {
   user = signal<any>(null);
   teams = signal<TeamWithPlayers[]>([]);
   players = signal<Player[]>([]);
+  soldPlayerIds = signal<string[]>([]);
   error = signal<string | null>(null);
 
   // Computed signals
@@ -43,9 +46,9 @@ export class DashboardComponent implements OnInit {
 
   playerStats = computed((): PlayerStats => {
     const allPlayers = this.players();
-    const playersOnTeams = this.teams().reduce((sum, team) => sum + team.players.length, 0);
-    const soldPlayers = allPlayers.filter(p => p.is_sold).length;
-    const availablePlayers = Math.max(0, allPlayers.length - playersOnTeams);
+    const soldIds = this.soldPlayerIds();
+    const soldPlayers = allPlayers.filter(p => soldIds.includes(p.id)).length;
+    const availablePlayers = allPlayers.filter(p => p.is_active && !soldIds.includes(p.id)).length;
     
     return {
       totalPlayers: allPlayers.length,
@@ -71,6 +74,7 @@ export class DashboardComponent implements OnInit {
     private supabaseService: SupabaseService,
     private teamsService: TeamsService,
     private playersService: PlayersService,
+    private teamPlayersService: TeamPlayersService,
     private router: Router
   ) {}
 
@@ -95,6 +99,7 @@ export class DashboardComponent implements OnInit {
       // Load teams and players data
       await this.loadTeamsData();
       await this.loadPlayersData();
+      await this.loadSoldPlayersData();
 
     } catch (error: any) {
       this.error.set('Failed to load dashboard data. Please try again.');
@@ -128,33 +133,23 @@ export class DashboardComponent implements OnInit {
     }
 
     this.players.set(playersData || []);
+  }
 
-    // Group players by team (for now, we'll simulate team assignments)
-    // In a real app, you'd have a team_id field in the players table
-    this.assignPlayersToTeams(playersData || []);
+  private async loadSoldPlayersData() {
+    const { data: soldIds, error } = await this.teamPlayersService.getSoldPlayers();
+    if (error) {
+      console.error('Error loading sold players:', error);
+    } else {
+      this.soldPlayerIds.set(soldIds || []);
+    }
   }
 
   private assignPlayersToTeams(players: Player[]) {
-    const teams = this.teams();
-    if (teams.length === 0) return;
-
-    // Simulate player assignments - distribute players among teams
-    const updatedTeams = teams.map((team, index) => {
-      const teamPlayers = players.filter((_, playerIndex) => 
-        playerIndex % teams.length === index
-      );
-      
-      return {
-        ...team,
-        players: teamPlayers,
-        // Update budget spent based on assigned players
-        budget_spent: teamPlayers
-          .filter(p => p.is_sold)
-          .reduce((sum, p) => sum + p.base_price, 0)
-      };
-    });
-
-    this.teams.set(updatedTeams);
+    // No automatic assignment - players should only be assigned through proper auction process
+    // Teams will remain empty until players are explicitly assigned via team_players table
+    
+    // Keep teams as they are - no simulated assignments
+    // Budget spent should come from actual database data, not simulated assignments
   }
 
   navigateToTeams() {
@@ -189,7 +184,8 @@ export class DashboardComponent implements OnInit {
   }
 
   getPlayerStatusColor(player: Player): string {
-    if (player.is_sold) return 'bg-green-100 text-green-800';
+    const soldIds = this.soldPlayerIds();
+    if (soldIds.includes(player.id)) return 'bg-green-100 text-green-800';
     if (!player.is_active) return 'bg-red-100 text-red-800';
     return 'bg-blue-100 text-blue-800';
   }

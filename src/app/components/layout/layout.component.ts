@@ -2,10 +2,11 @@ import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
+import { MatIconModule } from '@angular/material/icon';
 
 interface MenuItem {
   label: string;
-  icon: string;
+  icon: string; // Material icon name
   route: string;
   badge?: number;
 }
@@ -13,7 +14,7 @@ interface MenuItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
 })
@@ -27,22 +28,22 @@ export class LayoutComponent {
   menuItems: MenuItem[] = [
     {
       label: 'Dashboard',
-      icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z M3 7l9 6 9-6',
+      icon: 'dashboard',
       route: '/dashboard'
     },
     {
       label: 'Team Roster',
-      icon: 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z',
+      icon: 'groups',
       route: '/team-roster'
     },
     {
       label: 'Teams',
-      icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75 M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+      icon: 'flag',
       route: '/teams'
     },
     {
       label: 'Players',
-      icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0z M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+      icon: 'sports_cricket',
       route: '/players'
     }
   ];

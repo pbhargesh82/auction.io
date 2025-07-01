@@ -5,10 +5,7 @@
     <!-- Loading State -->
     <div class="flex items-center justify-center py-12">
       <div class="flex flex-col items-center space-y-4">
-        <svg class="animate-spin w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
+        <mat-icon fontSize="32" class="animate-spin text-indigo-600">autorenew</mat-icon>
         <p class="text-gray-600">Loading your dashboard...</p>
       </div>
     </div>
@@ -16,9 +13,7 @@
     <!-- Error State -->
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 lg:p-6">
       <div class="flex items-center">
-        <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
+        <mat-icon fontSize="24" class="text-red-600 mr-3">error</mat-icon>
         <p class="text-red-800 font-medium">{{ error() }}</p>
       </div>
     </div>
@@ -42,9 +37,7 @@
             <p class="text-xs text-gray-500 mt-1">Registered</p>
           </div>
           <div class="w-8 h-8 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center self-start lg:self-auto">
-            <svg class="w-4 h-4 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-            </svg>
+            <mat-icon fontSize="32" [style.color]="'#1e40af'">sports_cricket</mat-icon>
           </div>
         </div>
       </div>
@@ -58,9 +51,7 @@
             <p class="text-xs text-green-500 mt-1">Auctioned</p>
           </div>
           <div class="w-8 h-8 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center self-start lg:self-auto">
-            <svg class="w-4 h-4 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            <mat-icon fontSize="32" [style.color]="'#166534'">check_circle</mat-icon>
           </div>
         </div>
       </div>
@@ -74,9 +65,7 @@
             <p class="text-xs text-orange-500 mt-1">For auction</p>
           </div>
           <div class="w-8 h-8 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center self-start lg:self-auto">
-            <svg class="w-4 h-4 lg:w-6 lg:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            <mat-icon fontSize="32" [style.color]="'#9a3412'">hourglass_empty</mat-icon>
           </div>
         </div>
       </div>
@@ -90,25 +79,19 @@
         <button 
           (click)="startAuction()"
           class="bg-green-600 hover:bg-green-700 text-white px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px] shadow-lg">
-          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M19 10a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+          <mat-icon fontSize="24" class="flex-shrink-0">gavel</mat-icon>
           <span>Start Auction</span>
         </button>
         <button 
           (click)="navigateToTeams()"
           class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px]">
-          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
+          <mat-icon fontSize="24" class="flex-shrink-0">groups</mat-icon>
           <span>Manage Teams</span>
         </button>
         <button 
           (click)="navigateToPlayers()"
           class="bg-white hover:bg-gray-50 text-gray-700 px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium border border-gray-300 transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px]">
-          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-          </svg>
+          <mat-icon fontSize="24" class="flex-shrink-0">sports_cricket</mat-icon>
           <span>Manage Players</span>
         </button>
       </div>
@@ -123,9 +106,7 @@
       
       @if (teams().length === 0) {
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-          <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
+          <mat-icon fontSize="64" class="text-gray-400 mx-auto mb-4">groups</mat-icon>
           <h3 class="text-lg font-medium text-gray-900 mb-2">No teams found</h3>
           <p class="text-gray-600 mb-6">Get started by creating your first team.</p>
           <button 
@@ -268,7 +249,7 @@
     </div>
 
     <!-- Budget Summary -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6">
+    <!-- <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Budget Summary</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                  <div class="text-center p-4 bg-blue-50 rounded-lg">
@@ -286,6 +267,6 @@
           <p class="text-2xl font-bold text-orange-900">{{ formatCurrency(totalBudgetRemaining()) }}</p>
         </div>
       </div>
-    </div>
+    </div> -->
   }
 </div> 

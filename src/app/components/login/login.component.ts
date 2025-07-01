@@ -2,7 +2,7 @@ import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -40,7 +40,8 @@ export class LoginComponent {
 
   constructor(
     private supabaseService: SupabaseService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     // Listen to form changes to trigger validation updates
     this.loginForm.valueChanges.subscribe(() => {
@@ -81,7 +82,9 @@ export class LoginComponent {
         this.loginError.set(this.getErrorMessage(error.message));
       } else {
         console.log('Login successful!');
-        this.router.navigate(['/dashboard']);
+        // Redirect to returnUrl if it exists, otherwise go to dashboard
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+        this.router.navigate([returnUrl]);
       }
     } catch (error: any) {
       console.error('Unexpected login error:', error);

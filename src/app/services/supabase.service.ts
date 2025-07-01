@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -9,12 +10,30 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class SupabaseService {
   private supabase: SupabaseClient;
   private _currentUser: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
+  private _initialized = false;
 
   constructor() {
     this.supabase = createClient(
       environment.supabase.url,
-      environment.supabase.anonKey
+      environment.supabase.anonKey,
+      {
+        auth: {
+          storage: window.localStorage,
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: false
+        }
+      }
     );
+
+    this.initializeAuth();
+  }
+
+  private async initializeAuth() {
+    // Get the current session on initialization
+    const { data: { session } } = await this.supabase.auth.getSession();
+    this._currentUser.next(session?.user ?? null);
+    this._initialized = true;
 
     // Listen to auth changes
     this.supabase.auth.onAuthStateChange((event, session) => {
@@ -28,6 +47,25 @@ export class SupabaseService {
 
   get currentUserValue(): User | null {
     return this._currentUser.value;
+  }
+
+  // Wait for auth initialization to complete
+  async waitForAuthInitialization(): Promise<User | null> {
+    if (this._initialized) {
+      return this._currentUser.value;
+    }
+    
+    // Wait for the first emission after initialization
+    return firstValueFrom(
+      this._currentUser.pipe(
+        filter(() => this._initialized),
+        take(1)
+      )
+    );
+  }
+
+  get isInitialized(): boolean {
+    return this._initialized;
   }
 
   // Auth methods

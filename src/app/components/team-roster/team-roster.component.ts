@@ -2,6 +2,7 @@ import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TeamsService, Team } from '../../services/teams.service';
 import { PlayersService, Player } from '../../services/players.service';
+import { TeamPlayersService } from '../../services/team-players.service';
 
 interface TeamWithPlayers extends Team {
   players: Player[];
@@ -29,8 +30,8 @@ export class TeamRosterComponent implements OnInit {
     
     return {
       totalPlayers: team.players.length,
-      soldPlayers: team.players.filter(p => p.is_sold).length,
-      availablePlayers: team.players.filter(p => !p.is_sold && p.is_active).length,
+      soldPlayers: team.players.length, // All players in team are sold
+      availablePlayers: 0, // No available players in team roster (they're all assigned to this team)
       openSpots: team.max_players - team.players.length,
       budgetUsed: team.budget_spent,
       budgetRemaining: team.budget_cap - team.budget_spent,
@@ -40,7 +41,8 @@ export class TeamRosterComponent implements OnInit {
 
   constructor(
     private teamsService: TeamsService,
-    private playersService: PlayersService
+    private playersService: PlayersService,
+    private teamPlayersService: TeamPlayersService
   ) {}
 
   async ngOnInit() {
@@ -56,15 +58,16 @@ export class TeamRosterComponent implements OnInit {
       const { data: teamsData, error: teamsError } = await this.teamsService.getTeams();
       if (teamsError) throw teamsError;
 
-      // Load players
-      const { data: playersData, error: playersError } = await this.playersService.getPlayers();
-      if (playersError) throw playersError;
+      // Load team-player assignments
+      const { data: teamPlayersData, error: teamPlayersError } = await this.teamPlayersService.getTeamPlayers();
+      if (teamPlayersError) throw teamPlayersError;
 
-      // Group players by team (simulated assignment)
-      const teamsWithPlayers: TeamWithPlayers[] = (teamsData || []).map((team, index) => {
-        const teamPlayers = (playersData || []).filter((_, playerIndex) => 
-          playerIndex % (teamsData?.length || 1) === index
-        );
+      // Group players by team using actual database relationships
+      const teamsWithPlayers: TeamWithPlayers[] = (teamsData || []).map(team => {
+        const teamPlayers = (teamPlayersData || [])
+          .filter(tp => tp.team_id === team.id)
+          .map(tp => tp.player)
+          .filter((player): player is Player => player !== undefined) as Player[];
         
         return {
           ...team,
@@ -114,13 +117,21 @@ export class TeamRosterComponent implements OnInit {
   }
 
   getPlayerStatusColor(player: Player): string {
-    if (player.is_sold) return 'bg-green-100 text-green-800';
+    // If player is in a team, they are sold
+    const isInTeam = this.teams().some(team => 
+      team.players.some(p => p.id === player.id)
+    );
+    if (isInTeam) return 'bg-green-100 text-green-800';
     if (!player.is_active) return 'bg-red-100 text-red-800';
     return 'bg-blue-100 text-blue-800';
   }
 
   getPlayerStatusText(player: Player): string {
-    if (player.is_sold) return 'Sold';
+    // If player is in a team, they are sold
+    const isInTeam = this.teams().some(team => 
+      team.players.some(p => p.id === player.id)
+    );
+    if (isInTeam) return 'Sold';
     if (!player.is_active) return 'Inactive';
     return 'Available';
   }
