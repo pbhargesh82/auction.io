@@ -47,10 +47,7 @@ export class TeamsComponent implements OnInit {
   error = signal<string | null>(null);
   showForm = signal(false);
   editingTeam = signal<Team | null>(null);
-  selectedTeams = signal<Set<string>>(new Set());
   searchTerm = signal('');
-  sortField = signal<keyof Team>('name');
-  sortDirection = signal<'asc' | 'desc'>('asc');
 
   // Form
   teamForm: FormGroup;
@@ -61,42 +58,14 @@ export class TeamsComponent implements OnInit {
   filteredTeams = computed(() => {
     const teams = this.teams();
     const search = this.searchTerm().toLowerCase();
-    const field = this.sortField();
-    const direction = this.sortDirection();
 
     // Filter by search term
-    let filtered = teams.filter(team => 
+    return teams.filter(team => 
       team.name.toLowerCase().includes(search) ||
-      (team.short_name?.toLowerCase().includes(search)) ||
-      team.primary_color.toLowerCase().includes(search)
+      (team.short_name?.toLowerCase().includes(search))
     );
-
-    // Sort
-    filtered.sort((a, b) => {
-      const aVal = a[field];
-      const bVal = b[field];
-      
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        const result = aVal.localeCompare(bVal);
-        return direction === 'asc' ? result : -result;
-      }
-      
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        const result = aVal - bVal;
-        return direction === 'asc' ? result : -result;
-      }
-      
-      return 0;
-    });
-
-    return filtered;
   });
 
-  selectedCount = computed(() => this.selectedTeams().size);
-  isAllSelected = computed(() => 
-    this.filteredTeams().length > 0 && 
-    this.selectedTeams().size === this.filteredTeams().length
-  );
   isFormValid = computed(() => this.formValid());
 
 
@@ -248,101 +217,68 @@ export class TeamsComponent implements OnInit {
         duration: 5000, 
         panelClass: ['error-snackbar'] 
       });
-    } else {
-      this.snackBar.open('Team deleted successfully!', 'Close', { 
-        duration: 3000, 
-        panelClass: ['success-snackbar'] 
-      });
     }
   }
 
+  // View team details
+  viewTeam(team: Team) {
+    // In a real app, you might navigate to a detail view
+    this.snackBar.open(`Viewing team: ${team.name}`, 'Close', {
+      duration: 2000
+    });
+  }
+
+  // Edit team - wrapper around openEditForm for template
+  editTeam(team: Team) {
+    this.openEditForm(team);
+  }
+
+  // Confirm delete - wrapper around deleteTeam for template
+  confirmDelete(team: Team) {
+    this.deleteTeam(team);
+  }
+
+  // Toggle team active status
   async toggleTeamStatus(team: Team) {
-    const { error } = await this.teamsService.toggleTeamStatus(team.id);
+    const newStatus = !team.is_active;
+    const { error } = await this.teamsService.updateTeam(team.id, { is_active: newStatus });
+    
     if (error) {
-      this.snackBar.open(`Error updating team status: ${error.message}`, 'Close', { 
-        duration: 5000, 
-        panelClass: ['error-snackbar'] 
+      this.snackBar.open(`Error updating team status: ${error.message}`, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
       });
     } else {
-      this.snackBar.open(`Team ${team.is_active ? 'deactivated' : 'activated'} successfully!`, 'Close', { 
-        duration: 3000, 
-        panelClass: ['success-snackbar'] 
-      });
-    }
-  }
-
-  // Selection operations
-  toggleSelectAll() {
-    const selected = this.selectedTeams();
-    if (this.isAllSelected()) {
-      this.selectedTeams.set(new Set());
-    } else {
-      const allIds = new Set(this.filteredTeams().map(team => team.id));
-      this.selectedTeams.set(allIds);
-    }
-  }
-
-  toggleSelectTeam(teamId: string) {
-    const selected = new Set(this.selectedTeams());
-    if (selected.has(teamId)) {
-      selected.delete(teamId);
-    } else {
-      selected.add(teamId);
-    }
-    this.selectedTeams.set(selected);
-  }
-
-  async deleteSelectedTeams() {
-    const selectedIds = Array.from(this.selectedTeams());
-    if (selectedIds.length === 0) return;
-
-    if (!confirm(`Are you sure you want to delete ${selectedIds.length} selected teams? This action cannot be undone.`)) {
-      return;
-    }
-
-    this.loading.set(true);
-    let errorCount = 0;
-
-    for (const teamId of selectedIds) {
-      const { error } = await this.teamsService.deleteTeam(teamId);
-      if (error) {
-        errorCount++;
-      }
-    }
-
-    this.loading.set(false);
-    this.selectedTeams.set(new Set());
-
-    if (errorCount === 0) {
-      this.snackBar.open(`Successfully deleted ${selectedIds.length} teams.`, 'Close', { 
-        duration: 3000, 
-        panelClass: ['success-snackbar'] 
-      });
-    } else {
-      this.snackBar.open(`Deleted ${selectedIds.length - errorCount} teams. ${errorCount} teams could not be deleted.`, 'Close', { 
-        duration: 5000, 
-        panelClass: ['warning-snackbar'] 
+      this.snackBar.open(`Team ${newStatus ? 'activated' : 'deactivated'} successfully`, 'Close', {
+        duration: 2000
       });
     }
   }
 
-  // Sorting
-  sort(field: keyof Team) {
-    if (this.sortField() === field) {
-      this.sortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
-    } else {
-      this.sortField.set(field);
-      this.sortDirection.set('asc');
-    }
+  // Clear error message
+  clearError() {
+    this.error.set(null);
   }
 
-  // Search
+  // Handle search input
   onSearch(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.searchTerm.set(target.value);
+    const input = event.target as HTMLInputElement;
+    this.searchTerm.set(input.value);
   }
 
-  // Utility methods
+  // Handle primary color input
+  onPrimaryColorInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.teamForm.get('primary_color')?.setValue(input.value);
+  }
+
+  // Handle secondary color input
+  onSecondaryColorInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.teamForm.get('secondary_color')?.setValue(input.value);
+  }
+
+  // Format currency for display
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -352,6 +288,7 @@ export class TeamsComponent implements OnInit {
     }).format(amount);
   }
 
+  // Format date for display
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -360,16 +297,14 @@ export class TeamsComponent implements OnInit {
     });
   }
 
+  // Calculate budget percentage
   getBudgetPercentage(team: Team): number {
+    if (!team.budget_spent || !team.budget_cap) return 0;
     return (team.budget_spent / team.budget_cap) * 100;
   }
 
+  // Get status color class
   getStatusColor(isActive: boolean): string {
-    return isActive ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100';
-  }
-
-  clearError() {
-    this.error.set(null);
-    this.teamsService.clearError();
+    return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
   }
 }
