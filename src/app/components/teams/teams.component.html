@@ -1,4 +1,4 @@
-<div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
+<div class="p-4 lg:p-6 bg-gray-50">
   <!-- Header Section with Search and Action Button -->
   <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <!-- Search Bar -->
@@ -100,9 +100,9 @@
 <!-- Team Form Modal -->
 @if (showForm()) {
   <div class="fixed inset-0 bg-white/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg">
       <!-- Modal Header -->
-      <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
+      <div class="bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-gray-900">
             {{ editingTeam() ? 'Edit Team' : 'Create New Team' }}
