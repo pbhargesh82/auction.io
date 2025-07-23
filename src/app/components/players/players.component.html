@@ -1,96 +1,89 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-  <!-- Header Section -->
-  <div class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div class="mb-4 sm:mb-0">
-          <h1 class="text-3xl font-bold text-gray-900">Players Management</h1>
-          <p class="mt-2 text-gray-600">Manage your player pool, categories, and auction readiness</p>
-        </div>
+<div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
+  <!-- Header Section with Search and Action Button -->
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Search Bar -->
+    <div class="flex-1">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3" style="box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
         <div class="flex items-center space-x-3">
-          <button 
-            mat-raised-button 
-            color="primary"
-            (click)="openCreateForm()"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-            <mat-icon class="mr-2">add</mat-icon>
-            Add New Player
-          </button>
+          <mat-icon class="text-gray-400">search</mat-icon>
+          <input 
+            type="text"
+            (input)="onSearch($event)"
+            placeholder="Search players by name, category, or position..."
+            class="flex-1 border-none outline-none text-sm placeholder-gray-500 bg-transparent">
         </div>
       </div>
+    </div>
+    
+    <!-- Action Button -->
+    <div class="flex-shrink-0">
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="openCreateForm()"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+        <mat-icon class="mr-2">add</mat-icon>
+        Add New Player
+      </button>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Error State -->
-    @if (error()) {
-      <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-        <div class="flex items-center">
-          <mat-icon class="text-red-400 mr-3">error</mat-icon>
-          <div class="flex-1">
-            <h3 class="text-sm font-medium text-red-800">Error</h3>
-            <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
-          </div>
-          <button mat-icon-button (click)="clearError()" class="text-red-500 hover:text-red-700">
-            <mat-icon>close</mat-icon>
-          </button>
+  <!-- Error State -->
+  @if (error()) {
+    <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="flex items-center">
+        <mat-icon class="text-red-400 mr-3">error</mat-icon>
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-red-800">Error</h3>
+          <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
         </div>
-      </div>
-    }
-
-    <!-- Players Statistics -->
-    @if (players().length > 0) {
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-              <mat-icon class="text-blue-600">sports_cricket</mat-icon>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-gray-900">{{ activePlayersCount() }}</div>
-              <div class="text-sm text-gray-500">Active Players</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center">
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-              <mat-icon class="text-green-600">check_circle</mat-icon>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-gray-900">{{ soldPlayersCount() }}</div>
-              <div class="text-sm text-gray-500">Sold Players</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center">
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
-              <mat-icon class="text-orange-600">hourglass_empty</mat-icon>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-gray-900">{{ unsoldPlayersCount() }}</div>
-              <div class="text-sm text-gray-500">Available Players</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- Search and Filters -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-      <div class="flex items-center space-x-3">
-        <mat-icon class="text-gray-400">search</mat-icon>
-        <input 
-          type="text"
-          (input)="onSearch($event)"
-          placeholder="Search players by name, category, or position..."
-          class="flex-1 border-none outline-none text-sm placeholder-gray-500 bg-transparent">
+        <button mat-icon-button (click)="clearError()" class="text-red-500 hover:text-red-700">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
     </div>
+  }
+
+  <!-- Players Statistics -->
+  @if (players().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+            <mat-icon class="text-blue-600">sports_cricket</mat-icon>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-gray-900">{{ activePlayersCount() }}</div>
+            <div class="text-sm text-gray-500">Active Players</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+            <mat-icon class="text-green-600">check_circle</mat-icon>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-gray-900">{{ soldPlayersCount() }}</div>
+            <div class="text-sm text-gray-500">Sold Players</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+            <mat-icon class="text-orange-600">hourglass_empty</mat-icon>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-gray-900">{{ unsoldPlayersCount() }}</div>
+            <div class="text-sm text-gray-500">Available Players</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 
     <!-- Players Grid -->
     @if (loading()) {
@@ -242,7 +235,6 @@
         }
       </div>
     }
-  </div>
 </div>
 
 <!-- Player Form Modal -->

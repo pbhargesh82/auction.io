@@ -1,32 +1,27 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-  <!-- Header Section -->
-  <div class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
+  <!-- Progress and Status Section -->
+  @if (auctionConfig()) {
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div class="mb-4 sm:mb-0">
-          <h1 class="text-3xl font-bold text-gray-900">Auction Control</h1>
-          <p class="mt-2 text-gray-600">Manage the live auction process</p>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">Auction Progress</h2>
+          <p class="text-gray-600">Manage the live auction process</p>
         </div>
-        @if (auctionConfig()) {
-          <div class="flex items-center gap-4">
-            <div class="text-right">
-              <div class="text-sm text-gray-600">Progress</div>
-              <div class="text-lg font-semibold">{{ progressPercentage() }}%</div>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-700">Status:</span>
-              <span [class]="getStatusClass(auctionConfig()!.status)">
-                {{ auctionConfig()!.status }}
-              </span>
-            </div>
+        <div class="flex items-center gap-4">
+          <div class="text-right">
+            <div class="text-sm text-gray-600">Progress</div>
+            <div class="text-lg font-semibold">{{ progressPercentage() }}%</div>
           </div>
-        }
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-gray-700">Status:</span>
+            <span [class]="getStatusClass(auctionConfig()!.status)">
+              {{ auctionConfig()!.status }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  }
     <!-- Error State -->
     @if (error()) {
       <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
@@ -247,45 +242,7 @@
           </div>
         }
 
-        <!-- Recent History -->
-        @if (auctionHistory().length > 0) {
-          <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <!-- History Header -->
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
-              <p class="text-sm text-gray-600 mt-1">Latest auction transactions</p>
-            </div>
 
-            <!-- History Content -->
-            <div class="p-6">
-              <div class="space-y-3 max-h-64 overflow-y-auto">
-                @for (history of auctionHistory().slice(0, 10); track history.id) {
-                  <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div class="flex items-center gap-3">
-                      <mat-icon [class]="history.winning_team_id ? 'text-green-600' : 'text-red-600'">
-                        {{ history.winning_team_id ? 'check_circle' : 'cancel' }}
-                      </mat-icon>
-                      <div>
-                        <div class="font-medium text-gray-900">{{ history.player?.name }}</div>
-                        <div class="text-sm text-gray-600">
-                          {{ history.player?.position }} • {{ history.player?.category }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-right">
-                      @if (history.winning_team_id) {
-                        <div class="font-semibold text-green-600">₹{{ formatNumber(history.final_price) }}</div>
-                        <div class="text-sm text-gray-600">{{ history.team?.name }}</div>
-                      } @else {
-                        <div class="font-semibold text-red-600">Unsold</div>
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
       } @else {
         <!-- No Auction Configuration -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -305,7 +262,6 @@
         </div>
       }
     }
-  </div>
 </div>
 
 <!-- Sell Player Dialog -->

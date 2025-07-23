@@ -1,11 +1,12 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuctionStateService, TeamWithPlayers } from '../../services/auction-state.service';
+import { TeamCardComponent } from '../team-card/team-card.component';
 
 @Component({
   selector: 'app-team-roster',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TeamCardComponent],
   templateUrl: './team-roster.component.html',
   styleUrls: ['./team-roster.component.css']
 })

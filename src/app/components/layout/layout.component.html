@@ -100,6 +100,11 @@
               </svg>
               Sign Out
             </button>
+
+            <!-- Version Display -->
+            <div class="mt-3 pt-3 border-t border-gray-200">
+              <p class="text-xs text-center text-gray-400">{{ appVersion() }}</p>
+            </div>
           } @else {
             <!-- Collapsed User Profile -->
             <div class="flex flex-col items-center space-y-2">
@@ -116,6 +121,11 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
               </button>
+            </div>
+
+            <!-- Version Display (Collapsed) -->
+            <div class="mt-3 pt-3 border-t border-gray-200">
+              <p class="text-xs text-center text-gray-400" [title]="appVersion()">{{ appVersionShort() }}</p>
             </div>
           }
         </div>
@@ -201,6 +211,11 @@
             </svg>
             Sign Out
           </button>
+
+          <!-- Version Display (Mobile) -->
+          <div class="mt-3 pt-3 border-t border-gray-200">
+            <p class="text-xs text-center text-gray-400">{{ appVersion() }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -242,8 +257,7 @@
         <!-- Page Title or Breadcrumb -->
         <div class="flex-1 px-4">
           <h1 class="text-lg font-semibold text-gray-900">
-            <!-- This will be updated based on current route -->
-            Dashboard
+            {{ currentPageTitle() }}
           </h1>
         </div>
       </div>

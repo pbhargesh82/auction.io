@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { AuctionStateService, TeamWithPlayers } from '../../services/auction-state.service';
 import { MatIconModule } from '@angular/material/icon';
+import { TeamCardComponent } from '../team-card/team-card.component';
 
 interface PlayerStats {
   totalPlayers: number;
@@ -15,7 +16,7 @@ interface PlayerStats {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, TeamCardComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })

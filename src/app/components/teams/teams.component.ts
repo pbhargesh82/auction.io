@@ -2,6 +2,7 @@ import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TeamsService, Team, CreateTeamData, UpdateTeamData } from '../../services/teams.service';
+import { TeamWithPlayers } from '../team-card/team-card.component';
 
 // Angular Material imports
 import { MatTableModule } from '@angular/material/table';
@@ -17,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TeamCardComponent } from '../team-card/team-card.component';
 
 @Component({
   selector: 'app-teams',
@@ -35,18 +37,19 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatCardModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    TeamCardComponent
   ],
   templateUrl: './teams.component.html',
   styleUrls: ['./teams.component.css']
 })
 export class TeamsComponent implements OnInit {
   // Signals for reactive state management
-  teams = signal<Team[]>([]);
+  teams = signal<(Team | TeamWithPlayers)[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
   showForm = signal(false);
-  editingTeam = signal<Team | null>(null);
+  editingTeam = signal<Team | TeamWithPlayers | null>(null);
   searchTerm = signal('');
 
   // Form
@@ -136,7 +139,7 @@ export class TeamsComponent implements OnInit {
     this.showForm.set(true);
   }
 
-  openEditForm(team: Team) {
+  openEditForm(team: Team | TeamWithPlayers) {
     this.editingTeam.set(team);
     this.teamForm.patchValue({
       name: team.name,
@@ -206,7 +209,7 @@ export class TeamsComponent implements OnInit {
   }
 
   // Table operations
-  async deleteTeam(team: Team) {
+  async deleteTeam(team: Team | TeamWithPlayers) {
     if (!confirm(`Are you sure you want to delete "${team.name}"? This action cannot be undone.`)) {
       return;
     }
@@ -221,7 +224,7 @@ export class TeamsComponent implements OnInit {
   }
 
   // View team details
-  viewTeam(team: Team) {
+  viewTeam(team: Team | TeamWithPlayers) {
     // In a real app, you might navigate to a detail view
     this.snackBar.open(`Viewing team: ${team.name}`, 'Close', {
       duration: 2000
@@ -229,17 +232,17 @@ export class TeamsComponent implements OnInit {
   }
 
   // Edit team - wrapper around openEditForm for template
-  editTeam(team: Team) {
+  editTeam(team: Team | TeamWithPlayers) {
     this.openEditForm(team);
   }
 
   // Confirm delete - wrapper around deleteTeam for template
-  confirmDelete(team: Team) {
+  confirmDelete(team: Team | TeamWithPlayers) {
     this.deleteTeam(team);
   }
 
   // Toggle team active status
-  async toggleTeamStatus(team: Team) {
+  async toggleTeamStatus(team: Team | TeamWithPlayers) {
     const newStatus = !team.is_active;
     const { error } = await this.teamsService.updateTeam(team.id, { is_active: newStatus });
     
@@ -298,7 +301,7 @@ export class TeamsComponent implements OnInit {
   }
 
   // Calculate budget percentage
-  getBudgetPercentage(team: Team): number {
+  getBudgetPercentage(team: Team | TeamWithPlayers): number {
     if (!team.budget_spent || !team.budget_cap) return 0;
     return (team.budget_spent / team.budget_cap) * 100;
   }

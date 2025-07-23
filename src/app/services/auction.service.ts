@@ -335,6 +335,25 @@ export class AuctionService {
     }
   }
 
+  async clearAuctionHistory(): Promise<{ error: any }> {
+    try {
+      const { error } = await this.supabase.db
+        .from('auction_history')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+
+      if (error) throw error;
+      
+      // Update the subject
+      this.auctionHistorySubject.next([]);
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Error clearing auction history:', error);
+      return { error };
+    }
+  }
+
   // Auction Control Methods
   async startAuction(): Promise<{ data: AuctionConfig | null, error: any }> {
     try {

@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 
-import { AuctionService, AuctionConfig, PlayerQueue, AuctionHistory } from '../../services/auction.service';
+import { AuctionService, AuctionConfig, PlayerQueue } from '../../services/auction.service';
 import { PlayersService, Player } from '../../services/players.service';
 import { TeamsService, Team } from '../../services/teams.service';
 import { AuctionStateService } from '../../services/auction-state.service';
@@ -51,7 +51,7 @@ export class AuctionControlComponent implements OnInit {
   auctionConfig = signal<AuctionConfig | null>(null);
   currentPlayer = signal<any>(null);
   teams = signal<Team[]>([]);
-  auctionHistory = signal<AuctionHistory[]>([]);
+
 
   // Form
   sellForm: FormGroup;
@@ -61,18 +61,18 @@ export class AuctionControlComponent implements OnInit {
 
   // Computed values
   totalPlayers = computed(() => {
-    // Get total players from auction config or player queue
+    // Get total players from auction config
     const config = this.auctionConfig();
     if (config && config.total_players > 0) {
       return config.total_players;
     }
-    // Fallback to counting players in queue
-    return this.auctionHistory().length + this.teams().reduce((total, team) => total + team.players_count, 0);
+    // Fallback to counting players from teams
+    return this.teams().reduce((total, team) => total + team.players_count, 0);
   });
 
   soldPlayers = computed(() => {
-    // Count players that have been sold (have a winning_team_id)
-    return this.auctionHistory().filter(h => h.winning_team_id && h.status === 'SOLD').length;
+    // Count players that have been sold from teams
+    return this.teams().reduce((total, team) => total + team.players_count, 0);
   });
 
   remainingPlayers = computed(() => {
@@ -130,7 +130,6 @@ export class AuctionControlComponent implements OnInit {
     this.auctionConfig.set(this.auctionStateService.auctionConfig());
     this.currentPlayer.set(this.auctionStateService.currentPlayer());
     this.teams.set(this.auctionStateService.teams());
-    this.auctionHistory.set(this.auctionStateService.auctionHistory());
   }
 
   async loadAuctionConfig() {
@@ -188,18 +187,7 @@ export class AuctionControlComponent implements OnInit {
     }
   }
 
-  async loadAuctionHistory() {
-    this.loading.set(true);
-    const { data, error } = await this.auctionService.getAuctionHistory();
-    
-    if (error) {
-      this.error.set(error.message);
-      this.snackBar.open(`Error loading auction history: ${error.message}`, 'Close', { duration: 5000 });
-    } else if (data) {
-      this.auctionHistory.set(data);
-    }
-    this.loading.set(false);
-  }
+
 
   async startAuction() {
     this.loading.set(true);
@@ -248,7 +236,6 @@ export class AuctionControlComponent implements OnInit {
       this.auctionConfig.set(this.auctionStateService.auctionConfig());
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
       this.teams.set(this.auctionStateService.teams());
-      this.auctionHistory.set(this.auctionStateService.auctionHistory());
       
     } catch (error: any) {
       this.error.set(error.message);
@@ -308,7 +295,6 @@ export class AuctionControlComponent implements OnInit {
       
       // Update local signals
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
-      this.auctionHistory.set(this.auctionStateService.auctionHistory());
       this.teams.set(this.auctionStateService.teams());
     } catch (error: any) {
       this.error.set(error.message);
@@ -374,7 +360,6 @@ export class AuctionControlComponent implements OnInit {
       
       // Update local signals
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
-      this.auctionHistory.set(this.auctionStateService.auctionHistory());
       this.teams.set(this.auctionStateService.teams());
       
       this.dialog.closeAll();

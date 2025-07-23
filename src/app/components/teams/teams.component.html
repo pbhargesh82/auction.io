@@ -1,55 +1,48 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-  <!-- Header Section -->
-  <div class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div class="mb-4 sm:mb-0">
-          <h1 class="text-3xl font-bold text-gray-900">Teams</h1>
-          <p class="mt-2 text-gray-600">Manage your auction teams and rosters</p>
-        </div>
+<div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
+  <!-- Header Section with Search and Action Button -->
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Search Bar -->
+    <div class="flex-1">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3" style="box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
         <div class="flex items-center space-x-3">
-          <button 
-            mat-raised-button 
-            color="primary"
-            (click)="openCreateForm()"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-            <mat-icon class="mr-2">add</mat-icon>
-            New Team
-          </button>
+          <mat-icon class="text-gray-400">search</mat-icon>
+          <input 
+            type="text"
+            (input)="onSearch($event)"
+            placeholder="Search teams by name or short name..."
+            class="flex-1 border-none outline-none text-sm placeholder-gray-500 bg-transparent">
         </div>
       </div>
+    </div>
+    
+    <!-- Action Button -->
+    <div class="flex-shrink-0">
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="openCreateForm()"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+        <mat-icon class="mr-2">add</mat-icon>
+        New Team
+      </button>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Error State -->
-    @if (error()) {
-      <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-        <div class="flex items-center">
-          <mat-icon class="text-red-400 mr-3">error</mat-icon>
-          <div class="flex-1">
-            <h3 class="text-sm font-medium text-red-800">Error</h3>
-            <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
-          </div>
-          <button mat-icon-button (click)="clearError()" class="text-red-500 hover:text-red-700">
-            <mat-icon>close</mat-icon>
-          </button>
+  <!-- Error State -->
+  @if (error()) {
+    <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="flex items-center">
+        <mat-icon class="text-red-400 mr-3">error</mat-icon>
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-red-800">Error</h3>
+          <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
         </div>
-      </div>
-    }
-
-    <!-- Search and Filters -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-      <div class="flex items-center space-x-3">
-        <mat-icon class="text-gray-400">search</mat-icon>
-        <input 
-          type="text"
-          (input)="onSearch($event)"
-          placeholder="Search teams by name or short name..."
-          class="flex-1 border-none outline-none text-sm placeholder-gray-500 bg-transparent">
+        <button mat-icon-button (click)="clearError()" class="text-red-500 hover:text-red-700">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
     </div>
+  }
 
     <!-- Teams Grid -->
     @if (loading()) {
@@ -86,105 +79,22 @@
     } @else {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (team of filteredTeams(); track team.id) {
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
-            <!-- Team Header -->
-            <div class="p-4 border-b border-gray-100">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="relative">
-                    <div 
-                      class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base shadow-md"
-                      [style.background]="team.primary_color">
-                      {{ team.short_name || team.name.charAt(0) }}
-                    </div>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <h3 class="text-base font-semibold text-gray-900 truncate">{{ team.name }}</h3>
-                    @if (team.short_name) {
-                      <p class="text-sm text-gray-500">{{ team.short_name }}</p>
-                    }
-                  </div>
-                </div>
-                <!-- Status Badge -->
-                <div 
-                  class="px-2 py-1 rounded-full text-xs font-medium"
-                  [class]="team.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                  {{ team.is_active ? 'Active' : 'Inactive' }}
-                </div>
-              </div>
-            </div>
-
-            <!-- Team Stats -->
-            <div class="p-4 space-y-3">
-              <!-- Budget -->
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-600">Budget</span>
-                <div class="text-right">
-                  <div class="text-sm font-semibold text-gray-900">
-                    {{ formatCurrency(team.budget_spent || 0) }} / {{ formatCurrency(team.budget_cap) }}
-                  </div>
-                  <div class="text-xs text-gray-500">
-                    {{ formatCurrency((team.budget_cap || 0) - (team.budget_spent || 0)) }} remaining
-                  </div>
-                </div>
-              </div>
-
-              <!-- Budget Progress Bar -->
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div 
-                  class="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
-                  [style.width.%]="getBudgetPercentage(team)">
-                </div>
-              </div>
-
-              <!-- Players -->
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-600">Players</span>
-                <div class="text-right">
-                  <div class="text-sm font-semibold text-gray-900">
-                    0 / {{ team.max_players }}
-                  </div>
-                  <div class="text-xs text-gray-500">Max capacity</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="px-4 py-3 bg-gray-50">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-1">
-                  <button 
-                    mat-icon-button 
-                    color="accent"
-                    (click)="editTeam(team)"
-                    matTooltip="Edit team"
-                    class="text-orange-600 hover:text-orange-700 w-8 h-8">
-                    <mat-icon class="text-lg">edit</mat-icon>
-                  </button>
-                  <button 
-                    mat-icon-button 
-                    [color]="team.is_active ? 'warn' : 'primary'"
-                    (click)="toggleTeamStatus(team)"
-                    [matTooltip]="team.is_active ? 'Deactivate team' : 'Activate team'"
-                    class="text-gray-600 hover:text-gray-700 w-8 h-8">
-                    <mat-icon class="text-lg">{{ team.is_active ? 'visibility_off' : 'visibility' }}</mat-icon>
-                  </button>
-                </div>
-                <button 
-                  mat-icon-button 
-                  color="warn"
-                  (click)="confirmDelete(team)"
-                  matTooltip="Delete team"
-                  class="text-red-600 hover:text-red-700 w-8 h-8">
-                  <mat-icon class="text-lg">delete</mat-icon>
-                </button>
-              </div>
-            </div>
-          </div>
+          <app-team-card 
+            [team]="team" 
+            [config]="{ 
+              showPlayers: false, 
+              showActions: true, 
+              showBudgetDetails: true, 
+              showPlayerStats: false, 
+              variant: 'management' 
+            }"
+            (editTeam)="editTeam($event)"
+            (toggleStatus)="toggleTeamStatus($event)"
+            (deleteTeam)="confirmDelete($event)">
+          </app-team-card>
         }
       </div>
     }
-  </div>
 </div>
 
 <!-- Team Form Modal -->
