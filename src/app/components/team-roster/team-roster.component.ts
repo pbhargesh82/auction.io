@@ -1,12 +1,6 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TeamsService, Team } from '../../services/teams.service';
-import { PlayersService, Player } from '../../services/players.service';
-import { TeamPlayersService } from '../../services/team-players.service';
-
-interface TeamWithPlayers extends Team {
-  players: Player[];
-}
+import { AuctionStateService, TeamWithPlayers } from '../../services/auction-state.service';
 
 @Component({
   selector: 'app-team-roster',
@@ -16,91 +10,53 @@ interface TeamWithPlayers extends Team {
   styleUrls: ['./team-roster.component.css']
 })
 export class TeamRosterComponent implements OnInit {
-  // Signals for reactive state management
-  loading = signal(true);
-  teams = signal<TeamWithPlayers[]>([]);
-  selectedTeam = signal<TeamWithPlayers | null>(null);
-  dropdownOpen = signal(false);
-  error = signal<string | null>(null);
+  // Use centralized state service
+  teamsWithPlayers;
+  loading;
+  error;
 
-  // Computed signals
-  selectedTeamStats = computed(() => {
-    const team = this.selectedTeam();
-    if (!team) return null;
+  // Fallback computed value for debugging
+  teamsWithPlayersDebug = computed(() => {
+    const teams = this.auctionStateService.teams();
+    const teamPlayers = this.auctionStateService.teamPlayers();
     
-    return {
-      totalPlayers: team.players.length,
-      soldPlayers: team.players.length, // All players in team are sold
-      availablePlayers: 0, // No available players in team roster (they're all assigned to this team)
-      openSpots: team.max_players - team.players.length,
-      budgetUsed: team.budget_spent,
-      budgetRemaining: team.budget_cap - team.budget_spent,
-      budgetPercentage: team.budget_cap > 0 ? Math.round((team.budget_spent / team.budget_cap) * 100) : 0
-    };
+    console.log('🔍 Debug computed value:');
+    console.log('Teams:', teams);
+    console.log('Team players:', teamPlayers);
+    
+    return teams.map(team => ({
+      ...team,
+      players: teamPlayers
+        .filter(tp => tp.team_id === team.id)
+        .map(tp => ({
+          ...tp.player,
+          purchase_price: tp.purchase_price,
+          purchased_at: tp.purchased_at
+        }))
+        .filter(player => player !== null && player !== undefined) || []
+    }));
   });
 
   constructor(
-    private teamsService: TeamsService,
-    private playersService: PlayersService,
-    private teamPlayersService: TeamPlayersService
-  ) {}
+    private auctionStateService: AuctionStateService
+  ) {
+    this.teamsWithPlayers = this.auctionStateService.teamsWithPlayers;
+    this.loading = this.auctionStateService.loading;
+    this.error = this.auctionStateService.error;
+  }
 
   async ngOnInit() {
-    await this.loadData();
+    await this.auctionStateService.loadAllData();
+    
+    // Debug logging
+    console.log('🔍 Team Roster Debug Info:');
+    console.log('Teams with players:', this.teamsWithPlayers());
+    console.log('Loading state:', this.loading());
+    console.log('Error state:', this.error());
   }
 
-  private async loadData() {
-    this.loading.set(true);
-    this.error.set(null);
-
-    try {
-      // Load teams
-      const { data: teamsData, error: teamsError } = await this.teamsService.getTeams();
-      if (teamsError) throw teamsError;
-
-      // Load team-player assignments
-      const { data: teamPlayersData, error: teamPlayersError } = await this.teamPlayersService.getTeamPlayers();
-      if (teamPlayersError) throw teamPlayersError;
-
-      // Group players by team using actual database relationships
-      const teamsWithPlayers: TeamWithPlayers[] = (teamsData || []).map(team => {
-        const teamPlayers = (teamPlayersData || [])
-          .filter(tp => tp.team_id === team.id)
-          .map(tp => tp.player)
-          .filter((player): player is Player => player !== undefined) as Player[];
-        
-        return {
-          ...team,
-          players: teamPlayers
-        };
-      });
-
-      this.teams.set(teamsWithPlayers);
-      
-      // Select first team by default
-      if (teamsWithPlayers.length > 0) {
-        this.selectedTeam.set(teamsWithPlayers[0]);
-      }
-
-    } catch (error: any) {
-      this.error.set('Failed to load team data. Please try again.');
-      console.error('Team roster error:', error);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  selectTeam(team: TeamWithPlayers) {
-    this.selectedTeam.set(team);
-    this.dropdownOpen.set(false);
-  }
-
-  toggleDropdown() {
-    this.dropdownOpen.update(open => !open);
-  }
-
-  closeDropdown() {
-    this.dropdownOpen.set(false);
+  async refreshData() {
+    await this.auctionStateService.loadAllData();
   }
 
   formatCurrency(amount: number): string {
@@ -114,25 +70,5 @@ export class TeamRosterComponent implements OnInit {
 
   formatNumber(num: number): string {
     return new Intl.NumberFormat('en-IN').format(num);
-  }
-
-  getPlayerStatusColor(player: Player): string {
-    // If player is in a team, they are sold
-    const isInTeam = this.teams().some(team => 
-      team.players.some(p => p.id === player.id)
-    );
-    if (isInTeam) return 'bg-green-100 text-green-800';
-    if (!player.is_active) return 'bg-red-100 text-red-800';
-    return 'bg-blue-100 text-blue-800';
-  }
-
-  getPlayerStatusText(player: Player): string {
-    // If player is in a team, they are sold
-    const isInTeam = this.teams().some(team => 
-      team.players.some(p => p.id === player.id)
-    );
-    if (isInTeam) return 'Sold';
-    if (!player.is_active) return 'Inactive';
-    return 'Available';
   }
 } 

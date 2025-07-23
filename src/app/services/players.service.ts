@@ -15,6 +15,7 @@ export interface Player {
   stats?: any; // JSONB field
   is_sold: boolean;
   is_active: boolean;
+  auction_status?: 'PENDING' | 'CURRENT' | 'SOLD' | 'UNSOLD' | 'SKIPPED' | 'INACTIVE';
   created_at: string;
   updated_at: string;
 }

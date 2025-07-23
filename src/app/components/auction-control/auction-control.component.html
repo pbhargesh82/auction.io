@@ -1,0 +1,361 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <!-- Header Section -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="mb-4 sm:mb-0">
+          <h1 class="text-3xl font-bold text-gray-900">Auction Control</h1>
+          <p class="mt-2 text-gray-600">Manage the live auction process</p>
+        </div>
+        @if (auctionConfig()) {
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <div class="text-sm text-gray-600">Progress</div>
+              <div class="text-lg font-semibold">{{ progressPercentage() }}%</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-gray-700">Status:</span>
+              <span [class]="getStatusClass(auctionConfig()!.status)">
+                {{ auctionConfig()!.status }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Error State -->
+    @if (error()) {
+      <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex items-center">
+          <mat-icon class="text-red-400 mr-3">error</mat-icon>
+          <div class="flex-1">
+            <h3 class="text-sm font-medium text-red-800">Error</h3>
+            <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
+          </div>
+          <button mat-icon-button (click)="clearError()" class="text-red-500 hover:text-red-700">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <mat-spinner class="mx-auto mb-4"></mat-spinner>
+          <p class="text-gray-600">Loading auction control...</p>
+        </div>
+      </div>
+    } @else {
+      <!-- Auction Status and Controls -->
+      @if (auctionConfig()) {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <!-- Status Header -->
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Auction Status</h2>
+            <p class="text-sm text-gray-600 mt-1">Control the auction flow</p>
+          </div>
+
+          <!-- Status Content -->
+          <div class="p-6">
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ totalPlayers() }}</div>
+                <div class="text-sm text-blue-600">Total Players</div>
+              </div>
+              <div class="bg-green-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-green-600">{{ soldPlayers() }}</div>
+                <div class="text-sm text-green-600">Sold</div>
+              </div>
+              <div class="bg-yellow-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-yellow-600">{{ remainingPlayers() }}</div>
+                <div class="text-sm text-yellow-600">Remaining</div>
+              </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="flex flex-wrap gap-3">
+              @if (auctionConfig()!.status === 'DRAFT') {
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  (click)="startAuction()"
+                  [disabled]="loading() || totalPlayers() === 0"
+                  class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                  <mat-icon class="mr-2">play_arrow</mat-icon>
+                  Start Auction
+                </button>
+              }
+
+              @if (auctionConfig()!.status === 'ACTIVE') {
+                <button 
+                  mat-raised-button 
+                  color="accent"
+                  (click)="pauseAuction()"
+                  [disabled]="loading()"
+                  class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                  <mat-icon class="mr-2">pause</mat-icon>
+                  Pause Auction
+                </button>
+              }
+
+              @if (auctionConfig()!.status === 'PAUSED') {
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  (click)="startAuction()"
+                  [disabled]="loading()"
+                  class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                  <mat-icon class="mr-2">play_arrow</mat-icon>
+                  Resume Auction
+                </button>
+              }
+
+              <button 
+                mat-stroked-button 
+                color="warn"
+                (click)="resetAuction()"
+                [disabled]="loading()"
+                class="border-red-600 text-red-600 hover:bg-red-50 px-6 py-3 rounded-lg transition-all duration-200">
+                <mat-icon class="mr-2">refresh</mat-icon>
+                Reset Auction
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Player Section -->
+        @if (currentPlayer()) {
+          <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Player Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900">Current Player</h2>
+              <p class="text-sm text-gray-600 mt-1">Player {{ currentPlayer()!.position }} of {{ totalPlayers() }}</p>
+            </div>
+
+            <!-- Player Content -->
+            <div class="p-6">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Player Info -->
+                <div class="space-y-4">
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-3">{{ currentPlayer()!.name }}</h3>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                      <div><strong>Position:</strong> {{ currentPlayer()!.position }}</div>
+                      <div><strong>Category:</strong> {{ currentPlayer()!.category }}</div>
+                      <div><strong>Base Price:</strong> ₹{{ formatNumber(currentPlayer()!.base_price) }}</div>
+                      <div><strong>Nationality:</strong> {{ currentPlayer()!.nationality || 'N/A' }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="flex flex-wrap gap-3">
+                    <button 
+                      mat-raised-button 
+                      color="primary"
+                      (click)="openSellDialog()"
+                      [disabled]="loading()"
+                      class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                      <mat-icon class="mr-2">gavel</mat-icon>
+                      Sell Player
+                    </button>
+                    <button 
+                      mat-stroked-button 
+                      color="warn"
+                      (click)="markUnsold()"
+                      [disabled]="loading()"
+                      class="border-red-600 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition-all duration-200">
+                      <mat-icon class="mr-2">cancel</mat-icon>
+                      Mark Unsold
+                    </button>
+                    <button 
+                      mat-stroked-button 
+                      color="accent"
+                      (click)="nextPlayer()"
+                      [disabled]="loading()"
+                      class="border-purple-600 text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition-all duration-200">
+                      <mat-icon class="mr-2">skip_next</mat-icon>
+                      Skip Player
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Team Selection -->
+                <div class="space-y-4">
+                  <h3 class="text-lg font-semibold text-gray-900">Available Teams</h3>
+                  <div class="space-y-3">
+                    @for (team of teams(); track team.id) {
+                      <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-3">
+                          <div 
+                            class="w-4 h-4 rounded-full" 
+                            [style.background-color]="team.primary_color">
+                          </div>
+                          <div>
+                            <div class="font-medium text-gray-900">{{ team.name }}</div>
+                            <div class="text-sm text-gray-600">
+                              Budget: ₹{{ formatNumber(team.budget_remaining) }} / {{ team.players_count || 0 }}/{{ team.max_players || 0 }} players
+                            </div>
+                          </div>
+                        </div>
+                        <button 
+                          mat-stroked-button 
+                          size="small"
+                          (click)="openSellDialog(team)"
+                          [disabled]="(team.budget_remaining || 0) < (currentPlayer()?.base_price || 0) || (team.players_count || 0) >= (team.max_players || 0)"
+                          class="border-blue-600 text-blue-600 hover:bg-blue-50 px-3 py-1 rounded transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                          Sell
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <!-- No Current Player -->
+          <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-8 text-center">
+              <mat-icon class="text-6xl text-gray-400 mb-4">person_off</mat-icon>
+              <h3 class="text-xl font-semibold text-gray-600 mb-2">No Current Player</h3>
+              <p class="text-gray-500 mb-4">
+                @if (remainingPlayers() > 0) {
+                  Click "Next Player" to start the auction
+                } @else {
+                  All players have been processed
+                }
+              </p>
+              @if (remainingPlayers() > 0) {
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  (click)="nextPlayer()"
+                  [disabled]="loading()"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                  <mat-icon class="mr-2">play_arrow</mat-icon>
+                  Start Next Player
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Recent History -->
+        @if (auctionHistory().length > 0) {
+          <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <!-- History Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+              <p class="text-sm text-gray-600 mt-1">Latest auction transactions</p>
+            </div>
+
+            <!-- History Content -->
+            <div class="p-6">
+              <div class="space-y-3 max-h-64 overflow-y-auto">
+                @for (history of auctionHistory().slice(0, 10); track history.id) {
+                  <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center gap-3">
+                      <mat-icon [class]="history.winning_team_id ? 'text-green-600' : 'text-red-600'">
+                        {{ history.winning_team_id ? 'check_circle' : 'cancel' }}
+                      </mat-icon>
+                      <div>
+                        <div class="font-medium text-gray-900">{{ history.player?.name }}</div>
+                        <div class="text-sm text-gray-600">
+                          {{ history.player?.position }} • {{ history.player?.category }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      @if (history.winning_team_id) {
+                        <div class="font-semibold text-green-600">₹{{ formatNumber(history.final_price) }}</div>
+                        <div class="text-sm text-gray-600">{{ history.team?.name }}</div>
+                      } @else {
+                        <div class="font-semibold text-red-600">Unsold</div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      } @else {
+        <!-- No Auction Configuration -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="p-8 text-center">
+            <mat-icon class="text-6xl text-gray-400 mb-4">settings</mat-icon>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No Auction Configuration</h3>
+            <p class="text-gray-500 mb-4">Please configure the auction settings first</p>
+            <button 
+              mat-raised-button 
+              color="primary"
+              routerLink="/auction-config"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+              <mat-icon class="mr-2">settings</mat-icon>
+              Configure Auction
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<!-- Sell Player Dialog -->
+<ng-template #sellDialogTemplate>
+  <div class="p-6">
+    <h2 mat-dialog-title>Sell Player</h2>
+    <mat-dialog-content>
+      <form [formGroup]="sellForm" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field class="w-full">
+            <mat-label>Team</mat-label>
+            <mat-select formControlName="team_id" required>
+              @for (team of availableTeams(); track team.id) {
+                <mat-option [value]="team.id">
+                  {{ team.name }} (₹{{ formatNumber(team.budget_remaining) }})
+                </mat-option>
+              }
+            </mat-select>
+            @if (sellForm.get('team_id')?.hasError('required')) {
+              <mat-error>Team is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Price (₹)</mat-label>
+            <input matInput type="number" formControlName="price" required>
+            @if (sellForm.get('price')?.hasError('required')) {
+              <mat-error>Price is required</mat-error>
+            }
+            @if (sellForm.get('price')?.hasError('min')) {
+              <mat-error>Price must be at least ₹{{ formatNumber(currentPlayer()?.base_price) }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field class="w-full">
+          <mat-label>Notes (Optional)</mat-label>
+          <textarea matInput formControlName="notes" rows="3"></textarea>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="sellPlayer()"
+        [disabled]="!sellForm.valid || loading()">
+        Sell Player
+      </button>
+    </mat-dialog-actions>
+  </div>
+</ng-template> 

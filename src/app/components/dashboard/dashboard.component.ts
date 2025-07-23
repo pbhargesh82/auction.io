@@ -2,9 +2,7 @@ import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
-import { TeamsService, Team } from '../../services/teams.service';
-import { PlayersService, Player } from '../../services/players.service';
-import { TeamPlayersService } from '../../services/team-players.service';
+import { AuctionStateService, TeamWithPlayers } from '../../services/auction-state.service';
 import { MatIconModule } from '@angular/material/icon';
 
 interface PlayerStats {
@@ -12,10 +10,6 @@ interface PlayerStats {
   soldPlayers: number;
   availablePlayers: number;
   totalBasePrice: number;
-}
-
-interface TeamWithPlayers extends Team {
-  players: Player[];
 }
 
 @Component({
@@ -26,13 +20,11 @@ interface TeamWithPlayers extends Team {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  // Signals for reactive state management
-  loading = signal(true);
+  // Use centralized state service
+  teamsWithPlayers;
+  loading;
+  error;
   user = signal<any>(null);
-  teams = signal<TeamWithPlayers[]>([]);
-  players = signal<Player[]>([]);
-  soldPlayerIds = signal<string[]>([]);
-  error = signal<string | null>(null);
 
   // Computed signals
   welcomeMessage = computed(() => {
@@ -45,47 +37,49 @@ export class DashboardComponent implements OnInit {
   });
 
   playerStats = computed((): PlayerStats => {
-    const allPlayers = this.players();
-    const soldIds = this.soldPlayerIds();
-    const soldPlayers = allPlayers.filter(p => soldIds.includes(p.id)).length;
-    const availablePlayers = allPlayers.filter(p => p.is_active && !soldIds.includes(p.id)).length;
+    const allPlayers = this.auctionStateService.players();
+    const soldPlayers = this.auctionStateService.soldPlayers();
+    const availablePlayers = this.auctionStateService.availablePlayers();
     
     return {
       totalPlayers: allPlayers.length,
-      soldPlayers: soldPlayers,
-      availablePlayers: availablePlayers,
+      soldPlayers: soldPlayers.length,
+      availablePlayers: availablePlayers.length,
       totalBasePrice: allPlayers.reduce((sum, p) => sum + p.base_price, 0)
     };
   });
 
   totalBudgetSpent = computed(() => 
-    this.teams().reduce((sum, team) => sum + team.budget_spent, 0)
+    this.teamsWithPlayers().reduce((sum, team) => sum + team.budget_spent, 0)
   );
 
   totalBudgetRemaining = computed(() => 
-    this.teams().reduce((sum, team) => sum + (team.budget_cap - team.budget_spent), 0)
+    this.teamsWithPlayers().reduce((sum, team) => sum + (team.budget_cap - team.budget_spent), 0)
   );
 
   totalBudgetCap = computed(() =>
-    this.teams().reduce((sum, team) => sum + team.budget_cap, 0)
+    this.teamsWithPlayers().reduce((sum, team) => sum + team.budget_cap, 0)
   );
 
   constructor(
     private supabaseService: SupabaseService,
-    private teamsService: TeamsService,
-    private playersService: PlayersService,
-    private teamPlayersService: TeamPlayersService,
+    private auctionStateService: AuctionStateService,
     private router: Router
-  ) {}
+  ) {
+    this.teamsWithPlayers = this.auctionStateService.teamsWithPlayers;
+    this.loading = this.auctionStateService.loading;
+    this.error = this.auctionStateService.error;
+  }
 
   async ngOnInit() {
     await this.loadDashboardData();
   }
 
-  private async loadDashboardData() {
-    this.loading.set(true);
-    this.error.set(null);
+  async refreshData() {
+    await this.loadDashboardData();
+  }
 
+  private async loadDashboardData() {
     try {
       // Get current user
       const currentUser = this.supabaseService.currentUserValue;
@@ -96,60 +90,12 @@ export class DashboardComponent implements OnInit {
       
       this.user.set(currentUser);
 
-      // Load teams and players data
-      await this.loadTeamsData();
-      await this.loadPlayersData();
-      await this.loadSoldPlayersData();
+      // Load all data using centralized service
+      await this.auctionStateService.loadAllData();
 
     } catch (error: any) {
-      this.error.set('Failed to load dashboard data. Please try again.');
       console.error('Dashboard error:', error);
-    } finally {
-      this.loading.set(false);
     }
-  }
-
-  private async loadTeamsData() {
-    const { data: teamsData, error: teamsError } = await this.teamsService.getTeams();
-    if (teamsError) {
-      console.error('Error loading teams:', teamsError);
-      return;
-    }
-
-    // Initialize teams with empty players arrays
-    const teamsWithPlayers: TeamWithPlayers[] = (teamsData || []).map(team => ({
-      ...team,
-      players: []
-    }));
-
-    this.teams.set(teamsWithPlayers);
-  }
-
-  private async loadPlayersData() {
-    const { data: playersData, error: playersError } = await this.playersService.getPlayers();
-    if (playersError) {
-      console.error('Error loading players:', playersError);
-      return;
-    }
-
-    this.players.set(playersData || []);
-  }
-
-  private async loadSoldPlayersData() {
-    const { data: soldIds, error } = await this.teamPlayersService.getSoldPlayers();
-    if (error) {
-      console.error('Error loading sold players:', error);
-    } else {
-      this.soldPlayerIds.set(soldIds || []);
-    }
-  }
-
-  private assignPlayersToTeams(players: Player[]) {
-    // No automatic assignment - players should only be assigned through proper auction process
-    // Teams will remain empty until players are explicitly assigned via team_players table
-    
-    // Keep teams as they are - no simulated assignments
-    // Budget spent should come from actual database data, not simulated assignments
   }
 
   navigateToTeams() {
@@ -160,13 +106,29 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/players']);
   }
 
+  navigateToAuctionConfig() {
+    this.router.navigate(['/auction-config']);
+  }
+
   startAuction() {
-    // Navigate to auction page (to be implemented)
-    // For now, show a confirmation dialog
-    if (confirm('Are you ready to start the auction? Make sure all teams and players are configured properly.')) {
-      // TODO: Navigate to auction control panel
-      alert('Auction feature coming soon! This will redirect to the auction control panel.');
+    // Check if we have teams and players configured
+    const teamsCount = this.teamsWithPlayers().length;
+    const playersCount = this.auctionStateService.players().length;
+    
+    if (teamsCount === 0) {
+      alert('Please configure teams first before starting the auction.');
+      this.router.navigate(['/teams']);
+      return;
     }
+    
+    if (playersCount === 0) {
+      alert('Please add players first before starting the auction.');
+      this.router.navigate(['/players']);
+      return;
+    }
+    
+
+    this.router.navigate(['/auction-control']);
   }
 
   getBudgetPercentage(team: TeamWithPlayers): number {
@@ -183,9 +145,8 @@ export class DashboardComponent implements OnInit {
     return 'bg-green-100 text-green-800';
   }
 
-  getPlayerStatusColor(player: Player): string {
-    const soldIds = this.soldPlayerIds();
-    if (soldIds.includes(player.id)) return 'bg-green-100 text-green-800';
+  getPlayerStatusColor(player: any): string {
+    if (player.is_sold) return 'bg-green-100 text-green-800';
     if (!player.is_active) return 'bg-red-100 text-red-800';
     return 'bg-blue-100 text-blue-800';
   }

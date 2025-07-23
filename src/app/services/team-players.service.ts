@@ -17,7 +17,7 @@ export interface TeamPlayer {
     short_name?: string;
     primary_color: string;
   };
-  player?: {
+  players?: {
     id: string;
     name: string;
     position: string;

@@ -32,6 +32,16 @@ export class LayoutComponent {
       route: '/dashboard'
     },
     {
+      label: 'Auction Control',
+      icon: 'gavel',
+      route: '/auction-control'
+    },
+    {
+      label: 'Auction Config',
+      icon: 'settings',
+      route: '/auction-config'
+    },
+    {
       label: 'Team Roster',
       icon: 'groups',
       route: '/team-roster'
