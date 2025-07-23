@@ -1,5 +1,5 @@
 [build]
-  publish = "dist/auction.io"
+  publish = "dist/auction.io/browser"
   command = "npm run build"
 
 [build.environment]
@@ -13,4 +13,4 @@
 [dev]
   command = "npm start"
   port = 4200
-  publish = "dist/auction.io" 
+  publish = "dist/auction.io/browser" 
