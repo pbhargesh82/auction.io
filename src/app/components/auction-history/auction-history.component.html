@@ -1,33 +1,4 @@
 <div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
-  <!-- Header Section -->
-  <div class="mb-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Auction History</h1>
-        <p class="text-gray-600 mt-1">Complete transaction history of all auction activities</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <button 
-          mat-stroked-button 
-          (click)="refreshData()"
-          [disabled]="loading()"
-          class="border-blue-600 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-200">
-          <mat-icon class="mr-2">refresh</mat-icon>
-          Refresh
-        </button>
-        <button 
-          mat-raised-button 
-          color="warn"
-          (click)="clearHistory()"
-          [disabled]="loading() || totalTransactions() === 0"
-          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-          <mat-icon class="mr-2">delete_sweep</mat-icon>
-          Clear History
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Error State -->
   @if (error()) {
     <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
@@ -107,27 +78,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Additional Statistics -->
-    @if (soldPlayers() > 0) {
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Auction Analytics</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="text-center">
-            <p class="text-sm font-medium text-gray-600">Average Price</p>
-            <p class="text-2xl font-bold text-blue-600">{{ formatCurrency(averagePrice()) }}</p>
-          </div>
-          <div class="text-center">
-            <p class="text-sm font-medium text-gray-600">Success Rate</p>
-            <p class="text-2xl font-bold text-green-600">{{ totalTransactions() > 0 ? ((soldPlayers() / totalTransactions()) * 100).toFixed(1) : 0 }}%</p>
-          </div>
-          <div class="text-center">
-            <p class="text-sm font-medium text-gray-600">Unsold Rate</p>
-            <p class="text-2xl font-bold text-red-600">{{ totalTransactions() > 0 ? ((unsoldPlayers() / totalTransactions()) * 100).toFixed(1) : 0 }}%</p>
-          </div>
-        </div>
-      </div>
-    }
 
     <!-- Transaction History -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
