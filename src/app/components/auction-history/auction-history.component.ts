@@ -10,7 +10,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSelectModule } from '@angular/material/select';
 
 import { AuctionService, AuctionHistory } from '../../services/auction.service';
 import { AuctionStateService } from '../../services/auction-state.service';
@@ -28,8 +27,7 @@ import { AuctionStateService } from '../../services/auction-state.service';
     MatSortModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatDialogModule,
-    MatSelectModule
+    MatDialogModule
   ],
   templateUrl: './auction-history.component.html',
   styleUrls: ['./auction-history.component.css']
@@ -60,22 +58,6 @@ export class AuctionHistoryComponent implements OnInit {
   averagePrice = computed(() => {
     const sold = this.soldPlayers();
     return sold > 0 ? this.totalRevenue() / sold : 0;
-  });
-
-  // Sorting
-  sortOption = signal<'time' | 'name' | 'price'>('time');
-
-  sortedAuctionHistory = computed(() => {
-    const data = [...this.auctionHistory()];
-    switch (this.sortOption()) {
-      case 'name':
-        return data.sort((a, b) => (a.player?.name || '').localeCompare(b.player?.name || ''));
-      case 'price':
-        return data.sort((a, b) => (b.final_price || 0) - (a.final_price || 0));
-      case 'time':
-      default:
-        return data.sort((a, b) => new Date(b.auction_date).getTime() - new Date(a.auction_date).getTime());
-    }
   });
 
   constructor(
