@@ -10,9 +10,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { AuctionService, AuctionHistory } from '../../services/auction.service';
 import { AuctionStateService } from '../../services/auction-state.service';
+
+type SortOption = 'time' | 'price' | 'name';
+type SortDirection = 'asc' | 'desc';
 
 @Component({
   selector: 'app-auction-history',
@@ -27,7 +32,9 @@ import { AuctionStateService } from '../../services/auction-state.service';
     MatSortModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSelectModule,
+    MatFormFieldModule
   ],
   templateUrl: './auction-history.component.html',
   styleUrls: ['./auction-history.component.css']
@@ -37,6 +44,10 @@ export class AuctionHistoryComponent implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   auctionHistory = signal<AuctionHistory[]>([]);
+  
+  // Sorting signals
+  sortBy = signal<SortOption>('time');
+  sortDirection = signal<SortDirection>('desc');
 
   // Computed values
   totalTransactions = computed(() => this.auctionHistory().length);
@@ -58,6 +69,35 @@ export class AuctionHistoryComponent implements OnInit {
   averagePrice = computed(() => {
     const sold = this.soldPlayers();
     return sold > 0 ? this.totalRevenue() / sold : 0;
+  });
+
+  // Sorted auction history
+  sortedAuctionHistory = computed(() => {
+    const history = this.auctionHistory();
+    const sortBy = this.sortBy();
+    const sortDirection = this.sortDirection();
+    
+    return [...history].sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'time':
+          comparison = new Date(a.sold_at).getTime() - new Date(b.sold_at).getTime();
+          break;
+        case 'price':
+          const priceA = a.final_price || 0;
+          const priceB = b.final_price || 0;
+          comparison = priceA - priceB;
+          break;
+        case 'name':
+          const nameA = a.player?.name || '';
+          const nameB = b.player?.name || '';
+          comparison = nameA.localeCompare(nameB);
+          break;
+      }
+      
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
   });
 
   constructor(
@@ -117,6 +157,25 @@ export class AuctionHistoryComponent implements OnInit {
 
   async refreshData() {
     await this.loadAuctionHistory();
+  }
+
+  // Sorting methods
+  onSortChange(sortBy: SortOption) {
+    if (this.sortBy() === sortBy) {
+      // Toggle direction if same sort field
+      this.sortDirection.update(direction => direction === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new sort field with default direction
+      this.sortBy.set(sortBy);
+      this.sortDirection.set('desc');
+    }
+  }
+
+  getSortIcon(sortField: SortOption): string {
+    if (this.sortBy() !== sortField) {
+      return 'unfold_more';
+    }
+    return this.sortDirection() === 'asc' ? 'expand_less' : 'expand_more';
   }
 
   getStatusColor(status: string): string {

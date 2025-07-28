@@ -216,6 +216,7 @@
 - [x] **Bid Entry Interface**: Admin-controlled bidding with team selection and price validation
 - [x] **Budget Validation**: Real-time budget checking and constraints enforcement
 - [x] **Auction History**: Complete transaction logging and history tracking ✅ (Completed: 2024-01-16)
+- [x] **Auction History Sorting**: Added sorting functionality for time, price, and name with interactive controls ✅ (Completed: 2024-01-28)
 - [x] **Progress Tracking**: Visual progress indicators and statistics
 - [x] **Team Assignment**: Direct player assignment to teams with purchase price tracking
 - [x] **Reset Functionality**: Complete auction reset with data cleanup ✅ (Fixed: 2024-01-16)
