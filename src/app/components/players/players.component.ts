@@ -150,14 +150,14 @@ export class PlayersComponent implements OnInit {
     // Initialize form
     this.playerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      position: ['', [Validators.required]],
-      category: ['', [Validators.required]],
-      subcategory: [''],
+      position: ['Middle Order'], // Default value for hidden field
+      category: ['Batsman'], // Hidden field with default value
+      subcategory: [''], // Hidden field
       base_price: [100000, [Validators.required, Validators.min(10000)]],
-      image_url: [''],
-      nationality: [''],
+      image_url: [''], // Hidden field
+      nationality: [''], // Hidden field
       age: [null, [Validators.min(16), Validators.max(50)]],
-      experience_years: [null, [Validators.min(0), Validators.max(25)]]
+      experience_years: [null, [Validators.min(0), Validators.max(25)]] // Hidden field
     });
 
     // Use service signals directly
@@ -202,8 +202,8 @@ export class PlayersComponent implements OnInit {
     this.editingPlayer.set(null);
     this.playerForm.reset({
       name: '',
-      position: '',
-      category: '',
+      position: 'Middle Order',
+      category: 'Batsman',
       subcategory: '',
       base_price: 100000,
       image_url: '',
@@ -219,8 +219,8 @@ export class PlayersComponent implements OnInit {
     this.editingPlayer.set(player);
     this.playerForm.patchValue({
       name: player.name,
-      position: player.position,
-      category: player.category,
+      position: player.position || 'Middle Order',
+      category: player.category || 'Batsman',
       subcategory: player.subcategory || '',
       base_price: player.base_price,
       image_url: player.image_url || '',

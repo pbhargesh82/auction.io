@@ -141,6 +141,8 @@
                     <h3 class="text-base font-semibold text-gray-900 truncate">{{ player.name }}</h3>
                     @if (player.age) {
                       <p class="text-sm text-gray-500">Age: {{ player.age }}</p>
+                    } @else {
+                      <p class="text-sm text-gray-500">Age: Not specified</p>
                     }
                   </div>
                 </div>
@@ -157,15 +159,6 @@
 
             <!-- Player Stats -->
             <div class="p-4 space-y-3">
-              <!-- Category and Position -->
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-600">Category</span>
-                <div class="text-right">
-                  <div class="text-sm font-semibold text-gray-900">{{ player.category }}</div>
-                  <div class="text-xs text-gray-500">{{ player.position }}</div>
-                </div>
-              </div>
-
               <!-- Base Price -->
               <div class="flex items-center justify-between">
                 <span class="text-sm font-medium text-gray-600">Base Price</span>
@@ -173,19 +166,11 @@
                   <div class="text-sm font-semibold text-gray-900">
                     {{ formatCurrency(player.base_price) }}
                   </div>
-                  @if (player.experience_years) {
+                  <!-- @if (player.experience_years) {
                     <div class="text-xs text-gray-500">{{ player.experience_years }} years exp.</div>
-                  }
-                </div>
-              </div>
-
-              <!-- Nationality -->
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-600">Nationality</span>
-                <div class="text-right">
-                  <div class="text-sm text-gray-900">
-                    {{ player.nationality || 'Not specified' }}
-                  </div>
+                  } @else {
+                    <div class="text-xs text-gray-500">Experience: Not specified</div>
+                  } -->
                 </div>
               </div>
 
@@ -280,70 +265,6 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Category <span class="text-red-500">*</span>
-              </label>
-              <select 
-                formControlName="category"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option value="">Select category</option>
-                @for (category of categories; track category) {
-                  <option [value]="category">{{ category }}</option>
-                }
-              </select>
-              @if (playerForm.get('category')?.hasError('required') && playerForm.get('category')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Category is required</p>
-              }
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Position <span class="text-red-500">*</span>
-              </label>
-              <select 
-                formControlName="position"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option value="">Select position</option>
-                @for (position of positions; track position) {
-                  <option [value]="position">{{ position }}</option>
-                }
-              </select>
-              @if (playerForm.get('position')?.hasError('required') && playerForm.get('position')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Position is required</p>
-              }
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Subcategory
-              </label>
-              <input 
-                type="text"
-                formControlName="subcategory"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Enter subcategory">
-            </div>
-          </div>
-
-          <!-- Personal Information -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Nationality
-              </label>
-              <select 
-                formControlName="nationality"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option value="">Select nationality</option>
-                @for (nationality of nationalities; track nationality) {
-                  <option [value]="nationality">{{ nationality }}</option>
-                }
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
                 Age
               </label>
               <input 
@@ -357,19 +278,16 @@
                 <p class="mt-1 text-sm text-red-600">Age must be at least 16</p>
               }
             </div>
+          </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Experience (Years)
-              </label>
-              <input 
-                type="number"
-                formControlName="experience_years"
-                min="0"
-                max="25"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Enter experience">
-            </div>
+          <!-- Hidden fields for position, subcategory, experience, nationality, image_url, category -->
+          <div class="hidden">
+            <input type="text" formControlName="position">
+            <input type="text" formControlName="subcategory">
+            <input type="number" formControlName="experience_years">
+            <input type="text" formControlName="nationality">
+            <input type="url" formControlName="image_url">
+            <input type="text" formControlName="category">
           </div>
 
           <!-- Financial Information -->
@@ -393,18 +311,6 @@
               @if (playerForm.get('base_price')?.hasError('min') && playerForm.get('base_price')?.touched) {
                 <p class="mt-1 text-sm text-red-600">Base price must be at least ₹10,000</p>
               }
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Image URL
-              </label>
-              <input 
-                type="url"
-                formControlName="image_url"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="https://example.com/player.jpg">
-              <p class="mt-1 text-xs text-gray-500">Optional URL for player image</p>
             </div>
           </div>
 

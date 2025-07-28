@@ -86,9 +86,9 @@ export class TeamsComponent implements OnInit {
     this.teamForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       short_name: ['', [Validators.maxLength(10)]],
-      logo_url: [''],
-      primary_color: ['#1976d2', [Validators.required]],
-      secondary_color: ['#424242', [Validators.required]],
+      logo_url: [''], // Hidden field
+      primary_color: ['#1976d2'], // Hidden field with default
+      secondary_color: ['#424242'], // Hidden field with default
       budget_cap: [10000000, [Validators.required, Validators.min(1000000)]],
       max_players: [25, [Validators.required, Validators.min(15), Validators.max(50)]]
     });
