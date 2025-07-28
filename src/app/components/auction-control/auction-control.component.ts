@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 
-import { AuctionService, AuctionConfig, PlayerQueue } from '../../services/auction.service';
+import { AuctionService, AuctionConfig } from '../../services/auction.service';
 import { PlayersService, Player } from '../../services/players.service';
 import { TeamsService, Team } from '../../services/teams.service';
 import { AuctionStateService } from '../../services/auction-state.service';
@@ -51,6 +51,8 @@ export class AuctionControlComponent implements OnInit {
   auctionConfig = signal<AuctionConfig | null>(null);
   currentPlayer = signal<any>(null);
   teams = signal<Team[]>([]);
+  playerSearch = signal('');
+  filteredPlayers = signal<any[]>([]);
 
 
   // Form
@@ -105,6 +107,8 @@ export class AuctionControlComponent implements OnInit {
       price: [0, [Validators.required, Validators.min(0)]],
       notes: ['']
     });
+
+    // Player search form removed - using simple input binding
 
     // Effect to update price validation when current player changes
     effect(() => {
@@ -161,26 +165,9 @@ export class AuctionControlComponent implements OnInit {
 
   async loadCurrentPlayer() {
     try {
-      // Get current auction config to find the active auction
-      const { data: config } = await this.auctionService.getAuctionConfig();
-      if (!config) {
-        this.currentPlayer.set(null);
-        return;
-      }
-
-      // Get the first active player from the queue
-      const { data: queueData } = await this.auctionService.getPlayerQueue();
-      if (!queueData || queueData.length === 0) {
-        this.currentPlayer.set(null);
-        return;
-      }
-
-      const activePlayer = queueData.find(p => p.status === 'CURRENT');
-      if (activePlayer) {
-        this.currentPlayer.set(activePlayer);
-      } else {
-        this.currentPlayer.set(null);
-      }
+      // Get current player from auction state service
+      const currentPlayer = this.auctionStateService.currentPlayer();
+      this.currentPlayer.set(currentPlayer);
     } catch (error: any) {
       console.error('Error loading current player:', error);
       this.currentPlayer.set(null);
@@ -204,20 +191,7 @@ export class AuctionControlComponent implements OnInit {
     this.loading.set(false);
   }
 
-  async pauseAuction() {
-    this.loading.set(true);
-    const { data, error } = await this.auctionService.pauseAuction();
-    
-    if (error) {
-      this.error.set(error.message);
-      this.snackBar.open(`Error pausing auction: ${error.message}`, 'Close', { duration: 5000 });
-    } else {
-      this.snackBar.open('Auction paused successfully!', 'Close', { duration: 3000 });
-      // Update local signals
-      this.auctionConfig.set(this.auctionStateService.auctionConfig());
-    }
-    this.loading.set(false);
-  }
+  // pauseAuction method removed - not needed for manual auction control
 
   async resetAuction() {
     if (!confirm('Are you sure you want to reset the auction? This will clear all progress, including sold players, team budgets, and auction history.')) {
@@ -388,5 +362,48 @@ export class AuctionControlComponent implements OnInit {
 
   clearError(): void {
     this.error.set(null);
+  }
+
+  // Player search methods
+  onPlayerSearch(event: any) {
+    const searchTerm = event.target.value.toLowerCase();
+    this.playerSearch.set(searchTerm);
+    this.filterPlayers();
+  }
+
+  filterPlayers() {
+    const searchTerm = this.playerSearch();
+    if (!searchTerm) {
+      this.filteredPlayers.set([]);
+      return;
+    }
+
+    const allPlayers = this.auctionStateService.players();
+    const filtered = allPlayers.filter(player => 
+      player.auction_status === 'PENDING' && 
+      player.name.toLowerCase().includes(searchTerm)
+    );
+    this.filteredPlayers.set(filtered);
+  }
+
+  async selectPlayer(player: any) {
+    this.loading.set(true);
+    try {
+      // Set the selected player as current
+      await this.auctionStateService.updatePlayerAuctionStatus(player.id, 'CURRENT');
+      
+      this.snackBar.open(`Started auction for ${player.name}!`, 'Close', { duration: 3000 });
+      
+      // Update local signals
+      this.currentPlayer.set(this.auctionStateService.currentPlayer());
+      this.playerSearch.set('');
+      this.filteredPlayers.set([]);
+      
+    } catch (error: any) {
+      this.error.set(error.message);
+      this.snackBar.open(`Error starting player auction: ${error.message}`, 'Close', { duration: 5000 });
+    } finally {
+      this.loading.set(false);
+    }
   }
 } 

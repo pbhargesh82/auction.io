@@ -68,11 +68,11 @@ CREATE TABLE auction_config (
     budget_cap DECIMAL(12,2) NOT NULL DEFAULT 10000000,
     max_players_per_team INTEGER NOT NULL DEFAULT 25,
     min_players_per_team INTEGER DEFAULT 15,
-    status VARCHAR(20) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED')),
+    status VARCHAR(20) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'ACTIVE', 'COMPLETED')),
     current_player_id UUID REFERENCES players(id),
     current_player_position INTEGER DEFAULT 0,
     total_players INTEGER DEFAULT 0,
-    auction_type VARCHAR(20) DEFAULT 'MANUAL' CHECK (auction_type IN ('MANUAL', 'TIMER')),
+    -- auction_type field removed - timer functionality will be per-player, not per-auction
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     started_at TIMESTAMP,
@@ -80,19 +80,10 @@ CREATE TABLE auction_config (
 );
 
 -- =====================================================
--- 4. PLAYER QUEUE TABLE - Auction Order Management
+-- 4. PLAYER QUEUE TABLE - REMOVED
 -- =====================================================
-CREATE TABLE player_queue (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    player_id UUID REFERENCES players(id) ON DELETE CASCADE,
-    queue_order INTEGER NOT NULL,
-    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'CURRENT', 'SOLD', 'UNSOLD', 'SKIPPED')),
-    created_at TIMESTAMP DEFAULT NOW(),
-    
-    -- Ensure unique order and player
-    UNIQUE(player_id),
-    UNIQUE(queue_order)
-);
+-- The player_queue table has been removed. Auction order is now managed
+-- directly through the auction_status field in the players table.
 
 -- =====================================================
 -- 5. TEAM PLAYERS TABLE - Final Team Rosters
@@ -142,8 +133,8 @@ CREATE INDEX idx_players_category_position ON players(category, position);
 CREATE INDEX idx_players_is_sold ON players(is_sold);
 CREATE INDEX idx_players_name_search ON players USING gin(to_tsvector('english', name));
 
--- Player queue indexes
-CREATE INDEX idx_player_queue_status_order ON player_queue(status, queue_order);
+-- Player queue indexes - REMOVED
+-- The player_queue table has been removed, so indexes are no longer needed
 
 -- Team players indexes
 CREATE INDEX idx_team_players_team_id ON team_players(team_id);
@@ -197,31 +188,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Function to get next player in queue
+-- Function to get next player from players table
 CREATE OR REPLACE FUNCTION get_next_player()
 RETURNS UUID AS $$
 DECLARE
     next_player_id UUID;
 BEGIN
-    SELECT player_id INTO next_player_id
-    FROM player_queue
-    WHERE status = 'PENDING'
-    ORDER BY queue_order
+    SELECT id INTO next_player_id
+    FROM players
+    WHERE auction_status = 'PENDING' AND is_active = true
+    ORDER BY name
     LIMIT 1;
     
     IF next_player_id IS NOT NULL THEN
         -- Update current player status
-        UPDATE player_queue 
-        SET status = 'CURRENT'
-        WHERE player_id = next_player_id;
+        UPDATE players 
+        SET auction_status = 'CURRENT'
+        WHERE id = next_player_id;
         
         -- Update auction config
         UPDATE auction_config 
         SET current_player_id = next_player_id,
             current_player_position = (
-                SELECT queue_order 
-                FROM player_queue 
-                WHERE player_id = next_player_id
+                SELECT COUNT(*) + 1
+                FROM players 
+                WHERE auction_status IN ('SOLD', 'UNSOLD', 'SKIPPED')
             );
     END IF;
     
@@ -287,15 +278,15 @@ CREATE VIEW auction_progress AS
 SELECT 
     ac.name as auction_name,
     ac.status,
-    COUNT(pq.id) as total_players,
-    COUNT(CASE WHEN pq.status = 'SOLD' THEN 1 END) as players_sold,
-    COUNT(CASE WHEN pq.status = 'UNSOLD' THEN 1 END) as players_unsold,
-    COUNT(CASE WHEN pq.status = 'PENDING' THEN 1 END) as players_remaining,
+    COUNT(p.id) as total_players,
+    COUNT(CASE WHEN p.auction_status = 'SOLD' THEN 1 END) as players_sold,
+    COUNT(CASE WHEN p.auction_status = 'UNSOLD' THEN 1 END) as players_unsold,
+    COUNT(CASE WHEN p.auction_status = 'PENDING' THEN 1 END) as players_remaining,
     COALESCE(SUM(ah.final_price), 0) as total_amount_spent,
     ac.current_player_position,
-    (COUNT(CASE WHEN pq.status IN ('SOLD', 'UNSOLD') THEN 1 END) * 100.0 / NULLIF(COUNT(pq.id), 0)) as completion_percentage
+    (COUNT(CASE WHEN p.auction_status IN ('SOLD', 'UNSOLD') THEN 1 END) * 100.0 / NULLIF(COUNT(p.id), 0)) as completion_percentage
 FROM auction_config ac
-LEFT JOIN player_queue pq ON true
+LEFT JOIN players p ON p.is_active = true
 LEFT JOIN auction_history ah ON ah.auction_date = CURRENT_DATE
 GROUP BY ac.id, ac.name, ac.status, ac.current_player_position;
 
@@ -336,8 +327,7 @@ CREATE POLICY "Enable all operations for authenticated users" ON players
 CREATE POLICY "Enable all operations for authenticated users" ON auction_config
     FOR ALL USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Enable all operations for authenticated users" ON player_queue
-    FOR ALL USING (auth.role() = 'authenticated');
+-- Player queue RLS policy removed - table no longer exists
 
 CREATE POLICY "Enable all operations for authenticated users" ON team_players
     FOR ALL USING (auth.role() = 'authenticated');

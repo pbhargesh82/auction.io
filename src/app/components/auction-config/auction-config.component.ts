@@ -51,8 +51,8 @@ export class AuctionConfigComponent implements OnInit {
       description: [''],
       budget_cap: [10000000, [Validators.required, Validators.min(1000000)]],
       max_players_per_team: [25, [Validators.required, Validators.min(10)]],
-      min_players_per_team: [15, [Validators.required, Validators.min(5)]],
-      auction_type: ['MANUAL', [Validators.required]]
+      min_players_per_team: [15, [Validators.required, Validators.min(5)]]
+      // auction_type field removed - timer functionality will be per-player, not per-auction
     });
   }
 
@@ -74,8 +74,8 @@ export class AuctionConfigComponent implements OnInit {
         description: data.description,
         budget_cap: data.budget_cap,
         max_players_per_team: data.max_players_per_team,
-        min_players_per_team: data.min_players_per_team,
-        auction_type: data.auction_type
+        min_players_per_team: data.min_players_per_team
+        // auction_type field removed - timer functionality will be per-player, not per-auction
       });
     }
     this.loading.set(false);

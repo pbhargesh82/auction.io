@@ -1,4 +1,4 @@
-<div class="p-4 lg:p-6 bg-gray-50 w-dvw max-w-dvw overflow-x-hidden">
+<div class="p-4 lg:p-6 bg-gray-50 w-full max-w-full overflow-x-hidden">
   <!-- Error State -->
   @if (error()) {
     <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
@@ -29,11 +29,11 @@
       <!-- Total Transactions -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
         <div class="flex items-center justify-between">
-          <div>
+          <div class="flex-1 min-w-0">
             <p class="text-xs md:text-sm font-medium text-gray-600">Total Transactions</p>
-            <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ formatNumber(totalTransactions()) }}</p>
+            <p class="text-xl md:text-2xl font-bold text-gray-900 truncate">{{ formatNumber(totalTransactions()) }}</p>
           </div>
-          <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+          <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center ml-3">
             <mat-icon class="text-blue-600 text-lg md:text-xl">receipt_long</mat-icon>
           </div>
         </div>
@@ -42,11 +42,11 @@
       <!-- Sold Players -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
         <div class="flex items-center justify-between">
-          <div>
+          <div class="flex-1 min-w-0">
             <p class="text-xs md:text-sm font-medium text-gray-600">Sold Players</p>
-            <p class="text-2xl md:text-3xl font-bold text-green-600">{{ formatNumber(soldPlayers()) }}</p>
+            <p class="text-xl md:text-2xl font-bold text-green-600 truncate">{{ formatNumber(soldPlayers()) }}</p>
           </div>
-          <div class="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+          <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-lg flex items-center justify-center ml-3">
             <mat-icon class="text-green-600 text-lg md:text-xl">check_circle</mat-icon>
           </div>
         </div>
@@ -55,24 +55,24 @@
       <!-- Unsold Players -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
         <div class="flex items-center justify-between">
-          <div>
+          <div class="flex-1 min-w-0">
             <p class="text-xs md:text-sm font-medium text-gray-600">Unsold Players</p>
-            <p class="text-2xl md:text-3xl font-bold text-red-600">{{ formatNumber(unsoldPlayers()) }}</p>
+            <p class="text-xl md:text-2xl font-bold text-red-600 truncate">{{ formatNumber(unsoldPlayers()) }}</p>
           </div>
-          <div class="w-10 h-10 md:w-12 md:h-12 bg-red-100 rounded-lg flex items-center justify-center">
+          <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-red-100 rounded-lg flex items-center justify-center ml-3">
             <mat-icon class="text-red-600 text-lg md:text-xl">cancel</mat-icon>
           </div>
         </div>
       </div>
 
-      <!-- Total Revenue -->
+      <!-- Total Bids -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs md:text-sm font-medium text-gray-600">Total Revenue</p>
-            <p class="text-2xl md:text-3xl font-bold text-purple-600">{{ formatCurrency(totalRevenue()) }}</p>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs md:text-sm font-medium text-gray-600">Total Bids</p>
+            <p class="text-xl md:text-2xl font-bold text-purple-600 truncate">{{ formatCurrency(totalRevenue()) }}</p>
           </div>
-          <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+          <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-lg flex items-center justify-center ml-3">
             <mat-icon class="text-purple-600 text-lg md:text-xl">payments</mat-icon>
           </div>
         </div>

@@ -9,25 +9,18 @@ export interface AuctionConfig {
   budget_cap: number;
   max_players_per_team: number;
   min_players_per_team: number;
-  status: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'COMPLETED';
+  status: 'DRAFT' | 'ACTIVE' | 'COMPLETED';
   current_player_id?: string;
   current_player_position: number;
   total_players: number;
-  auction_type: 'MANUAL' | 'TIMER';
+  // auction_type field removed - timer functionality will be per-player, not per-auction
   created_at: string;
   updated_at: string;
   started_at?: string;
   completed_at?: string;
 }
 
-export interface PlayerQueue {
-  id: string;
-  player_id: string;
-  queue_order: number;
-  status: 'PENDING' | 'CURRENT' | 'SOLD' | 'UNSOLD' | 'SKIPPED';
-  created_at: string;
-  player?: any;
-}
+// PlayerQueue interface removed - using players table directly
 
 export interface AuctionHistory {
   id: string;
@@ -50,7 +43,7 @@ export interface CreateAuctionConfigData {
   budget_cap: number;
   max_players_per_team: number;
   min_players_per_team?: number;
-  auction_type?: 'MANUAL' | 'TIMER';
+  // auction_type field removed - timer functionality will be per-player, not per-auction
 }
 
 export interface UpdateAuctionConfigData {
@@ -59,11 +52,11 @@ export interface UpdateAuctionConfigData {
   budget_cap?: number;
   max_players_per_team?: number;
   min_players_per_team?: number;
-  status?: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'COMPLETED';
+  status?: 'DRAFT' | 'ACTIVE' | 'COMPLETED';
   current_player_id?: string;
   current_player_position?: number;
   total_players?: number;
-  auction_type?: 'MANUAL' | 'TIMER';
+  // auction_type field removed - timer functionality will be per-player, not per-auction
 }
 
 @Injectable({
@@ -71,11 +64,11 @@ export interface UpdateAuctionConfigData {
 })
 export class AuctionService {
   private currentAuctionSubject = new BehaviorSubject<AuctionConfig | null>(null);
-  private playerQueueSubject = new BehaviorSubject<PlayerQueue[]>([]);
+  // Player queue subject removed - using players table directly
   private auctionHistorySubject = new BehaviorSubject<AuctionHistory[]>([]);
 
   public currentAuction$ = this.currentAuctionSubject.asObservable();
-  public playerQueue$ = this.playerQueueSubject.asObservable();
+  // Player queue observable removed - using players table directly
   public auctionHistory$ = this.auctionHistorySubject.asObservable();
 
   constructor(private supabase: SupabaseService) {}
@@ -144,160 +137,9 @@ export class AuctionService {
     }
   }
 
-  // Player Queue Methods - Updated to match actual schema
-  async getPlayerQueue(): Promise<{ data: PlayerQueue[] | null, error: any }> {
-    try {
-      const { data, error } = await this.supabase.db
-        .from('player_queue')
-        .select(`
-          *,
-          player:players(*)
-        `)
-        .order('queue_order', { ascending: true });
-
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error fetching player queue:', error);
-      return { data: null, error };
-    }
-  }
-
-  async addPlayerToQueue(playerId: string, queueOrder: number): Promise<{ data: PlayerQueue | null, error: any }> {
-    try {
-      // First, check if player is already in queue
-      const { data: existingPlayers, error: checkError } = await this.supabase.db
-        .from('player_queue')
-        .select('id')
-        .eq('player_id', playerId);
-
-      if (checkError) {
-        console.error('Error checking existing player:', checkError);
-        throw checkError;
-      }
-
-      if (existingPlayers && existingPlayers.length > 0) {
-        throw new Error('Player is already in the queue');
-      }
-
-      // Get the next available queue order if the provided one is already taken
-      let finalQueueOrder = queueOrder;
-      const { data: existingOrders, error: orderCheckError } = await this.supabase.db
-        .from('player_queue')
-        .select('id')
-        .eq('queue_order', queueOrder);
-
-      if (orderCheckError) {
-        console.error('Error checking existing order:', orderCheckError);
-        throw orderCheckError;
-      }
-
-      if (existingOrders && existingOrders.length > 0) {
-        // Find the next available queue order
-        const { data: maxOrders, error: maxOrderError } = await this.supabase.db
-          .from('player_queue')
-          .select('queue_order')
-          .order('queue_order', { ascending: false })
-          .limit(1);
-
-        if (maxOrderError) {
-          console.error('Error getting max order:', maxOrderError);
-          throw maxOrderError;
-        }
-
-        finalQueueOrder = (maxOrders?.[0]?.queue_order || 0) + 1;
-      }
-
-      const { data, error } = await this.supabase.db
-        .from('player_queue')
-        .insert([{
-          player_id: playerId,
-          queue_order: finalQueueOrder,
-          status: 'PENDING'
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error adding player to queue:', error);
-      return { data: null, error };
-    }
-  }
-
-  async updatePlayerQueueStatus(queueId: string, status: 'PENDING' | 'CURRENT' | 'SOLD' | 'UNSOLD' | 'SKIPPED'): Promise<{ data: PlayerQueue | null, error: any }> {
-    try {
-      const { data, error } = await this.supabase.db
-        .from('player_queue')
-        .update({ status })
-        .eq('id', queueId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error updating player queue status:', error);
-      return { data: null, error };
-    }
-  }
-
-  async removePlayerFromQueue(queueId: string): Promise<{ error: any }> {
-    try {
-      const { error } = await this.supabase.db
-        .from('player_queue')
-        .delete()
-        .eq('id', queueId);
-
-      if (error) throw error;
-      return { error: null };
-    } catch (error) {
-      console.error('Error removing player from queue:', error);
-      return { error };
-    }
-  }
-
-  async clearPlayerQueue(): Promise<{ error: any }> {
-    try {
-      const { error } = await this.supabase.db
-        .from('player_queue')
-        .delete()
-        .not('id', 'is', null);
-
-      if (error) throw error;
-      return { error: null };
-    } catch (error) {
-      console.error('Error clearing player queue:', error);
-      return { error };
-    }
-  }
-
-  async addMultiplePlayersToQueue(playerIds: string[]): Promise<{ data: PlayerQueue[] | null, error: any }> {
-    try {
-      // Get current queue length
-      const { data: currentQueue } = await this.getPlayerQueue();
-      const currentLength = currentQueue?.length || 0;
-
-      // Prepare queue entries
-      const queueEntries = playerIds.map((playerId, index) => ({
-        player_id: playerId,
-        queue_order: currentLength + index + 1,
-        status: 'PENDING'
-      }));
-
-      const { data, error } = await this.supabase.db
-        .from('player_queue')
-        .insert(queueEntries)
-        .select();
-
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error adding multiple players to queue:', error);
-      return { data: null, error };
-    }
-  }
+  // Player Queue Methods - REMOVED
+  // All player queue functionality has been moved to the players table
+  // Use auction-state.service.ts for player queue operations
 
   // Auction History Methods - Updated to match actual schema
   async getAuctionHistory(): Promise<{ data: AuctionHistory[] | null, error: any }> {
@@ -382,29 +224,7 @@ export class AuctionService {
     }
   }
 
-  async pauseAuction(): Promise<{ data: AuctionConfig | null, error: any }> {
-    try {
-      // First, get the current auction config
-      const { data: currentConfig } = await this.getAuctionConfig();
-      if (!currentConfig) {
-        throw new Error('No auction config found');
-      }
-
-      // Update the auction to PAUSED status regardless of current status
-      const { data, error } = await this.supabase.db
-        .from('auction_config')
-        .update({ status: 'PAUSED' })
-        .eq('id', currentConfig.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error pausing auction:', error);
-      return { data: null, error };
-    }
-  }
+  // pauseAuction method removed - not needed for manual auction control
 
   async endAuction(): Promise<{ data: AuctionConfig | null, error: any }> {
     try {
@@ -457,13 +277,13 @@ export class AuctionService {
 
       if (configError) throw configError;
 
-      // 2. Reset all player queue statuses to PENDING
-      const { error: queueError } = await this.supabase.db
-        .from('player_queue')
-        .update({ status: 'PENDING' })
-        .in('status', ['CURRENT', 'SOLD', 'UNSOLD', 'SKIPPED']);
+      // 2. Reset all player auction statuses to PENDING
+      const { error: auctionStatusError } = await this.supabase.db
+        .from('players')
+        .update({ auction_status: 'PENDING' })
+        .in('auction_status', ['CURRENT', 'SOLD', 'UNSOLD', 'SKIPPED']);
 
-      if (queueError) throw queueError;
+      if (auctionStatusError) throw auctionStatusError;
 
       // 3. Clear all auction history
       const { error: historyError } = await this.supabase.db
@@ -517,15 +337,7 @@ export class AuctionService {
           this.currentAuctionSubject.next(payload.new as AuctionConfig);
         }
       )
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'player_queue' },
-        (payload: any) => {
-          // Refresh player queue when it changes
-          this.getPlayerQueue().then(({ data }) => {
-            if (data) this.playerQueueSubject.next(data);
-          });
-        }
-      )
+      // Player queue subscription removed - using players table directly
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'auction_history' },
         (payload: any) => {
@@ -544,7 +356,7 @@ export class AuctionService {
       const { data, error } = await this.supabase.db
         .from('auction_config')
         .select('*')
-        .in('status', ['ACTIVE', 'PAUSED', 'DRAFT'])
+        .in('status', ['ACTIVE', 'DRAFT'])
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
@@ -560,19 +372,16 @@ export class AuctionService {
 
   async loadAuctionData() {
     // Load all auction-related data
-    const [configResult, queueResult, historyResult] = await Promise.all([
+    const [configResult, historyResult] = await Promise.all([
       this.getAuctionConfig(),
-      this.getPlayerQueue(),
       this.getAuctionHistory()
     ]);
 
     if (configResult.data) this.currentAuctionSubject.next(configResult.data);
-    if (queueResult.data) this.playerQueueSubject.next(queueResult.data);
     if (historyResult.data) this.auctionHistorySubject.next(historyResult.data);
 
     return {
       config: configResult,
-      queue: queueResult,
       history: historyResult
     };
   }

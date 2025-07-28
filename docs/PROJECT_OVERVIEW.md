@@ -79,7 +79,7 @@ A streamlined web application for conducting fantasy sports auctions with single
 
 ### 5. Manual Bidding Management
 - Admin sets winning bids manually
-- No timer or automated features
+- Timer functionality will be per-player, not per-auction (future feature)
 - Simple player allocation to teams
 - Manual progression through player list
 
@@ -100,7 +100,7 @@ A streamlined web application for conducting fantasy sports auctions with single
 1. **teams** - Team information and budget tracking
 2. **players** - Player pool with attributes
 3. **auction_config** - Single auction configuration
-4. **player_queue** - Order of players in auction
+4. **player_queue** - REMOVED (using players table directly)
 5. **team_players** - Final team rosters with purchase prices
 
 ## 💡 Key Optimizations

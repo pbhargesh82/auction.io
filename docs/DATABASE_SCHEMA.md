@@ -16,8 +16,7 @@ This database schema is designed for a **simplified fantasy sports auction platf
 erDiagram
     TEAMS ||--o{ TEAM_PLAYERS : has
     PLAYERS ||--o{ TEAM_PLAYERS : "assigned to"
-    PLAYERS ||--o{ PLAYER_QUEUE : "queued in"
-    AUCTION_CONFIG ||--o{ PLAYER_QUEUE : manages
+    -- PLAYER_QUEUE relationship removed - using players table directly
     AUCTION_CONFIG ||--o{ AUCTION_HISTORY : tracks
     TEAMS ||--o{ AUCTION_HISTORY : participates
     PLAYERS ||--o{ AUCTION_HISTORY : featured
@@ -164,11 +163,11 @@ CREATE TABLE auction_config (
     budget_cap DECIMAL(12,2) NOT NULL DEFAULT 10000000,
     max_players_per_team INTEGER NOT NULL DEFAULT 25,
     min_players_per_team INTEGER DEFAULT 15,
-    status VARCHAR(20) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED')),
+    status VARCHAR(20) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'ACTIVE', 'COMPLETED')),
     current_player_id UUID REFERENCES players(id),
     current_player_position INTEGER DEFAULT 0,
     total_players INTEGER DEFAULT 0,
-    auction_type VARCHAR(20) DEFAULT 'MANUAL' CHECK (auction_type IN ('MANUAL', 'TIMER')),
+    -- auction_type field removed - timer functionality will be per-player, not per-auction
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     started_at TIMESTAMP,
@@ -180,22 +179,15 @@ CREATE UNIQUE INDEX idx_auction_config_active ON auction_config (status)
 WHERE status IN ('ACTIVE', 'PAUSED');
 ```
 
-### 4. `player_queue` - Auction Order Management
-**Purpose**: Manage the order of players in auction
+### 4. `player_queue` - REMOVED
+**Purpose**: Auction order management moved to players table
 
-```sql
-CREATE TABLE player_queue (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    player_id UUID REFERENCES players(id) ON DELETE CASCADE,
-    queue_order INTEGER NOT NULL,
-    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'CURRENT', 'SOLD', 'UNSOLD', 'SKIPPED')),
-    created_at TIMESTAMP DEFAULT NOW(),
-    
-    -- Ensure unique order and player
-    UNIQUE(player_id),
-    UNIQUE(queue_order)
-);
-```
+The `player_queue` table has been removed. Auction order is now managed directly through the `auction_status` field in the `players` table.
+
+**Migration Notes:**
+- All player queue functionality has been moved to the players table
+- The `auction_status` field in players table now handles all queue operations
+- This simplifies the database schema and reduces complexity
 
 ### 5. `team_players` - Final Team Rosters
 **Purpose**: Store final team compositions after auction
@@ -254,7 +246,7 @@ Since this is a single admin application, RLS policies will be simple:
 ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE players ENABLE ROW LEVEL SECURITY;
 ALTER TABLE auction_config ENABLE ROW LEVEL SECURITY;
-ALTER TABLE player_queue ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE player_queue ENABLE ROW LEVEL SECURITY; -- REMOVED
 ALTER TABLE team_players ENABLE ROW LEVEL SECURITY;
 ALTER TABLE auction_history ENABLE ROW LEVEL SECURITY;
 
@@ -268,8 +260,8 @@ CREATE POLICY "Enable all operations for authenticated users" ON players
 CREATE POLICY "Enable all operations for authenticated users" ON auction_config
     FOR ALL USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Enable all operations for authenticated users" ON player_queue
-    FOR ALL USING (auth.role() = 'authenticated');
+-- CREATE POLICY "Enable all operations for authenticated users" ON player_queue
+--     FOR ALL USING (auth.role() = 'authenticated'); -- REMOVED
 
 CREATE POLICY "Enable all operations for authenticated users" ON team_players
     FOR ALL USING (auth.role() = 'authenticated');
