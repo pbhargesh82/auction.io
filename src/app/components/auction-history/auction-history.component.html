@@ -81,9 +81,21 @@
 
     <!-- Transaction History -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900">Transaction History</h2>
-        <p class="text-sm text-gray-600 mt-1">Detailed list of all auction transactions</p>
+      <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900">Transaction History</h2>
+          <p class="text-sm text-gray-600 mt-1">Detailed list of all auction transactions</p>
+        </div>
+        <div class="flex items-center md:justify-end w-full md:w-auto mt-2 md:mt-0">
+          <label for="sort-select" class="text-xs font-medium text-gray-600 mr-2 whitespace-nowrap">Sort By</label>
+          <mat-form-field appearance="outline" class="min-w-[120px] max-w-[160px] h-8 m-0 p-0 compact-sort-select">
+            <mat-select id="sort-select" [value]="sortOption()" (valueChange)="sortOption.set($event)" disableRipple panelClass="compact-sort-panel">
+              <mat-option value="name">Name</mat-option>
+              <mat-option value="time">Time (Most Recent)</mat-option>
+              <mat-option value="price">Price</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
 
       @if (auctionHistory().length === 0) {
@@ -118,7 +130,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              @for (history of auctionHistory(); track history.id) {
+              @for (history of sortedAuctionHistory(); track history.id) {
                 <tr class="hover:bg-gray-50 transition-colors">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">

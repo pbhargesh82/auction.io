@@ -14,13 +14,14 @@
   }
 }
 
-html, body { 
-  height: 100%; 
+html, body {
+  height: 100%;
+  overflow: hidden;
 }
 
-body { 
-  margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
@@ -34,7 +35,7 @@ body {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Improved mobile button sizing */
   .btn-mobile {
     min-height: 48px;
@@ -51,12 +52,12 @@ body {
   .mat-mdc-table {
     font-size: 12px;
   }
-  
+
   .mat-mdc-header-cell,
   .mat-mdc-cell {
     padding: 8px 4px;
   }
-  
+
   /* Hide less important columns on mobile */
   .mat-column-created,
   .mat-column-colors {
@@ -91,12 +92,12 @@ body {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
-  
+
   .form-actions {
     flex-direction: column !important;
     gap: 12px !important;
   }
-  
+
   .form-actions button {
     width: 100% !important;
   }
@@ -115,11 +116,11 @@ body {
   .stats-card {
     padding: 16px !important;
   }
-  
+
   .stats-card .stats-value {
     font-size: 1.5rem !important;
   }
-  
+
   .stats-card .stats-label {
     font-size: 11px !important;
   }
@@ -130,13 +131,13 @@ body {
   .table-container {
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Stack table actions vertically on mobile */
   .table-actions {
     flex-direction: column !important;
     gap: 8px !important;
   }
-  
+
   .table-actions button {
     width: 100% !important;
     min-height: 44px !important;
