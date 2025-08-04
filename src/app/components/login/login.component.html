@@ -1,236 +1,220 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
-  <div class="w-full max-w-md">
+<div class="min-h-screen w-full bg-[#020617] relative flex items-center justify-center p-4 sm:p-6 lg:p-8">
+  <!-- Magenta Orb Grid Background -->
+  <div class="absolute inset-0 z-0" style="
+      background: #020617;
+      background-image: 
+        linear-gradient(to right, rgba(71,85,105,0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(71,85,105,0.15) 1px, transparent 1px),
+        radial-gradient(circle at 50% 60%, rgba(236,72,153,0.15) 0%, rgba(168,85,247,0.05) 40%, transparent 70%);
+      background-size: 40px 40px, 40px 40px, 100% 100%;
+    "></div>
+  <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg relative z-10">
     <!-- Login Card -->
-    <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-      
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-4">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Auction.io</h1>
-        <p class="text-gray-600 text-base">
-          @if (isSignUp()) {
-            Create your account to get started
-          } @else {
-            Welcome back to your auction dashboard
-          }
-        </p>
-      </div>
+    <div class="backdrop-blur-xl bg-white/10 rounded-xl shadow-2xl p-4 sm:p-6 lg:p-8 border border-white/20">
+
+             <!-- Header -->
+       <div class="text-center mb-4 sm:mb-6">
+                   <div class="flex items-center justify-center mb-2 sm:mb-3">
+            <img src="/logo.png" alt="Auction.io Logo" class="h-10 sm:h-12 w-auto">
+          </div>
+         <!-- <p class="text-gray-200 text-sm">
+           @if (isSignUp()) {
+           Create your account
+           } @else {
+           Welcome back
+           }
+         </p> -->
+       </div>
 
       <!-- Google Sign-In Button -->
-      <div class="mb-6">
-        <button 
-          type="button"
-          (click)="signInWithGoogle()"
-          [disabled]="loading()"
-          class="w-full bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 text-base shadow-lg hover:shadow-xl border-2 border-gray-200">
-          
+      <div class="mb-3 sm:mb-4">
+        <button type="button" (click)="signInWithGoogle()" [disabled]="loading()"
+          class="w-full backdrop-blur-lg bg-white/20 hover:bg-white/30 disabled:bg-white/10 disabled:cursor-not-allowed text-white font-medium py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 text-xs sm:text-sm shadow-lg hover:shadow-xl border border-white/30">
+
           @if (loading()) {
-            <svg class="animate-spin w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Signing in...</span>
+          <svg class="animate-spin w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          <span>Signing in...</span>
           } @else {
-            <svg class="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            <span>Continue with Google</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+          <span>Continue with Google</span>
           }
         </button>
       </div>
 
       <!-- Divider -->
-      <div class="relative mb-6">
+      <div class="relative mb-3 sm:mb-4">
         <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-300"></div>
+          <div class="w-full border-t border-white/30"></div>
         </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="px-2 bg-white text-gray-500">or</span>
+        <div class="relative flex justify-center text-xs">
+          <span
+            class="px-3 sm:px-4 backdrop-blur-xl bg-[#020617] text-gray-200 rounded-full border border-white/20 uppercase">or</span>
         </div>
       </div>
 
       <!-- Login/Signup Form -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-3 sm:space-y-4">
+
         <!-- Email Field -->
         <div>
-          <label for="email" class="block text-sm font-semibold text-gray-800 mb-3">
-            Email Address
+          <label for="email" class="block text-xs sm:text-sm font-medium text-gray-200 mb-1">
+            Email
           </label>
           <div class="relative">
-            <input 
-              id="email"
-              type="email" 
-              formControlName="email"
-              placeholder="Enter your email"
-              class="w-full pl-12 pr-4 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white text-gray-900 placeholder-gray-500 text-base">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+            <input id="email" type="email" formControlName="email" placeholder="Enter your email"
+              class="w-full pl-10 pr-3 py-2 sm:py-2.5 border border-white/30 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition-all backdrop-blur-lg bg-white/20 text-white placeholder-gray-300 text-xs sm:text-sm">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
               </svg>
             </div>
           </div>
-          
+
           @if (emailControl()?.hasError('required') && emailControl()?.touched) {
-            <p class="mt-2 text-sm text-red-600 font-medium">Email is required</p>
+          <p class="mt-1 text-xs text-red-600">Email is required</p>
           }
           @if (emailControl()?.hasError('email') && emailControl()?.touched) {
-            <p class="mt-2 text-sm text-red-600 font-medium">Please enter a valid email address</p>
+          <p class="mt-1 text-xs text-red-600">Please enter a valid email</p>
           }
         </div>
 
         <!-- Password Field -->
         <div>
-          <label for="password" class="block text-sm font-semibold text-gray-800 mb-3">
+          <label for="password" class="block text-xs sm:text-sm font-medium text-gray-200 mb-1">
             Password
           </label>
           <div class="relative">
-            <input 
-              id="password"
-              [type]="hidePassword() ? 'password' : 'text'" 
-              formControlName="password"
+            <input id="password" [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
               placeholder="Enter your password"
-              class="w-full pl-12 pr-14 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white text-gray-900 placeholder-gray-500 text-base">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              class="w-full pl-10 pr-10 py-2 sm:py-2.5 border border-white/30 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition-all backdrop-blur-lg bg-white/20 text-white placeholder-gray-300 text-xs sm:text-sm">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <button 
-              type="button"
-              (click)="togglePasswordVisibility()"
-              class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-700 transition-colors">
+            <button type="button" (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-300 hover:text-white transition-colors">
               @if (hidePassword()) {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
               } @else {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
-                </svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+              </svg>
               }
             </button>
           </div>
-          
+
           @if (passwordControl()?.hasError('required') && passwordControl()?.touched) {
-            <p class="mt-2 text-sm text-red-600 font-medium">Password is required</p>
+          <p class="mt-1 text-xs text-red-600">Password is required</p>
           }
           @if (passwordControl()?.hasError('minlength') && passwordControl()?.touched) {
-            <p class="mt-2 text-sm text-red-600 font-medium">Password must be at least 6 characters</p>
+          <p class="mt-1 text-xs text-red-600">Password must be at least 6 characters</p>
           }
         </div>
 
         <!-- Confirm Password Field (Sign Up Only) -->
         @if (isSignUp()) {
-          <div>
-            <label for="confirmPassword" class="block text-sm font-semibold text-gray-800 mb-3">
-              Confirm Password
-            </label>
-            <div class="relative">
-              <input 
-                id="confirmPassword"
-                [type]="hidePassword() ? 'password' : 'text'" 
-                formControlName="confirmPassword"
-                placeholder="Confirm your password"
-                class="w-full pl-12 pr-4 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white text-gray-900 placeholder-gray-500 text-base">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
-              </div>
+        <div>
+          <label for="confirmPassword" class="block text-xs sm:text-sm font-medium text-gray-200 mb-1">
+            Confirm Password
+          </label>
+          <div class="relative">
+            <input id="confirmPassword" [type]="hidePassword() ? 'password' : 'text'" formControlName="confirmPassword"
+              placeholder="Confirm your password"
+              class="w-full pl-10 pr-3 py-2 sm:py-2.5 border border-white/30 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition-all backdrop-blur-lg bg-white/20 text-white placeholder-gray-300 text-xs sm:text-sm">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </div>
-            
-            @if (confirmPasswordControl()?.hasError('required') && confirmPasswordControl()?.touched) {
-              <p class="mt-2 text-sm text-red-600 font-medium">Please confirm your password</p>
-            }
-            @if (passwordMatchError()) {
-              <p class="mt-2 text-sm text-red-600 font-medium">{{ passwordMatchError() }}</p>
-            }
           </div>
+
+          @if (confirmPasswordControl()?.hasError('required') && confirmPasswordControl()?.touched) {
+          <p class="mt-1 text-xs text-red-600">Please confirm your password</p>
+          }
+          @if (passwordMatchError()) {
+          <p class="mt-1 text-xs text-red-600">{{ passwordMatchError() }}</p>
+          }
+        </div>
         }
 
         <!-- Error Message -->
         @if (loginError()) {
-          <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4">
-            <div class="flex items-center">
-              <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <p class="text-sm text-red-800 font-medium">{{ loginError() }}</p>
-            </div>
+        <div class="backdrop-blur-lg bg-red-500/20 border border-red-400/30 rounded-lg p-3">
+          <div class="flex items-center">
+            <svg class="w-4 h-4 text-red-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-xs text-red-200 font-medium">{{ loginError() }}</p>
           </div>
+        </div>
         }
 
         <!-- Submit Button -->
-        <button 
-          type="submit"
-          [disabled]="!isFormValid()"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 text-base shadow-lg hover:shadow-xl">
-          
+        <button type="submit" [disabled]="!isFormValid()"
+          class="w-full backdrop-blur-lg bg-indigo-600/80 hover:bg-indigo-600 disabled:bg-gray-400/50 disabled:cursor-not-allowed text-white font-medium py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 text-xs sm:text-sm shadow-lg hover:shadow-xl border border-indigo-400/30">
+
           @if (loading()) {
-            <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>{{ isSignUp() ? 'Creating account...' : 'Signing you in...' }}</span>
+          <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          <span>{{ isSignUp() ? 'Creating account...' : 'Signing in...' }}</span>
           } @else {
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-            </svg>
-            <span>{{ isSignUp() ? 'Create Account' : 'Sign In' }}</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+          </svg>
+          <span>{{ isSignUp() ? 'Create Account' : 'Sign In' }}</span>
           }
         </button>
-
-        <!-- Forgot Password Link (Sign In Only) -->
-        @if (!isSignUp()) {
-          <div class="text-center">
-            <button 
-              type="button" 
-              (click)="onForgotPassword()"
-              [disabled]="loading()"
-              class="text-indigo-600 hover:text-indigo-800 disabled:text-gray-400 disabled:cursor-not-allowed text-base font-semibold transition-colors duration-200 underline">
-              Forgot your password?
-            </button>
-          </div>
-        }
       </form>
 
       <!-- Toggle Sign In/Sign Up -->
-      <div class="text-center mt-6 pt-6 border-t border-gray-200">
-        <p class="text-gray-600 text-base">
+      <div class="text-center mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/30 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+        <p class="text-gray-200 text-xs sm:text-sm">
           @if (isSignUp()) {
-            Already have an account?
+          Already have an account?
           } @else {
-            Don't have an account?
+          Don't have an account?
           }
         </p>
-        <button 
-          type="button"
-          (click)="toggleSignUpMode()"
-          [disabled]="loading()"
-          class="text-indigo-600 hover:text-indigo-800 disabled:text-gray-400 disabled:cursor-not-allowed text-base font-semibold transition-colors duration-200 underline mt-2">
+        <button type="button" (click)="toggleSignUpMode()" [disabled]="loading()"
+          class="text-indigo-300 hover:text-indigo-200 disabled:text-gray-400 disabled:cursor-not-allowed text-xs sm:text-sm font-medium transition-colors duration-200 underline">
           @if (isSignUp()) {
-            Sign in instead
+          Sign in instead
           } @else {
-            Create account
+          Create account
           }
         </button>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="text-center mt-8">
-      <p class="text-sm text-gray-400 font-medium">
-        Secure authentication powered by Supabase
-      </p>
-    </div>
   </div>
-</div> 
+</div>

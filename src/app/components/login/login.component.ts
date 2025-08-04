@@ -161,26 +161,7 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  async onForgotPassword(): Promise<void> {
-    const email = this.loginForm.get('email')?.value;
-    
-    if (!email) {
-      alert('Please enter your email address first');
-      return;
-    }
 
-    try {
-      const { error } = await this.supabaseService.resetPassword(email);
-      
-      if (error) {
-        alert(`Password reset failed: ${error.message}`);
-      } else {
-        alert('Password reset email sent! Check your inbox.');
-      }
-    } catch (error) {
-      alert('Failed to send reset email. Please try again.');
-    }
-  }
 
   private getErrorMessage(error: string): string {
     if (error.includes('Invalid login credentials')) {
