@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "npx ng build --configuration production",
+    "build": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "update-version": "node scripts/update-version.js"
@@ -22,7 +22,6 @@
   "private": true,
   "dependencies": {
     "@angular/cdk": "^20.0.4",
-    "@angular/cli": "^20.0.4",
     "@angular/common": "^20.0.0",
     "@angular/compiler": "^20.0.0",
     "@angular/core": "^20.0.0",
@@ -40,6 +39,7 @@
   },
   "devDependencies": {
     "@angular/build": "^20.0.4",
+    "@angular/cli": "^20.0.4",
     "@angular/compiler-cli": "^20.0.0",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.7.0",
