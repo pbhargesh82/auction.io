@@ -8,11 +8,13 @@ import { LayoutComponent } from './components/layout/layout.component';
 import { AuctionControlComponent } from './components/auction-control/auction-control.component';
 import { AuctionConfigComponent } from './components/auction-config/auction-config.component';
 import { AuctionHistoryComponent } from './components/auction-history/auction-history.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'auth/callback', component: AuthCallbackComponent },
   {
     path: '',
     component: LayoutComponent,

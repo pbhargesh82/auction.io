@@ -4,5 +4,8 @@ export const environment = {
   supabase: {
     url: process.env['SUPABASE_URL'] || 'YOUR_SUPABASE_URL',
     anonKey: process.env['SUPABASE_ANON_KEY'] || 'YOUR_SUPABASE_ANON_KEY'
+  },
+  auth: {
+    redirectUrl: 'https://auction-io.netlify.app/auth/callback'
   }
 }; 

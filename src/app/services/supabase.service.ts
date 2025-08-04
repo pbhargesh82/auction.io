@@ -13,6 +13,7 @@ export class SupabaseService {
   private _initialized = false;
 
   constructor() {
+    console.log('environment', environment);
     this.supabase = createClient(
       environment.supabase.url,
       environment.supabase.anonKey,
@@ -21,7 +22,7 @@ export class SupabaseService {
           storage: window.localStorage,
           autoRefreshToken: true,
           persistSession: true,
-          detectSessionInUrl: false
+          detectSessionInUrl: true // Enable automatic session detection from URL
         }
       }
     );
@@ -37,6 +38,7 @@ export class SupabaseService {
 
     // Listen to auth changes
     this.supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
       this._currentUser.next(session?.user ?? null);
     });
   }
@@ -85,6 +87,25 @@ export class SupabaseService {
     return { data, error };
   }
 
+  async signInWithGoogle() {
+    // Temporary workaround: Force localhost for local development
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const redirectUrl = isLocalhost 
+      ? 'http://localhost:4200/auth/callback'
+      : environment.auth.redirectUrl;
+    
+    console.log('Using redirect URL:', redirectUrl);
+    console.log('Current hostname:', window.location.hostname);
+    
+    const { data, error } = await this.supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl
+      }
+    });
+    return { data, error };
+  }
+
   async signOut() {
     const { error } = await this.supabase.auth.signOut();
     return { error };
@@ -93,6 +114,16 @@ export class SupabaseService {
   async resetPassword(email: string) {
     const { data, error } = await this.supabase.auth.resetPasswordForEmail(email);
     return { data, error };
+  }
+
+  // Handle OAuth callback
+  async handleAuthCallback() {
+    const { data, error } = await this.supabase.auth.getSession();
+    if (error) {
+      console.error('Error getting session:', error);
+      return { error };
+    }
+    return { data };
   }
 
   // Database methods
