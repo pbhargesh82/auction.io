@@ -1,20 +1,9 @@
 [build]
-  publish = "dist/auction.io/browser"
+  publish = "dist/auction.io"
   command = "npm run build"
 
 [build.environment]
-  NODE_VERSION = "20"
-  NODE_ENV = "production"
-
-# Production environment
-[context.production]
-  command = "npm run build"
-  environment = { NODE_ENV = "production" }
-
-# Development environment
-[context.deploy-preview]
-  command = "npm run build:dev"
-  environment = { NODE_ENV = "development" }
+  NODE_VERSION = "18"
 
 [[redirects]]
   from = "/*"
@@ -24,4 +13,4 @@
 [dev]
   command = "npm start"
   port = 4200
-  publish = "dist/auction.io/browser" 
+  publish = "dist/auction.io" 
