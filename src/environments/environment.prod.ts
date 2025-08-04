@@ -7,5 +7,10 @@ export const environment = {
   },
   auth: {
     redirectUrl: 'https://auction-io.netlify.app/auth/callback'
+  },
+  features: {
+    enableAnalytics: true,
+    enableRealtime: true,
+    enableDebugMode: false
   }
 }; 

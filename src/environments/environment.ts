@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  development: true,
   version: '1.0.0',
   supabase: {
     url: 'https://mcceuswycjpcsgseaixg.supabase.co',
@@ -7,5 +8,10 @@ export const environment = {
   },
   auth: {
     redirectUrl: 'http://localhost:4200/auth/callback'
+  },
+  features: {
+    enableAnalytics: false,
+    enableRealtime: true,
+    enableDebugMode: true
   }
 }; 
