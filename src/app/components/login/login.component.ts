@@ -23,21 +23,36 @@ export class LoginComponent implements OnInit {
   loginError = signal<string | null>(null);
   formTouched = signal(false);
   isSignUp = signal(false);
+  formValiditySignal = signal(false);
 
-  // Reactive form with validation
+  // Reactive form with validation - only require confirmPassword in signup mode
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', [Validators.required]]
+    confirmPassword: [''] // No validators initially
   });
 
   // Computed signals for form validation
   isFormValid = computed(() => {
     const form = this.loginForm;
-    const isPasswordMatch = this.isSignUp() ? 
-      this.loginForm.get('password')?.value === this.loginForm.get('confirmPassword')?.value : 
-      true;
-    return form.valid && !this.loading() && isPasswordMatch;
+    const isSignUpMode = this.isSignUp();
+    const isLoading = this.loading();
+    const formValid = this.formValiditySignal();
+    
+    // Check individual field validity directly
+    const emailValid = form.get('email')?.valid ?? false;
+    const passwordValid = form.get('password')?.valid ?? false;
+    
+    // Check password match only in signup mode
+    let passwordMatchValid = true;
+    if (isSignUpMode) {
+      const password = form.get('password')?.value;
+      const confirmPassword = form.get('confirmPassword')?.value;
+      passwordMatchValid = !!(password && confirmPassword && password === confirmPassword);
+    }
+    
+    // Form is valid if all required fields are valid and passwords match (in signup mode)
+    return emailValid && passwordValid && passwordMatchValid && !isLoading;
   });
   
   emailControl = computed(() => this.loginForm.get('email'));
@@ -62,6 +77,12 @@ export class LoginComponent implements OnInit {
     this.loginForm.valueChanges.subscribe(() => {
       this.formTouched.set(true);
     });
+
+    // Listen to form status changes
+    this.loginForm.statusChanges.subscribe(() => {
+      // Update the form validity signal
+      this.formValiditySignal.set(this.loginForm.valid);
+    });
   }
 
   async ngOnInit() {
@@ -74,11 +95,27 @@ export class LoginComponent implements OnInit {
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
       this.router.navigate([returnUrl]);
     }
+
+    // Ensure form is properly initialized for login mode
+    this.loginForm.get('confirmPassword')?.clearValidators();
+    this.loginForm.get('confirmPassword')?.updateValueAndValidity();
+    
+    // Initialize form validity signal
+    this.formValiditySignal.set(this.loginForm.valid);
+    
+    // Force form validation update
+    this.loginForm.updateValueAndValidity();
   }
+
+
+
+
 
   togglePasswordVisibility(): void {
     this.hidePassword.update(hidden => !hidden);
   }
+
+
 
   toggleSignUpMode(): void {
     this.isSignUp.update(mode => !mode);
@@ -99,7 +136,6 @@ export class LoginComponent implements OnInit {
     this.loginForm.markAllAsTouched();
     
     if (!this.isFormValid()) {
-      console.log('Form is invalid:', this.loginForm.errors);
       return;
     }
 
@@ -113,8 +149,6 @@ export class LoginComponent implements OnInit {
         this.loginError.set('Please fill in all required fields.');
         return;
       }
-
-      console.log(`Attempting ${this.isSignUp() ? 'signup' : 'login'} with:`, { email, password: '***' });
       
       let result;
       if (this.isSignUp()) {
@@ -124,16 +158,13 @@ export class LoginComponent implements OnInit {
       }
 
       if (result.error) {
-        console.error(`Supabase ${this.isSignUp() ? 'signup' : 'login'} error:`, result.error);
         this.loginError.set(this.getErrorMessage(result.error.message));
       } else {
-        console.log(`${this.isSignUp() ? 'Signup' : 'Login'} successful!`);
         // Redirect to returnUrl if it exists, otherwise go to dashboard
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
         this.router.navigate([returnUrl]);
       }
     } catch (error: any) {
-      console.error('Unexpected error:', error);
       this.loginError.set('An unexpected error occurred. Please try again.');
     } finally {
       this.loading.set(false);
@@ -148,14 +179,10 @@ export class LoginComponent implements OnInit {
       const { error } = await this.supabaseService.signInWithGoogle();
       
       if (error) {
-        console.error('Google sign-in error:', error);
         this.loginError.set(this.getErrorMessage(error.message));
-      } else {
-        console.log('Google sign-in initiated successfully!');
-        // The user will be redirected to Google OAuth, then back to /auth/callback
       }
+      // The user will be redirected to Google OAuth, then back to /auth/callback
     } catch (error: any) {
-      console.error('Unexpected Google sign-in error:', error);
       this.loginError.set('An unexpected error occurred during Google sign-in. Please try again.');
       this.loading.set(false);
     }

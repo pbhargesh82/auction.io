@@ -1,1 +1,28 @@
-/* Clean minimal styles - no unnecessary complexity */ 
+/* Clean minimal styles - no unnecessary complexity */
+
+/* Fix autocomplete styling to match normal state */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.2) inset !important;
+  -webkit-text-fill-color: white !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Ensure autocomplete styling matches focus state */
+input:-webkit-autofill:focus {
+  border-color: rgb(129, 140, 248) !important; /* indigo-400 */
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.5) !important;
+}
+
+/* Override any browser-specific autocomplete styling */
+input[type="email"]:-webkit-autofill,
+input[type="password"]:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.2) inset !important;
+  -webkit-text-fill-color: white !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+} 
