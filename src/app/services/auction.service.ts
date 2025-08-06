@@ -9,15 +9,12 @@ export interface AuctionConfig {
   budget_cap: number;
   max_players_per_team: number;
   min_players_per_team: number;
-  status: 'DRAFT' | 'ACTIVE' | 'COMPLETED';
   current_player_id?: string;
   current_player_position: number;
   total_players: number;
   // auction_type field removed - timer functionality will be per-player, not per-auction
   created_at: string;
   updated_at: string;
-  started_at?: string;
-  completed_at?: string;
 }
 
 // PlayerQueue interface removed - using players table directly
@@ -52,7 +49,6 @@ export interface UpdateAuctionConfigData {
   budget_cap?: number;
   max_players_per_team?: number;
   min_players_per_team?: number;
-  status?: 'DRAFT' | 'ACTIVE' | 'COMPLETED';
   current_player_id?: string;
   current_player_position?: number;
   total_players?: number;
@@ -197,61 +193,7 @@ export class AuctionService {
   }
 
   // Auction Control Methods
-  async startAuction(): Promise<{ data: AuctionConfig | null, error: any }> {
-    try {
-      // First, get the current auction config
-      const { data: currentConfig } = await this.getAuctionConfig();
-      if (!currentConfig) {
-        throw new Error('No auction config found');
-      }
-
-      // Update the auction to ACTIVE status regardless of current status
-      const { data, error } = await this.supabase.db
-        .from('auction_config')
-        .update({ 
-          status: 'ACTIVE',
-          started_at: new Date().toISOString()
-        })
-        .eq('id', currentConfig.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error starting auction:', error);
-      return { data: null, error };
-    }
-  }
-
-  // pauseAuction method removed - not needed for manual auction control
-
-  async endAuction(): Promise<{ data: AuctionConfig | null, error: any }> {
-    try {
-      // First, get the current auction config
-      const { data: currentConfig } = await this.getAuctionConfig();
-      if (!currentConfig) {
-        throw new Error('No auction config found');
-      }
-
-      // Update the auction to COMPLETED status regardless of current status
-      const { data, error } = await this.supabase.db
-        .from('auction_config')
-        .update({ 
-          status: 'COMPLETED',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', currentConfig.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error ending auction:', error);
-      return { data: null, error };
-    }
-  }
+  // startAuction and endAuction methods removed - auction status management not needed
 
   async resetAuction(): Promise<{ data: AuctionConfig | null, error: any }> {
     try {
@@ -261,15 +203,12 @@ export class AuctionService {
         throw new Error('No auction config found');
       }
 
-      // 1. Reset auction config to DRAFT status
+      // 1. Reset auction config
       const { data: updatedConfig, error: configError } = await this.supabase.db
         .from('auction_config')
         .update({ 
-          status: 'DRAFT',
           current_player_id: null,
-          current_player_position: 0,
-          started_at: null,
-          completed_at: null
+          current_player_position: 0
         })
         .eq('id', config.id)
         .select()

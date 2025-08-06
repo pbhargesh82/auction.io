@@ -245,6 +245,8 @@
 - [x] **Error Handling**: Comprehensive error handling and user feedback
 - [x] **Database Integration**: Full integration with existing Supabase schema
 - [x] **Supabase Foreign Key Fix**: Fixed ambiguous relationship error in auction_history queries by specifying exact foreign key constraint ✅ (Completed: 2024-01-15)
+- [x] **Manual Player Selection**: Removed automatic player queue and implemented manual player selection for auction control ✅ (Completed: 2024-01-15)
+- [x] **Auction Status Management Removal**: Removed auction lifecycle management (DRAFT/ACTIVE/COMPLETED) to simplify the system ✅ (Completed: 2024-01-15)
 
 ---
 

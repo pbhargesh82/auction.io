@@ -53,19 +53,17 @@
 
             <!-- Control Buttons -->
             <div class="flex flex-wrap gap-3">
-              @if (auctionConfig()!.status === 'DRAFT') {
+              @if (remainingPlayers() === 0 && totalPlayers() > 0) {
                 <button 
                   mat-raised-button 
                   color="primary"
-                  (click)="startAuction()"
-                  [disabled]="loading() || totalPlayers() === 0"
-                  class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                  <mat-icon class="mr-2">play_arrow</mat-icon>
-                  Start Auction
+                  (click)="initializeAuction()"
+                  [disabled]="loading()"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                  <mat-icon class="mr-2">add_circle</mat-icon>
+                  Initialize Auction
                 </button>
               }
-
-              <!-- Pause functionality removed - not needed for manual auction control -->
 
               <button 
                 mat-stroked-button 
@@ -124,15 +122,7 @@
                       <mat-icon class="mr-2">cancel</mat-icon>
                       Mark Unsold
                     </button>
-                    <button 
-                      mat-stroked-button 
-                      color="accent"
-                      (click)="nextPlayer()"
-                      [disabled]="loading()"
-                      class="border-purple-600 text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition-all duration-200">
-                      <mat-icon class="mr-2">skip_next</mat-icon>
-                      Skip Player
-                    </button>
+                    
                   </div>
                 </div>
 
@@ -175,13 +165,15 @@
             <div class="p-8 text-center">
               <mat-icon class="text-6xl text-gray-400 mb-4">person_off</mat-icon>
               <h3 class="text-xl font-semibold text-gray-600 mb-2">No Current Player</h3>
-              <p class="text-gray-500 mb-4">
-                @if (remainingPlayers() > 0) {
-                  Search and select a player to start their auction
-                } @else {
-                  All players have been processed
-                }
-              </p>
+                             <p class="text-gray-500 mb-4">
+                 @if (remainingPlayers() > 0) {
+                   Search and select a player to start their auction manually
+                 } @else if (totalPlayers() > 0) {
+                   All players have been processed. Use "Initialize Auction" to add players back to the auction.
+                 } @else {
+                   No players available. Please add players first.
+                 }
+               </p>
               @if (remainingPlayers() > 0) {
                 <div class="max-w-md mx-auto space-y-4">
                   <!-- Player Search -->
@@ -215,19 +207,7 @@
                     </div>
                   }
 
-                  <!-- Or use automatic next player -->
-                  <div class="text-center">
-                    <div class="text-sm text-gray-500 mb-2">Or</div>
-                    <button 
-                      mat-stroked-button 
-                      color="primary"
-                      (click)="nextPlayer()"
-                      [disabled]="loading()"
-                      class="border-blue-600 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-200">
-                      <mat-icon class="mr-2">auto_awesome</mat-icon>
-                      Auto Next Player
-                    </button>
-                  </div>
+                  
                 </div>
               }
             </div>

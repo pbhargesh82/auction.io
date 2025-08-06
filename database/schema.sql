@@ -68,15 +68,12 @@ CREATE TABLE auction_config (
     budget_cap DECIMAL(12,2) NOT NULL DEFAULT 10000000,
     max_players_per_team INTEGER NOT NULL DEFAULT 25,
     min_players_per_team INTEGER DEFAULT 15,
-    status VARCHAR(20) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'ACTIVE', 'COMPLETED')),
     current_player_id UUID REFERENCES players(id),
     current_player_position INTEGER DEFAULT 0,
     total_players INTEGER DEFAULT 0,
     -- auction_type field removed - timer functionality will be per-player, not per-auction
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
-    started_at TIMESTAMP,
-    completed_at TIMESTAMP
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- =====================================================
@@ -143,9 +140,7 @@ CREATE INDEX idx_team_players_purchased_at ON team_players(purchased_at);
 -- Auction history indexes
 CREATE INDEX idx_auction_history_auction_date ON auction_history(auction_date);
 
--- Unique constraint for only one active auction
-CREATE UNIQUE INDEX idx_auction_config_active ON auction_config (status) 
-WHERE status IN ('ACTIVE', 'PAUSED');
+-- Unique constraint removed - no longer needed without status management
 
 -- =====================================================
 -- DATABASE FUNCTIONS
@@ -277,7 +272,6 @@ GROUP BY t.id, t.name, t.short_name, t.budget_cap, t.budget_spent, t.budget_rema
 CREATE VIEW auction_progress AS
 SELECT 
     ac.name as auction_name,
-    ac.status,
     COUNT(p.id) as total_players,
     COUNT(CASE WHEN p.auction_status = 'SOLD' THEN 1 END) as players_sold,
     COUNT(CASE WHEN p.auction_status = 'UNSOLD' THEN 1 END) as players_unsold,
@@ -288,7 +282,7 @@ SELECT
 FROM auction_config ac
 LEFT JOIN players p ON p.is_active = true
 LEFT JOIN auction_history ah ON ah.auction_date = CURRENT_DATE
-GROUP BY ac.id, ac.name, ac.status, ac.current_player_position;
+GROUP BY ac.id, ac.name, ac.current_player_position;
 
 -- Player category statistics view
 CREATE VIEW player_category_stats AS
@@ -356,8 +350,8 @@ INSERT INTO players (name, position, category, base_price, nationality, age) VAL
 ('MS Dhoni', 'Wicket-keeper', 'Finisher', 1600000, 'India', 42);
 
 -- Sample auction configuration
-INSERT INTO auction_config (name, description, budget_cap, max_players_per_team, status) VALUES
-('IPL 2024 Auction', 'Indian Premier League 2024 Player Auction', 10000000, 25, 'DRAFT');
+INSERT INTO auction_config (name, description, budget_cap, max_players_per_team) VALUES
+('IPL 2024 Auction', 'Indian Premier League 2024 Player Auction', 10000000, 25);
 
 -- =====================================================
 -- COMPLETION MESSAGE

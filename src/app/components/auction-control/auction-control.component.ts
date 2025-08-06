@@ -63,22 +63,18 @@ export class AuctionControlComponent implements OnInit {
 
   // Computed values
   totalPlayers = computed(() => {
-    // Get total players from auction config
-    const config = this.auctionConfig();
-    if (config && config.total_players > 0) {
-      return config.total_players;
-    }
-    // Fallback to counting players from teams
-    return this.teams().reduce((total, team) => total + team.players_count, 0);
+    // Count all active players that can be auctioned
+    return this.auctionStateService.players().filter(p => p.is_active).length;
   });
 
   soldPlayers = computed(() => {
-    // Count players that have been sold from teams
-    return this.teams().reduce((total, team) => total + team.players_count, 0);
+    // Count players that have been sold
+    return this.auctionStateService.players().filter(p => p.auction_status === 'SOLD').length;
   });
 
   remainingPlayers = computed(() => {
-    return this.totalPlayers() - this.soldPlayers();
+    // Count players that are available for auction (PENDING status)
+    return this.auctionStateService.players().filter(p => p.auction_status === 'PENDING').length;
   });
 
   progressPercentage = computed(() => {
@@ -176,22 +172,7 @@ export class AuctionControlComponent implements OnInit {
 
 
 
-  async startAuction() {
-    this.loading.set(true);
-    const { data, error } = await this.auctionService.startAuction();
-    
-    if (error) {
-      this.error.set(error.message);
-      this.snackBar.open(`Error starting auction: ${error.message}`, 'Close', { duration: 5000 });
-    } else {
-      this.snackBar.open('Auction started successfully!', 'Close', { duration: 3000 });
-      // Update local signals
-      this.auctionConfig.set(this.auctionStateService.auctionConfig());
-    }
-    this.loading.set(false);
-  }
-
-  // pauseAuction method removed - not needed for manual auction control
+  // startAuction method removed - auction status management not needed
 
   async resetAuction() {
     if (!confirm('Are you sure you want to reset the auction? This will clear all progress, including sold players, team budgets, and auction history.')) {
@@ -219,40 +200,53 @@ export class AuctionControlComponent implements OnInit {
     }
   }
 
-  async nextPlayer() {
+  async initializeAuction() {
     this.loading.set(true);
     try {
-      // Get current auction config
-      const { data: config } = await this.auctionService.getAuctionConfig();
-      if (!config) {
-        this.snackBar.open('No auction configuration found!', 'Close', { duration: 5000 });
+      // Get all active players
+      const { data: players, error } = await this.playersService.getPlayers();
+      
+      if (error) {
+        throw error;
+      }
+
+      if (!players || players.length === 0) {
+        this.snackBar.open('No players found. Please add players first.', 'Close', { duration: 5000 });
         return;
       }
 
-      // Get next player using the simplified approach
-      const nextPlayer = await this.auctionStateService.getNextPlayer();
-      
-      if (nextPlayer) {
-        this.snackBar.open(`Moved to next player: ${nextPlayer.name}!`, 'Close', { duration: 3000 });
-        // Update local signals
-        this.currentPlayer.set(this.auctionStateService.currentPlayer());
-      } else {
-        // No more players
-        this.snackBar.open('Auction completed! All players have been processed.', 'Close', { duration: 5000 });
-        const { error } = await this.auctionService.endAuction();
-        if (error) {
-          this.snackBar.open(`Error ending auction: ${error.message}`, 'Close', { duration: 5000 });
-        }
-        // Update local signals
-        this.currentPlayer.set(this.auctionStateService.currentPlayer());
-        this.auctionConfig.set(this.auctionStateService.auctionConfig());
+      // Get active player IDs
+      const activePlayerIds = players
+        .filter(p => p.is_active)
+        .map(p => p.id);
+
+      if (activePlayerIds.length === 0) {
+        this.snackBar.open('No active players found. Please activate some players first.', 'Close', { duration: 5000 });
+        return;
       }
+
+      // Add all active players to auction (set to PENDING status)
+      await this.auctionStateService.addPlayersToAuction(activePlayerIds);
+      
+      this.snackBar.open(`Successfully added ${activePlayerIds.length} players to the auction!`, 'Close', { duration: 3000 });
+      
+      // Refresh data
+      await this.auctionStateService.loadAllData();
+      
+      // Update local signals
+      this.auctionConfig.set(this.auctionStateService.auctionConfig());
+      this.currentPlayer.set(this.auctionStateService.currentPlayer());
+      this.teams.set(this.auctionStateService.teams());
+      
     } catch (error: any) {
-      this.snackBar.open(`Error in next player operation: ${error.message || 'Unknown error'}`, 'Close', { duration: 5000 });
+      this.error.set(error.message);
+      this.snackBar.open(`Error initializing auction: ${error.message}`, 'Close', { duration: 5000 });
     } finally {
       this.loading.set(false);
     }
   }
+
+
 
   async markUnsold() {
     if (!this.currentPlayer()) return;
@@ -380,7 +374,8 @@ export class AuctionControlComponent implements OnInit {
 
     const allPlayers = this.auctionStateService.players();
     const filtered = allPlayers.filter(player => 
-      player.auction_status === 'PENDING' && 
+      player.is_active && 
+      player.auction_status !== 'SOLD' &&
       player.name.toLowerCase().includes(searchTerm)
     );
     this.filteredPlayers.set(filtered);
