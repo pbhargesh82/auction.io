@@ -4,12 +4,15 @@ import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 
+export type UserRole = 'admin' | 'user';
+
 @Injectable({
   providedIn: 'root'
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
   private _currentUser: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
+  private _userRole: BehaviorSubject<UserRole> = new BehaviorSubject<UserRole>('user');
   private _initialized = false;
 
   constructor() {
@@ -34,13 +37,27 @@ export class SupabaseService {
     // Get the current session on initialization
     const { data: { session } } = await this.supabase.auth.getSession();
     this._currentUser.next(session?.user ?? null);
+    this.updateUserRole(session?.user ?? null);
     this._initialized = true;
 
     // Listen to auth changes
     this.supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session?.user?.email);
       this._currentUser.next(session?.user ?? null);
+      this.updateUserRole(session?.user ?? null);
     });
+  }
+
+  private updateUserRole(user: User | null) {
+    if (!user?.email) {
+      this._userRole.next('user');
+      return;
+    }
+    
+    // Determine role based on email
+    const role: UserRole = user.email === 'pbhargesh82@aol.com' ? 'admin' : 'user';
+    this._userRole.next(role);
+    console.log(`User role determined: ${role} for email: ${user.email}`);
   }
 
   get currentUser(): Observable<User | null> {
@@ -49,6 +66,26 @@ export class SupabaseService {
 
   get currentUserValue(): User | null {
     return this._currentUser.value;
+  }
+
+  get userRole(): Observable<UserRole> {
+    return this._userRole.asObservable();
+  }
+
+  get userRoleValue(): UserRole {
+    return this._userRole.value;
+  }
+
+  get isAdmin(): Observable<boolean> {
+    return new Observable(observer => {
+      this._userRole.subscribe(role => {
+        observer.next(role === 'admin');
+      });
+    });
+  }
+
+  get isAdminValue(): boolean {
+    return this._userRole.value === 'admin';
   }
 
   // Wait for auth initialization to complete

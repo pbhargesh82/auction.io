@@ -1,7 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
-import { SupabaseService } from '../../services/supabase.service';
+import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs/operators';
@@ -25,6 +25,7 @@ export class LayoutComponent {
   sidebarCollapsed = signal(false);
   mobileMenuOpen = signal(false);
   user = signal<any>(null);
+  userRole = signal<UserRole>('user');
   currentRoute = signal<string>('');
 
   // App version - computed from service
@@ -37,6 +38,9 @@ export class LayoutComponent {
     const menuItem = this.menuItems.find(item => item.route === route);
     return menuItem ? menuItem.label : 'Dashboard';
   });
+
+  // Computed signal for admin status
+  isAdmin = computed(() => this.userRole() === 'admin');
 
   // Navigation menu items
   menuItems: MenuItem[] = [
@@ -86,25 +90,18 @@ export class LayoutComponent {
     return 'User';
   });
 
-  // Simple role logic based on email
-  userRole = computed(() => {
-    const currentUser = this.user();
-    if (currentUser?.email === 'pbhargesh82@aol.com') {
-      return 'admin';
-    }
-    return 'user';
-  });
-
-  isAdmin = computed(() => this.userRole() === 'admin');
-
   constructor(
     private supabaseService: SupabaseService,
     private versionService: VersionService,
     private router: Router
   ) {
-    // Get current user
+    // Get current user and role
     this.supabaseService.currentUser.subscribe(user => {
       this.user.set(user);
+    });
+
+    this.supabaseService.userRole.subscribe(role => {
+      this.userRole.set(role);
     });
 
     // Track route changes

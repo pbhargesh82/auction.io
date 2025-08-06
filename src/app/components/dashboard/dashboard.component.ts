@@ -1,7 +1,7 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { SupabaseService } from '../../services/supabase.service';
+import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { AuctionStateService, TeamWithPlayers } from '../../services/auction-state.service';
 import { MatIconModule } from '@angular/material/icon';
 import { TeamCardComponent } from '../team-card/team-card.component';
@@ -26,6 +26,7 @@ export class DashboardComponent implements OnInit {
   loading;
   error;
   user = signal<any>(null);
+  userRole = signal<UserRole>('user');
 
   // Computed signals
   welcomeMessage = computed(() => {
@@ -37,15 +38,7 @@ export class DashboardComponent implements OnInit {
     return 'Welcome to your dashboard!';
   });
 
-  // Simple role logic based on email
-  userRole = computed(() => {
-    const currentUser = this.user();
-    if (currentUser?.email === 'pbhargesh82@aol.com') {
-      return 'admin';
-    }
-    return 'user';
-  });
-
+  // Computed signal for admin status
   isAdmin = computed(() => this.userRole() === 'admin');
 
   playerStats = computed((): PlayerStats => {
@@ -81,6 +74,10 @@ export class DashboardComponent implements OnInit {
     this.teamsWithPlayers = this.auctionStateService.teamsWithPlayers;
     this.loading = this.auctionStateService.loading;
     this.error = this.auctionStateService.error;
+
+    this.supabaseService.userRole.subscribe(role => {
+      this.userRole.set(role);
+    });
   }
 
   async ngOnInit() {
@@ -99,8 +96,6 @@ export class DashboardComponent implements OnInit {
         this.router.navigate(['/login']);
         return;
       }
-      
-      this.user.set(currentUser);
 
       // Load all data using centralized service
       await this.auctionStateService.loadAllData();
