@@ -88,6 +88,9 @@
                 <p class="text-xs text-gray-500 truncate">
                   {{ user()?.email }}
                 </p>
+                <p class="text-xs font-medium capitalize" [class]="userRole() === 'admin' ? 'text-purple-600' : 'text-gray-600'">
+                  {{ userRole() }}
+                </p>
               </div>
             </div>
             
@@ -199,6 +202,9 @@
               </p>
               <p class="text-xs text-gray-500 truncate">
                 {{ user()?.email }}
+              </p>
+              <p class="text-xs font-medium" [class]="userRole() === 'admin' ? 'text-purple-600' : 'text-gray-600'">
+                {{ userRole() }}
               </p>
             </div>
           </div>

@@ -37,6 +37,17 @@ export class DashboardComponent implements OnInit {
     return 'Welcome to your dashboard!';
   });
 
+  // Simple role logic based on email
+  userRole = computed(() => {
+    const currentUser = this.user();
+    if (currentUser?.email === 'pbhargesh82@aol.com') {
+      return 'admin';
+    }
+    return 'user';
+  });
+
+  isAdmin = computed(() => this.userRole() === 'admin');
+
   playerStats = computed((): PlayerStats => {
     const allPlayers = this.auctionStateService.players();
     const soldPlayers = this.auctionStateService.soldPlayers();

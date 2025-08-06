@@ -86,6 +86,17 @@ export class LayoutComponent {
     return 'User';
   });
 
+  // Simple role logic based on email
+  userRole = computed(() => {
+    const currentUser = this.user();
+    if (currentUser?.email === 'pbhargesh82@aol.com') {
+      return 'admin';
+    }
+    return 'user';
+  });
+
+  isAdmin = computed(() => this.userRole() === 'admin');
+
   constructor(
     private supabaseService: SupabaseService,
     private versionService: VersionService,

@@ -470,4 +470,5 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
 - [x] **Recent Activity Removal**: Removed recent activity section from auction control page for cleaner interface ✅ (Completed: 2024-01-16)
 - [x] **History Management**: Added clear history functionality and proper history cleanup on auction reset ✅ (Completed: 2024-01-16)
 - [x] **Navigation Integration**: Added auction history menu item to sidebar navigation ✅ (Completed: 2024-01-16)
-- [x] **Type Compatibility Fix**: Fixed TeamWithPlayers and Team interface compatibility issues in team-card component ✅ (Completed: 2024-01-16) 
+- [x] **Type Compatibility Fix**: Fixed TeamWithPlayers and Team interface compatibility issues in team-card component ✅ (Completed: 2024-01-16)
+- [x] **User Role Management**: Implemented frontend-only user role system - users with email 'pbhargesh82@aol.com' are marked as admin, others as user ✅ (Completed: 2024-01-16) 
