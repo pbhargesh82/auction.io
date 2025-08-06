@@ -149,7 +149,7 @@ export class AuctionService {
         .select(`
           *,
           player:players(*),
-          team:teams(*)
+          team:teams!auction_history_winning_team_id_fkey(*)
         `)
         .order('sold_at', { ascending: false });
 
