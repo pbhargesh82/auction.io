@@ -43,11 +43,12 @@ export class DashboardComponent implements OnInit {
 
   playerStats = computed((): PlayerStats => {
     const allPlayers = this.auctionStateService.players();
+    const activePlayers = allPlayers.filter(p => p.is_active);
     const soldPlayers = this.auctionStateService.soldPlayers();
     const availablePlayers = this.auctionStateService.availablePlayers();
     
     return {
-      totalPlayers: allPlayers.length,
+      totalPlayers: activePlayers.length,
       soldPlayers: soldPlayers.length,
       availablePlayers: availablePlayers.length,
       totalBasePrice: allPlayers.reduce((sum, p) => sum + p.base_price, 0)

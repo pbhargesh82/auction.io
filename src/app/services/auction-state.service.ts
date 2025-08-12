@@ -121,15 +121,20 @@ export class AuctionStateService {
   });
 
   availablePlayers = computed(() => {
-    return this._players().filter(p => p.auction_status === 'PENDING' && p.is_active);
+    // Use same logic as players component: Active players - Sold players
+    const activePlayers = this._players().filter(p => p.is_active);
+    const soldPlayerIds = this._teamPlayers().map(tp => tp.player_id);
+    return activePlayers.filter(p => !soldPlayerIds.includes(p.id));
   });
 
   soldPlayers = computed(() => {
-    return this._auctionHistory().filter(h => h.status === 'SOLD');
+    // Use team_players table to determine sold players (consistent with players component)
+    const soldPlayerIds = this._teamPlayers().map(tp => tp.player_id);
+    return this._players().filter(p => soldPlayerIds.includes(p.id));
   });
 
   totalPlayers = computed(() => {
-    return this.playerQueue().length;
+    return this._players().filter(p => p.is_active).length;
   });
 
   remainingPlayers = computed(() => {
