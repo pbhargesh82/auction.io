@@ -76,29 +76,31 @@
     <!-- Quick Actions -->
     <div class="mb-6 lg:mb-8">
       <div class="flex flex-col sm:flex-row gap-3 lg:gap-4">
-        <button 
-          (click)="startAuction()"
-          class="bg-green-600 hover:bg-green-700 text-white px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px] shadow-lg">
-          <mat-icon fontSize="24" class="flex-shrink-0">gavel</mat-icon>
-          <span>Start Auction</span>
-        </button>
-        <button 
-          (click)="navigateToAuctionConfig()"
-          class="bg-purple-600 hover:bg-purple-700 text-white px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px]">
-          <mat-icon fontSize="24" class="flex-shrink-0">settings</mat-icon>
-          <span>Auction Config</span>
-        </button>
+        @if (isAdmin()) {
+          <button 
+            (click)="startAuction()"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px] shadow-lg">
+            <mat-icon fontSize="24" class="flex-shrink-0">gavel</mat-icon>
+            <span>Start Auction</span>
+          </button>
+          <button 
+            (click)="navigateToAuctionConfig()"
+            class="bg-purple-600 hover:bg-purple-700 text-white px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px]">
+            <mat-icon fontSize="24" class="flex-shrink-0">settings</mat-icon>
+            <span>Auction Config</span>
+          </button>
+        }
         <button 
           (click)="navigateToTeams()"
           class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px]">
           <mat-icon fontSize="24" class="flex-shrink-0">groups</mat-icon>
-          <span>Manage Teams</span>
+          <span>{{ isAdmin() ? 'Manage' : 'View' }} Teams</span>
         </button>
         <button 
           (click)="navigateToPlayers()"
           class="bg-white hover:bg-gray-50 text-gray-700 px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium border border-gray-300 transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px]">
           <mat-icon fontSize="24" class="flex-shrink-0">sports_cricket</mat-icon>
-          <span>Manage Players</span>
+          <span>{{ isAdmin() ? 'Manage' : 'View' }} Players</span>
         </button>
       </div>
     </div>
@@ -127,7 +129,7 @@
           <button 
             (click)="navigateToTeams()"
             class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-            Create First Team
+            {{ isAdmin() ? 'Create First Team' : 'View Teams' }}
           </button>
         </div>
       } @else {

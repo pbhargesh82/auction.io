@@ -43,31 +43,33 @@
         <!-- Navigation Menu -->
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           @for (item of menuItems; track item.route) {
-            <a 
-              [routerLink]="item.route"
-              routerLinkActive="bg-indigo-50 border-indigo-500 text-indigo-700"
-              [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
-              class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-              
-              <!-- Icon -->
-              <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
-              
-              <!-- Label and Badge -->
-              @if (!sidebarCollapsed()) {
-                <div class="flex items-center justify-between w-full">
-                  <span>{{ item.label }}</span>
-                  @if (item.badge) {
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      {{ item.badge }}
-                    </span>
-                  }
-                </div>
-              } @else if (item.badge) {
-                <span class="absolute -right-1 -top-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-xs font-medium bg-indigo-600 text-white border-2 border-white">
-                  {{ item.badge }}
-                </span>
-              }
-            </a>
+            @if (item.route !== '/auction-control' && item.route !== '/auction-config' || isAdmin()) {
+              <a 
+                [routerLink]="item.route"
+                routerLinkActive="bg-indigo-50 border-indigo-500 text-indigo-700"
+                [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
+                class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
+                
+                <!-- Icon -->
+                <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
+                
+                <!-- Label and Badge -->
+                @if (!sidebarCollapsed()) {
+                  <div class="flex items-center justify-between w-full">
+                    <span>{{ item.label }}</span>
+                    @if (item.badge) {
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        {{ item.badge }}
+                      </span>
+                    }
+                  </div>
+                } @else if (item.badge) {
+                  <span class="absolute -right-1 -top-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-xs font-medium bg-indigo-600 text-white border-2 border-white">
+                    {{ item.badge }}
+                  </span>
+                }
+              </a>
+            }
           }
         </nav>
 
@@ -167,24 +169,26 @@
         <!-- Mobile Navigation Menu -->
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           @for (item of menuItems; track item.route) {
-            <a 
-              [routerLink]="item.route"
-              routerLinkActive="bg-indigo-50 border-indigo-500 text-indigo-700"
-              [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
-              (click)="closeMobileMenu()"
-              class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-              
-              <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
-              
-              <div class="flex items-center justify-between w-full">
-                <span>{{ item.label }}</span>
-                @if (item.badge) {
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    {{ item.badge }}
-                  </span>
-                }
-              </div>
-            </a>
+            @if (item.route !== '/auction-control' && item.route !== '/auction-config' || isAdmin()) {
+              <a 
+                [routerLink]="item.route"
+                routerLinkActive="bg-indigo-50 border-indigo-500 text-indigo-700"
+                [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
+                (click)="closeMobileMenu()"
+                class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
+                
+                <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
+                
+                <div class="flex items-center justify-between w-full">
+                  <span>{{ item.label }}</span>
+                  @if (item.badge) {
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      {{ item.badge }}
+                    </span>
+                  }
+                </div>
+              </a>
+            }
           }
         </nav>
 

@@ -16,16 +16,18 @@
     </div>
     
     <!-- Action Button -->
-    <div class="flex-shrink-0">
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="openCreateForm()"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-        <mat-icon class="mr-2">add</mat-icon>
-        New Team
-      </button>
-    </div>
+    @if (isAdmin()) {
+      <div class="flex-shrink-0">
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="openCreateForm()"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+          <mat-icon class="mr-2">add</mat-icon>
+          New Team
+        </button>
+      </div>
+    }
   </div>
 
   <!-- Error State -->
@@ -65,14 +67,16 @@
             }
           </p>
           @if (!searchTerm()) {
-            <button 
-              mat-raised-button 
-              color="primary"
-              (click)="openCreateForm()"
-              class="bg-blue-600 hover:bg-blue-700">
-              <mat-icon class="mr-2">add</mat-icon>
-              Create First Team
-            </button>
+            @if (isAdmin()) {
+              <button 
+                mat-raised-button 
+                color="primary"
+                (click)="openCreateForm()"
+                class="bg-blue-600 hover:bg-blue-700">
+                <mat-icon class="mr-2">add</mat-icon>
+                Create First Team
+              </button>
+            }
           }
         </div>
       </div>
@@ -83,7 +87,7 @@
             [team]="team" 
             [config]="{ 
               showPlayers: false, 
-              showActions: true, 
+              showActions: isAdmin(), 
               showBudgetDetails: true, 
               showPlayerStats: false, 
               variant: 'management' 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PlayersService, Player, CreatePlayerData, UpdatePlayerData } from '../../services/players.service';
 import { TeamPlayersService } from '../../services/team-players.service';
+import { SupabaseService, UserRole } from '../../services/supabase.service';
 
 // Angular Material imports
 import { MatTableModule } from '@angular/material/table';
@@ -57,6 +58,7 @@ export class PlayersComponent implements OnInit {
   filterCategory = signal<string>('');
   filterPosition = signal<string>('');
   soldPlayerIds = signal<string[]>([]);
+  userRole = signal<UserRole>('user');
 
   // Form
   playerForm: FormGroup;
@@ -67,6 +69,9 @@ export class PlayersComponent implements OnInit {
   categories = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket Keeper'];
   positions = ['Top Order', 'Middle Order', 'Lower Order', 'Opening Bowler', 'Spin Bowler', 'Fast Bowler', 'Medium Pace'];
   nationalities = ['India', 'Australia', 'England', 'South Africa', 'New Zealand', 'Pakistan', 'Sri Lanka', 'Bangladesh', 'West Indies', 'Afghanistan', 'Other'];
+
+  // Computed signal for admin status
+  isAdmin = computed(() => this.userRole() === 'admin');
 
   // Computed values
   filteredPlayers = computed(() => {
@@ -144,6 +149,7 @@ export class PlayersComponent implements OnInit {
   constructor(
     private playersService: PlayersService,
     private teamPlayersService: TeamPlayersService,
+    private supabaseService: SupabaseService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
@@ -164,6 +170,11 @@ export class PlayersComponent implements OnInit {
     this.players = this.playersService.players;
     this.loading = this.playersService.loading;
     this.error = this.playersService.error;
+    
+    // Subscribe to user role changes
+    this.supabaseService.userRole.subscribe(role => {
+      this.userRole.set(role);
+    });
     
     // Subscribe to form changes to update validity signal
     this.playerForm.statusChanges.subscribe(() => {

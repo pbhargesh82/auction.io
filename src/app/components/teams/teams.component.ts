@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TeamsService, Team, CreateTeamData, UpdateTeamData } from '../../services/teams.service';
 import { TeamWithPlayers } from '../team-card/team-card.component';
+import { SupabaseService, UserRole } from '../../services/supabase.service';
 
 // Angular Material imports
 import { MatTableModule } from '@angular/material/table';
@@ -51,6 +52,7 @@ export class TeamsComponent implements OnInit {
   showForm = signal(false);
   editingTeam = signal<Team | TeamWithPlayers | null>(null);
   searchTerm = signal('');
+  userRole = signal<UserRole>('user');
 
   // Form
   teamForm: FormGroup;
@@ -71,6 +73,8 @@ export class TeamsComponent implements OnInit {
 
   isFormValid = computed(() => this.formValid());
 
+  // Computed signal for admin status
+  isAdmin = computed(() => this.userRole() === 'admin');
 
 
   // Table configuration
@@ -79,6 +83,7 @@ export class TeamsComponent implements OnInit {
 
   constructor(
     private teamsService: TeamsService,
+    private supabaseService: SupabaseService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
@@ -97,6 +102,11 @@ export class TeamsComponent implements OnInit {
     this.teams = this.teamsService.teams;
     this.loading = this.teamsService.loading;
     this.error = this.teamsService.error;
+    
+    // Subscribe to user role changes
+    this.supabaseService.userRole.subscribe(role => {
+      this.userRole.set(role);
+    });
     
     // Subscribe to form changes to update validity signal
     this.teamForm.statusChanges.subscribe(() => {

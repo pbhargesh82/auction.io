@@ -16,16 +16,18 @@
     </div>
     
     <!-- Action Button -->
-    <div class="flex-shrink-0">
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="openCreateForm()"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-        <mat-icon class="mr-2">add</mat-icon>
-        Add New Player
-      </button>
-    </div>
+    @if (isAdmin()) {
+      <div class="flex-shrink-0">
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="openCreateForm()"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+          <mat-icon class="mr-2">add</mat-icon>
+          Add New Player
+        </button>
+      </div>
+    }
   </div>
 
   <!-- Error State -->
@@ -106,14 +108,16 @@
             }
           </p>
           @if (!searchTerm() && !filterCategory() && !filterPosition()) {
-            <button 
-              mat-raised-button 
-              color="primary"
-              (click)="openCreateForm()"
-              class="bg-blue-600 hover:bg-blue-700">
-              <mat-icon class="mr-2">add</mat-icon>
-              Add New Player
-            </button>
+            @if (isAdmin()) {
+              <button 
+                mat-raised-button 
+                color="primary"
+                (click)="openCreateForm()"
+                class="bg-blue-600 hover:bg-blue-700">
+                <mat-icon class="mr-2">add</mat-icon>
+                Add New Player
+              </button>
+            }
           }
         </div>
       </div>
@@ -186,36 +190,38 @@
             </div>
 
             <!-- Actions -->
-            <div class="px-4 py-3 bg-gray-50">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-1">
+            @if (isAdmin()) {
+              <div class="px-4 py-3 bg-gray-50">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-1">
+                    <button 
+                      mat-icon-button 
+                      [color]="player.is_active ? 'warn' : 'primary'"
+                      (click)="togglePlayerStatus(player)"
+                      [matTooltip]="player.is_active ? 'Deactivate player' : 'Activate player'"
+                      class="text-gray-600 hover:text-gray-700 w-8 h-8">
+                      <mat-icon class="text-lg">{{ player.is_active ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      color="primary"
+                      (click)="openEditForm(player)"
+                      matTooltip="Edit player"
+                      class="text-blue-600 hover:text-blue-700 w-8 h-8">
+                      <mat-icon class="text-lg">edit</mat-icon>
+                    </button>
+                  </div>
                   <button 
                     mat-icon-button 
-                    [color]="player.is_active ? 'warn' : 'primary'"
-                    (click)="togglePlayerStatus(player)"
-                    [matTooltip]="player.is_active ? 'Deactivate player' : 'Activate player'"
-                    class="text-gray-600 hover:text-gray-700 w-8 h-8">
-                    <mat-icon class="text-lg">{{ player.is_active ? 'visibility_off' : 'visibility' }}</mat-icon>
-                  </button>
-                  <button 
-                    mat-icon-button 
-                    color="primary"
-                    (click)="openEditForm(player)"
-                    matTooltip="Edit player"
-                    class="text-blue-600 hover:text-blue-700 w-8 h-8">
-                    <mat-icon class="text-lg">edit</mat-icon>
+                    color="warn"
+                    (click)="deletePlayer(player)"
+                    matTooltip="Delete player"
+                    class="text-red-600 hover:text-red-700 w-8 h-8">
+                    <mat-icon class="text-lg">delete</mat-icon>
                   </button>
                 </div>
-                <button 
-                  mat-icon-button 
-                  color="warn"
-                  (click)="deletePlayer(player)"
-                  matTooltip="Delete player"
-                  class="text-red-600 hover:text-red-700 w-8 h-8">
-                  <mat-icon class="text-lg">delete</mat-icon>
-                </button>
               </div>
-            </div>
+            }
           </div>
         }
       </div>
