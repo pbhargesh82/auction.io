@@ -60,6 +60,9 @@ export class PlayersComponent implements OnInit {
   filterStatus = signal<string>('');
   soldPlayerIds = signal<string[]>([]);
   userRole = signal<UserRole>('user');
+  
+  // Scroll position preservation
+  scrollPosition = signal<number>(0);
 
   // Form
   playerForm: FormGroup;
@@ -228,6 +231,9 @@ export class PlayersComponent implements OnInit {
 
   // Form operations
   openCreateForm() {
+    // Save current scroll position before opening form
+    this.scrollPosition.set(window.scrollY);
+    
     this.editingPlayer.set(null);
     this.playerForm.reset({
       name: '',
@@ -245,6 +251,9 @@ export class PlayersComponent implements OnInit {
   }
 
   openEditForm(player: Player) {
+    // Save current scroll position before opening form
+    this.scrollPosition.set(window.scrollY);
+    
     this.editingPlayer.set(player);
     this.playerForm.patchValue({
       name: player.name,
@@ -262,9 +271,27 @@ export class PlayersComponent implements OnInit {
   }
 
   closeForm() {
+    // Check if we were editing before closing
+    const wasEditing = this.editingPlayer() !== null;
+    
     this.showForm.set(false);
     this.editingPlayer.set(null);
     this.playerForm.reset();
+    
+    // Restore scroll position when form is closed (for cancel/close actions)
+    if (wasEditing) {
+      this.restoreScrollPosition();
+    }
+  }
+  
+  // Restore scroll position after form closes
+  private restoreScrollPosition() {
+    setTimeout(() => {
+      window.scrollTo({
+        top: this.scrollPosition(),
+        behavior: 'smooth'
+      });
+    }, 100); // Small delay to ensure DOM is updated
   }
 
   async onSubmit() {
@@ -303,10 +330,12 @@ export class PlayersComponent implements OnInit {
           duration: 3000, 
           panelClass: ['success-snackbar'] 
         });
-      }
-      
-      this.closeForm();
-    } catch (error: any) {
+             }
+       
+       this.closeForm();
+       // Restore scroll position after successful submission
+       this.restoreScrollPosition();
+     } catch (error: any) {
       this.snackBar.open(`Error: ${error.message}`, 'Close', { 
         duration: 5000, 
         panelClass: ['error-snackbar'] 
