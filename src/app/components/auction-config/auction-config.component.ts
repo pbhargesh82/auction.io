@@ -49,7 +49,7 @@ export class AuctionConfigComponent implements OnInit {
     this.configForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      budget_cap: [10000000, [Validators.required, Validators.min(1000000)]],
+      budget_cap: [100000, [Validators.required, Validators.min(10000)]],
       max_players_per_team: [25, [Validators.required, Validators.min(10)]],
       min_players_per_team: [15, [Validators.required, Validators.min(5)]]
       // auction_type field removed - timer functionality will be per-player, not per-auction

@@ -173,12 +173,12 @@
                 <input 
                   type="number"
                   formControlName="budget_cap"
-                  min="1000000"
+                  min="10000"
                   class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="10,000,000">
+                  placeholder="100,000">
               </div>
               @if (teamForm.get('budget_cap')?.hasError('min') && teamForm.get('budget_cap')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Budget must be at least ₹1,000,000</p>
+                <p class="mt-1 text-sm text-red-600">Budget must be at least ₹10,000</p>
               }
             </div>
 
@@ -189,12 +189,12 @@
               <input 
                 type="number"
                 formControlName="max_players"
-                min="15"
+                min="8"
                 max="50"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="25">
               @if (teamForm.get('max_players')?.hasError('min') && teamForm.get('max_players')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Minimum 15 players required</p>
+                <p class="mt-1 text-sm text-red-600">Minimum 8 players required</p>
               }
               @if (teamForm.get('max_players')?.hasError('max') && teamForm.get('max_players')?.touched) {
                 <p class="mt-1 text-sm text-red-600">Maximum 50 players allowed</p>

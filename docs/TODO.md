@@ -98,7 +98,7 @@
 ## 📅 Phase 2: Core Data Management (Days 8-14)
 
 ### Priority 1: Team Management System ⭐
-- [x] **Day 8**: Create teams feature module with routing ✅ (Completed: 2024-01-15)
+- [x] **Day 8**: Create teams feature module with routing ✅ (Completed: 2024-01-15) - Updated budget cap to ₹100,000 and min players to 8 ✅ (Completed: 2024-01-15)
 - [x] **Day 8**: Build team list component with comprehensive Material table ✅ (Completed: 2024-01-15)
 - [x] **Day 9**: Create team form component with Material Design (add/edit with validation) ✅ (Completed: 2024-01-15)
 - [x] **Day 9**: Implement team CRUD operations with Supabase and SnackBar notifications ✅ (Completed: 2024-01-15)
@@ -108,6 +108,7 @@
 ### Priority 2: Player Management System ⭐
 - [x] **Day 11**: Create players feature module with routing ✅ (Completed: 2024-01-15)
 - [x] **Day 11**: Build player list with search/filter functionality ✅ (Completed: 2024-01-15)
+- [x] **Day 11**: Add status filter to players screen (Available, Sold, Inactive) ✅ (Completed: 2024-01-17)
 - [x] **Day 12**: Create player form component (add/edit) ✅ (Completed: 2024-01-15)
 - [x] **Day 12**: Implement player CRUD operations with Supabase ✅ (Completed: 2024-01-15)
 - [x] **Day 13**: Update players component styling to match modern card-based design ✅ (Completed: 2024-01-15)

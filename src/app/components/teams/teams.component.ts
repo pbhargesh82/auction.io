@@ -94,8 +94,8 @@ export class TeamsComponent implements OnInit {
       logo_url: [''], // Hidden field
       primary_color: ['#1976d2'], // Hidden field with default
       secondary_color: ['#424242'], // Hidden field with default
-      budget_cap: [10000000, [Validators.required, Validators.min(1000000)]],
-      max_players: [25, [Validators.required, Validators.min(15), Validators.max(50)]]
+      budget_cap: [100000, [Validators.required, Validators.min(10000)]],
+      max_players: [25, [Validators.required, Validators.min(8), Validators.max(50)]]
     });
 
     // Use service signals directly
@@ -140,7 +140,7 @@ export class TeamsComponent implements OnInit {
       logo_url: '',
       primary_color: '#1976d2',
       secondary_color: '#424242',
-      budget_cap: 10000000,
+      budget_cap: 100000,
       max_players: 25
     });
     this.teamForm.markAsUntouched();

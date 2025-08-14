@@ -1,18 +1,36 @@
 <div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
-  <!-- Header Section with Search and Action Button -->
+  <!-- Header Section with Search, Filters and Action Button -->
   <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <!-- Search Bar -->
-    <div class="flex-1">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3" style="box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
-        <div class="flex items-center space-x-3">
-          <mat-icon class="text-gray-400">search</mat-icon>
-          <input 
-            type="text"
-            (input)="onSearch($event)"
-            placeholder="Search players by name, category, or position..."
-            class="flex-1 border-none outline-none text-sm placeholder-gray-500 bg-transparent">
+    <!-- Search and Filters -->
+    <div class="flex-1 flex flex-col sm:flex-row gap-3">
+      <!-- Search Bar -->
+      <div class="flex-1">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3" style="box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+          <div class="flex items-center space-x-3">
+            <mat-icon class="text-gray-400">search</mat-icon>
+            <input 
+              type="text"
+              (input)="onSearch($event)"
+              placeholder="Search players by name, category, or position..."
+              class="flex-1 border-none outline-none text-sm placeholder-gray-500 bg-transparent">
+          </div>
         </div>
       </div>
+
+             <!-- Status Filter -->
+       <div class="sm:w-48">
+         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3" style="box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+           <select 
+             (change)="onStatusFilterChange($event)"
+             [value]="filterStatus()"
+             class="w-full border-none outline-none text-sm bg-transparent">
+             <option value="">All Status</option>
+             @for (status of statuses; track status) {
+               <option [value]="status">{{ status }}</option>
+             }
+           </select>
+         </div>
+       </div>
     </div>
     
     <!-- Action Button -->
@@ -101,13 +119,13 @@
           <mat-icon class="text-6xl text-gray-300 mb-4">sports_cricket</mat-icon>
           <h3 class="text-lg font-medium text-gray-900 mb-2">No players found</h3>
           <p class="text-gray-500 mb-6">
-            @if (searchTerm() || filterCategory() || filterPosition()) {
+            @if (searchTerm() || filterCategory() || filterPosition() || filterStatus()) {
               No players match your search criteria. Try adjusting your filters.
             } @else {
               Get started by adding your first player.
             }
           </p>
-          @if (!searchTerm() && !filterCategory() && !filterPosition()) {
+          @if (!searchTerm() && !filterCategory() && !filterPosition() && !filterStatus()) {
             @if (isAdmin()) {
               <button 
                 mat-raised-button 
@@ -304,19 +322,19 @@
               </label>
               <div class="relative">
                 <span class="absolute left-3 top-2 text-gray-500">₹</span>
-                <input 
-                  type="number"
-                  formControlName="base_price"
-                  min="10000"
-                  class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Enter base price">
-              </div>
-              @if (playerForm.get('base_price')?.hasError('required') && playerForm.get('base_price')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Base price is required</p>
-              }
-              @if (playerForm.get('base_price')?.hasError('min') && playerForm.get('base_price')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Base price must be at least ₹10,000</p>
-              }
+                                 <input 
+                   type="number"
+                   formControlName="base_price"
+                   min="1000"
+                   class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                   placeholder="Enter base price">
+               </div>
+               @if (playerForm.get('base_price')?.hasError('required') && playerForm.get('base_price')?.touched) {
+                 <p class="mt-1 text-sm text-red-600">Base price is required</p>
+               }
+               @if (playerForm.get('base_price')?.hasError('min') && playerForm.get('base_price')?.touched) {
+                 <p class="mt-1 text-sm text-red-600">Base price must be at least ₹1,000</p>
+               }
             </div>
           </div>
 

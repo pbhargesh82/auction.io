@@ -57,6 +57,7 @@ export class PlayersComponent implements OnInit {
   sortDirection = signal<'asc' | 'desc'>('asc');
   filterCategory = signal<string>('');
   filterPosition = signal<string>('');
+  filterStatus = signal<string>('');
   soldPlayerIds = signal<string[]>([]);
   userRole = signal<UserRole>('user');
 
@@ -68,6 +69,7 @@ export class PlayersComponent implements OnInit {
   // Predefined options
   categories = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket Keeper'];
   positions = ['Top Order', 'Middle Order', 'Lower Order', 'Opening Bowler', 'Spin Bowler', 'Fast Bowler', 'Medium Pace'];
+  statuses = ['Available', 'Sold', 'Inactive'];
   nationalities = ['India', 'Australia', 'England', 'South Africa', 'New Zealand', 'Pakistan', 'Sri Lanka', 'Bangladesh', 'West Indies', 'Afghanistan', 'Other'];
 
   // Computed signal for admin status
@@ -81,6 +83,7 @@ export class PlayersComponent implements OnInit {
     const direction = this.sortDirection();
     const categoryFilter = this.filterCategory();
     const positionFilter = this.filterPosition();
+    const statusFilter = this.filterStatus();
 
     // Filter by search term
     let filtered = players.filter(player => 
@@ -99,6 +102,21 @@ export class PlayersComponent implements OnInit {
     if (positionFilter) {
       filtered = filtered.filter(player => player.position === positionFilter);
     }
+
+         // Filter by status
+     if (statusFilter) {
+       const soldIds = this.soldPlayerIds();
+       filtered = filtered.filter(player => {
+         if (statusFilter === 'Sold') {
+           return soldIds.includes(player.id);
+         } else if (statusFilter === 'Available') {
+           return player.is_active && !soldIds.includes(player.id);
+         } else if (statusFilter === 'Inactive') {
+           return !player.is_active;
+         }
+         return true;
+       });
+     }
 
     // Sort
     filtered.sort((a, b) => {
@@ -159,7 +177,7 @@ export class PlayersComponent implements OnInit {
       position: ['Middle Order'], // Default value for hidden field
       category: ['Batsman'], // Hidden field with default value
       subcategory: [''], // Hidden field
-      base_price: [100000, [Validators.required, Validators.min(10000)]],
+             base_price: [100000, [Validators.required, Validators.min(1000)]],
       image_url: [''], // Hidden field
       nationality: [''], // Hidden field
       age: [null, [Validators.min(16), Validators.max(50)]],
@@ -399,9 +417,19 @@ export class PlayersComponent implements OnInit {
     this.filterPosition.set(position);
   }
 
+  onStatusFilter(status: string) {
+    this.filterStatus.set(status);
+  }
+
+  onStatusFilterChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.filterStatus.set(target.value);
+  }
+
   clearFilters() {
     this.filterCategory.set('');
     this.filterPosition.set('');
+    this.filterStatus.set('');
     this.searchTerm.set('');
   }
 
