@@ -180,7 +180,7 @@ export class PlayersComponent implements OnInit {
       position: ['Middle Order'], // Default value for hidden field
       category: ['Batsman'], // Hidden field with default value
       subcategory: [''], // Hidden field
-             base_price: [100000, [Validators.required, Validators.min(1000)]],
+      base_price: [0, [Validators.required, Validators.min(1000)]],
       image_url: [''], // Hidden field
       nationality: [''], // Hidden field
       age: [null, [Validators.min(16), Validators.max(50)]],
