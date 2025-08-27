@@ -463,6 +463,17 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
 - [x] **Mobile Responsiveness**: Enhanced touch-friendly design with improved card sizing and spacing ✅ (Completed: 2024-01-15)
 - [x] **Auction Queue Debugging**: Added comprehensive debugging for player selection and queue addition functionality ✅ (Completed: 2024-01-15)
 - [x] **Player Queue UI Removal**: Removed player queue UI from auction config component as system now uses direct player management ✅ (Completed: 2024-01-16)
+- [x] **Player Sell-Back System**: Implemented comprehensive sell-back functionality allowing teams to sell players back to auction pool ✅ (Completed: 2024-01-16)
+  - [x] **Database Function**: Created `sell_player_back_to_pool` function for transaction-safe player sell-back operations
+  - [x] **Service Integration**: Added `sellPlayerBackToPool` method to TeamPlayersService with proper error handling
+  - [x] **UI Components**: Added sell-back buttons to team cards with confirmation dialogs and loading states
+  - [x] **Admin-Only Access**: Sell-back functionality restricted to admin users only for security and control
+  - [x] **Team Roster Integration**: Enabled sell-back functionality in team roster view with real-time updates
+  - [x] **Auction Config Integration**: Added sell-back management section to auction configuration page
+  - [x] **Budget Management**: Automatic refund of purchase price to team budget when player is sold back
+  - [x] **Player Status**: Automatic marking of sold-back players as unsold and available for auction
+  - [x] **Transaction Safety**: Database-level transaction handling to ensure data consistency
+  - [x] **Audit Trail**: Auction history records created for all sell-back operations
 - [x] **Team Code Cleanup**: Removed team-related imports and services from auction config component as they're no longer needed ✅ (Completed: 2024-01-16)
 - [x] **Player Management Removal**: Removed entire player management section and related API calls from auction config component ✅ (Completed: 2024-01-16)
 - [x] **Team Assignment Fix**: Fixed issue where sold players weren't appearing in team rosters by adding event-driven refresh system ✅ (Completed: 2024-01-15)

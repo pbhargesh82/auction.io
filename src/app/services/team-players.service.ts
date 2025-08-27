@@ -189,6 +189,74 @@ export class TeamPlayersService {
     }
   }
 
+  // Sell player back to auction pool
+  async sellPlayerBackToPool(teamPlayerId: string): Promise<{ data: any | null, error: any }> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    try {
+      // First, get the team player record to get the purchase price and player info
+      const { data: teamPlayerData, error: fetchError } = await this.supabaseService.db
+        .from('team_players')
+        .select(`
+          *,
+          teams:team_id (
+            id,
+            name,
+            budget_cap,
+            budget_spent
+          ),
+          players:player_id (
+            id,
+            name,
+            is_sold
+          )
+        `)
+        .eq('id', teamPlayerId)
+        .single();
+
+      if (fetchError) {
+        this.error.set(fetchError.message);
+        return { data: null, error: fetchError };
+      }
+
+      if (!teamPlayerData) {
+        this.error.set('Team player record not found');
+        return { data: null, error: { message: 'Team player record not found' } };
+      }
+
+      const teamPlayer = teamPlayerData as any;
+      const purchasePrice = teamPlayer.purchase_price;
+      const teamId = teamPlayer.team_id;
+      const playerId = teamPlayer.player_id;
+
+      // Start a transaction to handle the sell-back process
+      const { data, error } = await this.supabaseService.db.rpc('sell_player_back_to_pool', {
+        p_team_player_id: teamPlayerId,
+        p_team_id: teamId,
+        p_player_id: playerId,
+        p_purchase_price: purchasePrice
+      });
+
+      if (error) {
+        this.error.set(error.message);
+        return { data: null, error };
+      }
+
+      // Update local state
+      this.teamPlayers.update(teamPlayers => 
+        teamPlayers.filter(tp => tp.id !== teamPlayerId)
+      );
+
+      return { data, error: null };
+    } catch (error: any) {
+      this.error.set(error.message);
+      return { data: null, error };
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   // Get sold players (players assigned to any team)
   async getSoldPlayers(): Promise<{ data: string[] | null, error: any }> {
     try {

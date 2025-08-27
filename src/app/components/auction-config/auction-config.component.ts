@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuctionService, AuctionConfig } from '../../services/auction.service';
+import { TeamRosterComponent } from '../team-roster/team-roster.component';
 
 @Component({
   selector: 'app-auction-config',
@@ -26,7 +27,8 @@ import { AuctionService, AuctionConfig } from '../../services/auction.service';
     MatSelectModule,
     MatIconModule,
     MatDialogModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TeamRosterComponent
   ],
   templateUrl: './auction-config.component.html',
   styleUrls: ['./auction-config.component.css']

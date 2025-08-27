@@ -2,6 +2,7 @@ import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuctionStateService, TeamWithPlayers } from '../../services/auction-state.service';
 import { TeamCardComponent } from '../team-card/team-card.component';
+import { SupabaseService } from '../../services/supabase.service';
 
 @Component({
   selector: 'app-team-roster',
@@ -15,6 +16,9 @@ export class TeamRosterComponent implements OnInit {
   teamsWithPlayers;
   loading;
   error;
+
+  // Admin role signal
+  isAdmin = signal(false);
 
   // Fallback computed value for debugging
   teamsWithPlayersDebug = computed(() => {
@@ -32,18 +36,25 @@ export class TeamRosterComponent implements OnInit {
         .map(tp => ({
           ...tp.player,
           purchase_price: tp.purchase_price,
-          purchased_at: tp.purchased_at
+          purchased_at: tp.purchased_at,
+          team_player_id: tp.id // Add team_player_id for sell-back functionality
         }))
         .filter(player => player !== null && player !== undefined) || []
     }));
   });
 
   constructor(
-    private auctionStateService: AuctionStateService
+    private auctionStateService: AuctionStateService,
+    private supabaseService: SupabaseService
   ) {
     this.teamsWithPlayers = this.auctionStateService.teamsWithPlayers;
     this.loading = this.auctionStateService.loading;
     this.error = this.auctionStateService.error;
+
+    // Subscribe to admin role changes
+    this.supabaseService.isAdmin.subscribe(isAdmin => {
+      this.isAdmin.set(isAdmin);
+    });
   }
 
   async ngOnInit() {
@@ -57,6 +68,14 @@ export class TeamRosterComponent implements OnInit {
   }
 
   async refreshData() {
+    await this.auctionStateService.loadAllData();
+  }
+
+  // Handle player sold back event
+  async onPlayerSoldBack(event: {teamId: string, playerId: string, refundAmount: number}) {
+    console.log('Player sold back:', event);
+    
+    // Refresh data to show updated team budgets and player lists
     await this.auctionStateService.loadAllData();
   }
 

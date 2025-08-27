@@ -52,8 +52,10 @@
             showActions: false, 
             showBudgetDetails: true, 
             showPlayerStats: true, 
+            showSellBack: isAdmin(),
             variant: 'roster' 
-          }">
+          }"
+          (playerSoldBack)="onPlayerSoldBack($event)">
         </app-team-card>
       }
     </div>

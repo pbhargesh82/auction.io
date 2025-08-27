@@ -3,7 +3,11 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Team } from '../../services/teams.service';
+import { TeamPlayersService } from '../../services/team-players.service';
+import { SupabaseService } from '../../services/supabase.service';
 
 // Extended team interface for components that need players data
 export interface TeamWithPlayers extends Team {
@@ -15,6 +19,7 @@ export interface TeamCardConfig {
   showActions?: boolean;
   showBudgetDetails?: boolean;
   showPlayerStats?: boolean;
+  showSellBack?: boolean;
   compact?: boolean;
   variant?: 'dashboard' | 'roster' | 'management';
 }
@@ -22,7 +27,7 @@ export interface TeamCardConfig {
 @Component({
   selector: 'app-team-card',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule, MatDialogModule],
   templateUrl: './team-card.component.html',
   styleUrls: ['./team-card.component.css']
 })
@@ -33,6 +38,7 @@ export class TeamCardComponent {
     showActions: false,
     showBudgetDetails: true,
     showPlayerStats: true,
+    showSellBack: false,
     compact: false,
     variant: 'dashboard'
   };
@@ -42,6 +48,23 @@ export class TeamCardComponent {
   @Output() toggleStatus = new EventEmitter<Team | TeamWithPlayers>();
   @Output() deleteTeam = new EventEmitter<Team | TeamWithPlayers>();
   @Output() viewTeam = new EventEmitter<Team | TeamWithPlayers>();
+  @Output() playerSoldBack = new EventEmitter<{teamId: string, playerId: string, refundAmount: number}>();
+
+  // Reactive signals
+  sellingPlayer = signal<string | null>(null);
+  isAdmin = signal(false);
+
+  constructor(
+    private teamPlayersService: TeamPlayersService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private supabaseService: SupabaseService
+  ) {
+    // Subscribe to admin role changes
+    this.supabaseService.isAdmin.subscribe(isAdmin => {
+      this.isAdmin.set(isAdmin);
+    });
+  }
 
   // Computed values
   budgetPercentage = computed(() => {
@@ -118,5 +141,60 @@ export class TeamCardComponent {
 
   onViewTeam() {
     this.viewTeam.emit(this.team);
+  }
+
+  // Sell player back to auction pool
+  async sellPlayerBack(player: any) {
+    if (!player.team_player_id) {
+      this.snackBar.open('Player data is incomplete', 'Close', { duration: 3000 });
+      return;
+    }
+
+    // Show confirmation dialog
+    const confirmed = confirm(
+      `Are you sure you want to sell ${player.name} back to the auction pool?\n\n` +
+      `This will:\n` +
+      `• Remove the player from ${this.team.name}\n` +
+      `• Refund ₹${this.formatCurrency(player.purchase_price)} to the team budget\n` +
+      `• Make the player available for auction again\n\n` +
+      `This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    this.sellingPlayer.set(player.id);
+
+    try {
+      const { data, error } = await this.teamPlayersService.sellPlayerBackToPool(player.team_player_id);
+
+      if (error) {
+        this.snackBar.open(`Error selling player back: ${error.message}`, 'Close', { duration: 5000 });
+        return;
+      }
+
+      // Show success message
+      this.snackBar.open(
+        `Successfully sold ${player.name} back to auction pool. Refunded ₹${this.formatCurrency(player.purchase_price)} to ${this.team.name}.`, 
+        'Close', 
+        { duration: 4000 }
+      );
+
+      // Emit event for parent component to refresh data
+      this.playerSoldBack.emit({
+        teamId: this.team.id,
+        playerId: player.id,
+        refundAmount: player.purchase_price
+      });
+
+    } catch (error: any) {
+      this.snackBar.open(`Error: ${error.message}`, 'Close', { duration: 5000 });
+    } finally {
+      this.sellingPlayer.set(null);
+    }
+  }
+
+  // Check if player is currently being sold back
+  isSellingPlayer(playerId: string): boolean {
+    return this.sellingPlayer() === playerId;
   }
 } 
