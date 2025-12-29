@@ -11,6 +11,7 @@ interface MenuItem {
   icon: string; // Material icon name
   route: string;
   badge?: number;
+  requiresAdmin?: boolean;
 }
 
 @Component({
@@ -42,6 +43,11 @@ export class LayoutComponent {
   // Computed signal for admin status
   isAdmin = computed(() => this.userRole() === 'admin');
 
+  // Computed signal for filtered menu items based on role
+  filteredMenuItems = computed(() => {
+    return this.menuItems.filter(item => !item.requiresAdmin || this.isAdmin());
+  });
+
   // Navigation menu items
   menuItems: MenuItem[] = [
     {
@@ -52,12 +58,14 @@ export class LayoutComponent {
     {
       label: 'Auction Control',
       icon: 'gavel',
-      route: '/auction-control'
+      route: '/auction-control',
+      requiresAdmin: true
     },
     {
       label: 'Auction Config',
       icon: 'settings',
-      route: '/auction-config'
+      route: '/auction-config',
+      requiresAdmin: true
     },
     {
       label: 'Auction History',
@@ -72,12 +80,20 @@ export class LayoutComponent {
     {
       label: 'Teams',
       icon: 'flag',
-      route: '/teams'
+      route: '/teams',
+      requiresAdmin: true
     },
     {
       label: 'Players',
       icon: 'sports_cricket',
-      route: '/players'
+      route: '/players',
+      requiresAdmin: true
+    },
+    {
+      label: 'User Management',
+      icon: 'manage_accounts',
+      route: '/user-management',
+      requiresAdmin: true
     }
   ];
 

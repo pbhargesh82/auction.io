@@ -1,11 +1,9 @@
 <div class="h-dvh max-h-dvh bg-gray-50 flex">
-  
+
   <!-- Mobile Menu Overlay -->
   @if (mobileMenuOpen()) {
-    <div 
-      class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
-      (click)="onOverlayClick()">
-    </div>
+  <div class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" (click)="onOverlayClick()">
+  </div>
   }
 
   <!-- Sidebar -->
@@ -13,143 +11,18 @@
     <!-- Desktop Sidebar -->
     <div [class]="'hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 transition-all duration-300 z-30 ' + 
                   (sidebarCollapsed() ? 'lg:w-20' : 'lg:w-72')">
-      
+
       <!-- Sidebar Background -->
       <div class="flex flex-col flex-1 bg-white border-r border-gray-200 shadow-sm">
-        
+
         <!-- Logo and Brand -->
         <div class="flex items-center justify-between p-3 border-b border-gray-200">
           @if (!sidebarCollapsed()) {
-            <div class="flex items-center space-x-3">
-              <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-              <div>
-                <h1 class="text-lg font-bold text-gray-900">Auction.io</h1>
-                <p class="text-xs text-gray-500">Admin Panel</p>
-              </div>
-            </div>
-          } @else {
-            <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl mx-auto">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-          }
-        </div>
-
-        <!-- Navigation Menu -->
-        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          @for (item of menuItems; track item.route) {
-            @if (item.route !== '/auction-control' && item.route !== '/auction-config' || isAdmin()) {
-              <a 
-                [routerLink]="item.route"
-                routerLinkActive="bg-indigo-50 border-indigo-500 text-indigo-700"
-                [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
-                class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-                
-                <!-- Icon -->
-                <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
-                
-                <!-- Label and Badge -->
-                @if (!sidebarCollapsed()) {
-                  <div class="flex items-center justify-between w-full">
-                    <span>{{ item.label }}</span>
-                    @if (item.badge) {
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        {{ item.badge }}
-                      </span>
-                    }
-                  </div>
-                } @else if (item.badge) {
-                  <span class="absolute -right-1 -top-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-xs font-medium bg-indigo-600 text-white border-2 border-white">
-                    {{ item.badge }}
-                  </span>
-                }
-              </a>
-            }
-          }
-        </nav>
-
-        <!-- User Profile and Sign Out -->
-        <div class="border-t border-gray-200 p-3">
-          @if (!sidebarCollapsed()) {
-            <!-- Expanded User Profile -->
-            <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
-              <div class="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full">
-                <span class="text-sm font-medium text-white">
-                  {{ userDisplayName().charAt(0).toUpperCase() }}
-                </span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 truncate">
-                  {{ userDisplayName() }}
-                </p>
-                <p class="text-xs text-gray-500 truncate">
-                  {{ user()?.email }}
-                </p>
-                <p class="text-xs font-medium capitalize" [class]="userRole() === 'admin' ? 'text-purple-600' : 'text-gray-600'">
-                  {{ userRole() }}
-                </p>
-              </div>
-            </div>
-            
-            <!-- Sign Out Button -->
-            <button 
-              (click)="onSignOut()"
-              class="mt-3 w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-              </svg>
-              Sign Out
-            </button>
-
-            <!-- Version Display -->
-            <div class="mt-3 pt-3 border-t border-gray-200">
-              <p class="text-xs text-center text-gray-400">{{ appVersion() }}</p>
-            </div>
-          } @else {
-            <!-- Collapsed User Profile -->
-            <div class="flex flex-col items-center space-y-2">
-              <div class="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full">
-                <span class="text-sm font-medium text-white">
-                  {{ userDisplayName().charAt(0).toUpperCase() }}
-                </span>
-              </div>
-              <button 
-                (click)="onSignOut()"
-                class="flex items-center justify-center w-8 h-8 text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
-                title="Sign Out">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                </svg>
-              </button>
-            </div>
-
-            <!-- Version Display (Collapsed) -->
-            <div class="mt-3 pt-3 border-t border-gray-200">
-              <p class="text-xs text-center text-gray-400" [title]="appVersion()">{{ appVersionShort() }}</p>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Mobile Sidebar -->
-    <div [class]="'lg:hidden fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out ' + 
-                  (mobileMenuOpen() ? 'translate-x-0' : '-translate-x-full')"
-         (click)="onSidebarClick($event)">
-      
-      <div class="flex flex-col flex-1 h-full bg-white border-r border-gray-200 shadow-lg">
-        
-        <!-- Mobile Logo and Close Button -->
-        <div class="flex items-center justify-between p-4 border-b border-gray-200">
           <div class="flex items-center space-x-3">
             <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div>
@@ -157,38 +30,159 @@
               <p class="text-xs text-gray-500">Admin Panel</p>
             </div>
           </div>
-          <button 
-            (click)="closeMobileMenu()"
+          } @else {
+          <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl mx-auto">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          }
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          @for (item of filteredMenuItems(); track item.route) {
+          <a [routerLink]="item.route" routerLinkActive="bg-indigo-50 border-indigo-500 text-indigo-700"
+            [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
+
+            <!-- Icon -->
+            <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
+
+            <!-- Label and Badge -->
+            @if (!sidebarCollapsed()) {
+            <div class="flex items-center justify-between w-full">
+              <span>{{ item.label }}</span>
+              @if (item.badge) {
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {{ item.badge }}
+              </span>
+              }
+            </div>
+            } @else if (item.badge) {
+            <span
+              class="absolute -right-1 -top-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-xs font-medium bg-indigo-600 text-white border-2 border-white">
+              {{ item.badge }}
+            </span>
+            }
+          </a>
+          }
+        </nav>
+
+        <!-- User Profile and Sign Out -->
+        <div class="border-t border-gray-200 p-3">
+          @if (!sidebarCollapsed()) {
+          <!-- Expanded User Profile -->
+          <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
+            <div class="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full">
+              <span class="text-sm font-medium text-white">
+                {{ userDisplayName().charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                {{ userDisplayName() }}
+              </p>
+              <p class="text-xs text-gray-500 truncate">
+                {{ user()?.email }}
+              </p>
+              <p class="text-xs font-medium capitalize"
+                [class]="userRole() === 'admin' ? 'text-purple-600' : 'text-gray-600'">
+                {{ userRole() }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Sign Out Button -->
+          <button (click)="onSignOut()"
+            class="mt-3 w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Sign Out
+          </button>
+
+          <!-- Version Display -->
+          <div class="mt-3 pt-3 border-t border-gray-200">
+            <p class="text-xs text-center text-gray-400">{{ appVersion() }}</p>
+          </div>
+          } @else {
+          <!-- Collapsed User Profile -->
+          <div class="flex flex-col items-center space-y-2">
+            <div class="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full">
+              <span class="text-sm font-medium text-white">
+                {{ userDisplayName().charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <button (click)="onSignOut()"
+              class="flex items-center justify-center w-8 h-8 text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
+              title="Sign Out">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Version Display (Collapsed) -->
+          <div class="mt-3 pt-3 border-t border-gray-200">
+            <p class="text-xs text-center text-gray-400" [title]="appVersion()">{{ appVersionShort() }}</p>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Sidebar -->
+    <div [class]="'lg:hidden fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out ' + 
+                  (mobileMenuOpen() ? 'translate-x-0' : '-translate-x-full')" (click)="onSidebarClick($event)">
+
+      <div class="flex flex-col flex-1 h-full bg-white border-r border-gray-200 shadow-lg">
+
+        <!-- Mobile Logo and Close Button -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+          <div class="flex items-center space-x-3">
+            <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-lg font-bold text-gray-900">Auction.io</h1>
+              <p class="text-xs text-gray-500">Admin Panel</p>
+            </div>
+          </div>
+          <button (click)="closeMobileMenu()"
             class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         <!-- Mobile Navigation Menu -->
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          @for (item of menuItems; track item.route) {
-            @if (item.route !== '/auction-control' && item.route !== '/auction-config' || isAdmin()) {
-              <a 
-                [routerLink]="item.route"
-                routerLinkActive="bg-indigo-50 border-indigo-500 text-indigo-700"
-                [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
-                (click)="closeMobileMenu()"
-                class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-                
-                <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
-                
-                <div class="flex items-center justify-between w-full">
-                  <span>{{ item.label }}</span>
-                  @if (item.badge) {
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      {{ item.badge }}
-                    </span>
-                  }
-                </div>
-              </a>
-            }
+          @for (item of filteredMenuItems(); track item.route) {
+          <a [routerLink]="item.route" routerLinkActive="bg-indigo-50 border-indigo-500 text-indigo-700"
+            [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}" (click)="closeMobileMenu()"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
+
+            <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
+
+            <div class="flex items-center justify-between w-full">
+              <span>{{ item.label }}</span>
+              @if (item.badge) {
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {{ item.badge }}
+              </span>
+              }
+            </div>
+          </a>
           }
         </nav>
 
@@ -212,12 +206,12 @@
               </p>
             </div>
           </div>
-          
-          <button 
-            (click)="onSignOut()"
+
+          <button (click)="onSignOut()"
             class="mt-3 w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             Sign Out
           </button>
@@ -234,31 +228,30 @@
   <!-- Main Content Area -->
   <div [class]="'flex-1 flex flex-col transition-all duration-300 ' + 
                 (sidebarCollapsed() ? 'lg:ml-20' : 'lg:ml-72')">
-    
+
     <!-- Top Navigation Bar -->
     <header class="bg-white border-b border-gray-200 shadow-sm">
-      <div class="flex items-center justify-between p-4"> 
-        
+      <div class="flex items-center justify-between p-4">
+
         <!-- Mobile Menu Button and Desktop Collapse Button -->
         <div class="flex items-center space-x-3">
           <!-- Mobile Menu Button -->
-          <button 
-            (click)="toggleMobileMenu()"
+          <button (click)="toggleMobileMenu()"
             class="lg:hidden p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          
+
           <!-- Desktop Sidebar Toggle -->
-          <button 
-            (click)="toggleSidebar()"
+          <button (click)="toggleSidebar()"
             class="hidden lg:block p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               @if (sidebarCollapsed()) {
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               } @else {
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
               }
             </svg>
           </button>
@@ -278,4 +271,4 @@
       <router-outlet></router-outlet>
     </main>
   </div>
-</div> 
+</div>

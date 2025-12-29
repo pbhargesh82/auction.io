@@ -1,0 +1,27 @@
+# Supabase Keep-Alive Workflow
+# This prevents your Supabase project from pausing due to inactivity
+# Runs every 6 days (before the 7-day pause window)
+
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Run at midnight UTC every 6 days
+    - cron: '0 0 */6 * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          # Simple health check query to keep the database active
+          curl -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/health_check" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            --fail --silent --show-error
+
+      - name: Log success
+        run: echo "✅ Supabase pinged successfully at $(date)"

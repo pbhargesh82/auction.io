@@ -48,16 +48,41 @@ export class SupabaseService {
     });
   }
 
-  private updateUserRole(user: User | null) {
-    if (!user?.email) {
+  private async updateUserRole(user: User | null) {
+    if (!user) {
       this._userRole.next('user');
       return;
     }
-    
-    // Determine role based on email
-    const role: UserRole = user.email === 'pbhargesh82@aol.com' ? 'admin' : 'user';
-    this._userRole.next(role);
-    console.log(`User role determined: ${role} for email: ${user.email}`);
+
+    // First try to get role from JWT app_metadata (set by database trigger)
+    const jwtRole = user.app_metadata?.['role'] as UserRole;
+    if (jwtRole && (jwtRole === 'admin' || jwtRole === 'user')) {
+      this._userRole.next(jwtRole);
+      console.log(`User role from JWT: ${jwtRole} for email: ${user.email}`);
+      return;
+    }
+
+    // Fallback: fetch role from user_roles table
+    try {
+      const { data, error } = await this.supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (data && !error) {
+        const dbRole = data.role as UserRole;
+        this._userRole.next(dbRole);
+        console.log(`User role from database: ${dbRole} for email: ${user.email}`);
+        return;
+      }
+    } catch (err) {
+      console.warn('Could not fetch role from database, defaulting to user');
+    }
+
+    // Default to 'user' if no role found
+    this._userRole.next('user');
+    console.log(`User role defaulted to 'user' for email: ${user.email}`);
   }
 
   get currentUser(): Observable<User | null> {
@@ -93,7 +118,7 @@ export class SupabaseService {
     if (this._initialized) {
       return this._currentUser.value;
     }
-    
+
     // Wait for the first emission after initialization
     return firstValueFrom(
       this._currentUser.pipe(
@@ -127,13 +152,13 @@ export class SupabaseService {
   async signInWithGoogle() {
     // Temporary workaround: Force localhost for local development
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const redirectUrl = isLocalhost 
+    const redirectUrl = isLocalhost
       ? 'http://localhost:4200/auth/callback'
       : environment.auth.redirectUrl;
-    
+
     console.log('Using redirect URL:', redirectUrl);
     console.log('Current hostname:', window.location.hostname);
-    
+
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -172,7 +197,7 @@ export class SupabaseService {
   createRealtimeChannel(tableName: string) {
     return this.supabase
       .channel(`${tableName}-changes`)
-      .on('postgres_changes', 
+      .on('postgres_changes',
         { event: '*', schema: 'public', table: tableName },
         (payload) => {
           console.log('Change received!', payload);

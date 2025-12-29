@@ -1,0 +1,258 @@
+<div class="p-4 lg:p-6 bg-gray-50 min-h-full">
+    <!-- Header Section with Stats Cards -->
+    <div class="mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">User Management</h1>
+                <p class="text-sm text-gray-500 mt-1">Manage user roles and permissions</p>
+            </div>
+            <button (click)="loadUsers()" [disabled]="loading()"
+                class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50">
+                <mat-icon class="mr-2 text-gray-500">refresh</mat-icon>
+                Refresh
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-blue-100 rounded-lg">
+                        <mat-icon class="text-blue-600">people</mat-icon>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Total Users</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats().total }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-purple-100 rounded-lg">
+                        <mat-icon class="text-purple-600">admin_panel_settings</mat-icon>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Admins</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats().admins }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-green-100 rounded-lg">
+                        <mat-icon class="text-green-600">person</mat-icon>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Users</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats().regularUsers }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-orange-100 rounded-lg">
+                        <mat-icon class="text-orange-600">visibility</mat-icon>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Viewers</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats().viewers }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mb-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3"
+            style="box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+            <div class="flex items-center space-x-3">
+                <mat-icon class="text-gray-400">search</mat-icon>
+                <input type="text" (input)="onSearch($event)"
+                    placeholder="Search users by email, role, or login provider..."
+                    class="flex-1 border-none outline-none text-sm placeholder-gray-500 bg-transparent">
+            </div>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    @if (error()) {
+    <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex items-center">
+            <mat-icon class="text-red-400 mr-3">error</mat-icon>
+            <div class="flex-1">
+                <h3 class="text-sm font-medium text-red-800">Error</h3>
+                <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
+            </div>
+            <button mat-icon-button (click)="clearError()" class="text-red-500 hover:text-red-700">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Users Table -->
+    @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+            <mat-spinner class="mx-auto mb-4"></mat-spinner>
+            <p class="text-gray-600">Loading users...</p>
+        </div>
+    </div>
+    } @else if (filteredUsers().length === 0) {
+    <div class="text-center py-12">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 max-w-md mx-auto">
+            <mat-icon class="text-6xl text-gray-300 mb-4">person_search</mat-icon>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+            <p class="text-gray-500">
+                @if (searchTerm()) {
+                No users match your search criteria. Try adjusting your search.
+                } @else {
+                No users are registered yet.
+                }
+            </p>
+        </div>
+    </div>
+    } @else {
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <!-- Table Header -->
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <p class="text-sm text-gray-500">
+                Showing <span class="font-medium text-gray-900">{{ filteredUsers().length }}</span>
+                of <span class="font-medium text-gray-900">{{ users().length }}</span> users
+            </p>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            User
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Role
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Login Method
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Last Sign In
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Joined
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @for (user of filteredUsers(); track user.user_id) {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <!-- User Email -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div
+                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-medium">
+                                    {{ user.email.charAt(0).toUpperCase() }}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ user.email }}
+                                        @if (isCurrentUser(user.user_id)) {
+                                        <span class="ml-2 text-xs text-indigo-600 font-normal">(You)</span>
+                                        }
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        ID: {{ user.user_id.substring(0, 8) }}...
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Role Selector -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if (updatingUserId() === user.user_id) {
+                            <div class="flex items-center">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
+                                <span class="text-sm text-gray-500">Updating...</span>
+                            </div>
+                            } @else {
+                            <select [value]="user.role" (change)="onRoleChange(user, $any($event.target).value)"
+                                [disabled]="isCurrentUser(user.user_id) && user.role === 'admin'"
+                                class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                [class]="getRoleConfig(user.role).bgColor">
+                                @for (role of availableRoles; track role.value) {
+                                <option [value]="role.value" [selected]="role.value === user.role">
+                                    {{ role.label }}
+                                </option>
+                                }
+                            </select>
+                            }
+                        </td>
+
+                        <!-- Login Method -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <mat-icon class="text-gray-400 mr-2 text-lg">{{ getProviderIcon(user.provider)
+                                    }}</mat-icon>
+                                <span class="text-sm text-gray-700">{{ getProviderLabel(user.provider) }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Email Confirmation Status -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if (user.email_confirmed) {
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <mat-icon class="text-sm mr-1">check_circle</mat-icon>
+                                Verified
+                            </span>
+                            } @else {
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <mat-icon class="text-sm mr-1">pending</mat-icon>
+                                Pending
+                            </span>
+                            }
+                        </td>
+
+                        <!-- Last Sign In -->
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ formatDate(user.last_sign_in_at) }}
+                        </td>
+
+                        <!-- Joined Date -->
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ formatDate(user.created_at) }}
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+
+    <!-- Help Text -->
+    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex">
+            <mat-icon class="text-blue-400 mr-3 flex-shrink-0">info</mat-icon>
+            <div class="text-sm text-blue-700">
+                <p class="font-medium mb-1">Role Permissions</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li><strong>Admin:</strong> Full access to all features including user management</li>
+                    <li><strong>User:</strong> Access to dashboard and viewing features</li>
+                    <li><strong>Viewer:</strong> Read-only access to public data</li>
+                </ul>
+                <p class="mt-2 text-xs">Note: Users must log out and log back in for role changes to take full effect.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

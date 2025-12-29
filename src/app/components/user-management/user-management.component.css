@@ -1,0 +1,157 @@
+/* User Management Component Styles */
+/* Follows existing design patterns from teams.component.css */
+
+/* User avatar gradient */
+.user-avatar {
+  @apply flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-white font-medium text-sm;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Role badge styles */
+.role-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.role-admin {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.role-user {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.role-viewer {
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* Status badges */
+.status-verified {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-pending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+/* Table styles matching teams component */
+.user-table th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.user-table td {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+.user-table tbody tr {
+  @apply transition-colors duration-150;
+}
+
+.user-table tbody tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Stats card hover effect */
+.stats-card {
+  @apply transition-all duration-200;
+}
+
+.stats-card:hover {
+  @apply shadow-md;
+}
+
+/* Role selector styling */
+.role-select {
+  @apply px-3 py-1.5 text-sm border border-gray-300 rounded-lg;
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply bg-white cursor-pointer;
+}
+
+.role-select:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Loading spinner animation */
+.loading-spinner {
+  @apply animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600;
+}
+
+/* Provider icon styles */
+.provider-icon {
+  @apply text-gray-400 mr-2;
+}
+
+.provider-google {
+  @apply text-red-500;
+}
+
+.provider-github {
+  @apply text-gray-800;
+}
+
+.provider-email {
+  @apply text-blue-500;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .user-table th, .user-table td {
+    @apply px-3 py-2 text-xs;
+  }
+  
+  .user-avatar {
+    @apply w-8 h-8 text-xs;
+  }
+  
+  .stats-cards {
+    @apply grid-cols-2;
+  }
+}
+
+@media (max-width: 640px) {
+  .mobile-stack {
+    flex-direction: column;
+  }
+  
+  .mobile-full-width {
+    width: 100%;
+  }
+  
+  /* Hide some columns on mobile */
+  .hide-mobile {
+    display: none;
+  }
+}
+
+/* Info box styles */
+.info-box {
+  @apply p-4 bg-blue-50 border border-blue-200 rounded-lg;
+}
+
+.info-box-icon {
+  @apply text-blue-400 mr-3 flex-shrink-0;
+}
+
+.info-box-content {
+  @apply text-sm text-blue-700;
+}
+
+/* Table container scrollbar */
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

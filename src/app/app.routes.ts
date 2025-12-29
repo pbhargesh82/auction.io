@@ -9,7 +9,9 @@ import { AuctionControlComponent } from './components/auction-control/auction-co
 import { AuctionConfigComponent } from './components/auction-config/auction-config.component';
 import { AuctionHistoryComponent } from './components/auction-history/auction-history.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
+import { UserManagementComponent } from './components/user-management/user-management.component';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -21,15 +23,16 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'teams', component: TeamsComponent },
-      { path: 'players', component: PlayersComponent },
+      { path: 'teams', component: TeamsComponent, canActivate: [adminGuard] },
+      { path: 'players', component: PlayersComponent, canActivate: [adminGuard] },
       { path: 'team-roster', component: TeamRosterComponent },
-      { path: 'auction-config', component: AuctionConfigComponent },
-      { path: 'auction-control', component: AuctionControlComponent },
-      { path: 'auction', component: AuctionControlComponent }, // Default auction route
+      { path: 'auction-config', component: AuctionConfigComponent, canActivate: [adminGuard] },
+      { path: 'auction-control', component: AuctionControlComponent, canActivate: [adminGuard] },
+      { path: 'auction', component: AuctionControlComponent, canActivate: [adminGuard] },
       { path: 'auction-history', component: AuctionHistoryComponent },
-      { path: 'analytics', component: DashboardComponent }, // Placeholder - will be replaced with AnalyticsComponent
-      { path: 'settings', component: DashboardComponent }, // Placeholder - will be replaced with SettingsComponent
+      { path: 'user-management', component: UserManagementComponent, canActivate: [adminGuard] },
+      { path: 'analytics', component: DashboardComponent },
+      { path: 'settings', component: DashboardComponent },
     ]
   },
   // Add more routes here as needed
