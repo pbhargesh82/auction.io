@@ -21,6 +21,12 @@ export interface UserWithRole {
     provider: string;
     email_confirmed: boolean;
     role_updated_at: string;
+    is_banned: boolean;
+}
+
+export interface InviteUserData {
+    email: string;
+    role: 'admin' | 'user' | 'viewer';
 }
 
 @Injectable({
@@ -83,6 +89,74 @@ export class UsersService {
             }
 
             // Refresh the users list
+            await this.getUsers();
+            return { success: true, error: null };
+        } catch (err: any) {
+            return { success: false, error: err };
+        }
+    }
+
+    /**
+     * Invite a new user by email (admin sends magic link or creates account)
+     */
+    async inviteUser(data: InviteUserData): Promise<{ success: boolean; error: Error | null }> {
+        try {
+            const { error } = await this.supabaseService.db
+                .rpc('admin_invite_user', {
+                    user_email: data.email,
+                    user_role: data.role
+                });
+
+            if (error) {
+                return { success: false, error: error as unknown as Error };
+            }
+
+            // Refresh users list
+            await this.getUsers();
+            return { success: true, error: null };
+        } catch (err: any) {
+            return { success: false, error: err };
+        }
+    }
+
+    /**
+     * Delete a user (soft delete - bans the user)
+     */
+    async deleteUser(userId: string): Promise<{ success: boolean; error: Error | null }> {
+        try {
+            const { error } = await this.supabaseService.db
+                .rpc('admin_delete_user', {
+                    target_user_id: userId
+                });
+
+            if (error) {
+                return { success: false, error: error as unknown as Error };
+            }
+
+            // Refresh users list
+            await this.getUsers();
+            return { success: true, error: null };
+        } catch (err: any) {
+            return { success: false, error: err };
+        }
+    }
+
+    /**
+     * Ban/Unban a user (toggle is_banned status)
+     */
+    async toggleUserBan(userId: string, ban: boolean): Promise<{ success: boolean; error: Error | null }> {
+        try {
+            const { error } = await this.supabaseService.db
+                .rpc('admin_toggle_user_ban', {
+                    target_user_id: userId,
+                    should_ban: ban
+                });
+
+            if (error) {
+                return { success: false, error: error as unknown as Error };
+            }
+
+            // Refresh users list
             await this.getUsers();
             return { success: true, error: null };
         } catch (err: any) {

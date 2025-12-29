@@ -49,6 +49,12 @@ export class UserManagementComponent implements OnInit {
     updatingUserId = signal<string | null>(null);
     currentUserId = signal<string | null>(null);
 
+    // Invite form state
+    showInviteForm = signal(false);
+    inviteEmail = signal('');
+    inviteRole = signal<'admin' | 'user' | 'viewer'>('user');
+    inviteLoading = signal(false);
+
     // Available roles for selection
     availableRoles: { value: 'admin' | 'user' | 'viewer'; label: string }[] = [
         { value: 'admin', label: 'Admin' },
@@ -78,8 +84,8 @@ export class UserManagementComponent implements OnInit {
             admins: users.filter(u => u.role === 'admin').length,
             regularUsers: users.filter(u => u.role === 'user').length,
             viewers: users.filter(u => u.role === 'viewer').length,
-            googleUsers: users.filter(u => u.provider === 'google').length,
-            emailUsers: users.filter(u => u.provider === 'email').length
+            banned: users.filter(u => u.is_banned).length,
+            active: users.filter(u => !u.is_banned).length
         };
     });
 
@@ -111,6 +117,51 @@ export class UserManagementComponent implements OnInit {
         }
     }
 
+    // Invite form methods
+    openInviteForm() {
+        this.showInviteForm.set(true);
+        this.inviteEmail.set('');
+        this.inviteRole.set('user');
+    }
+
+    closeInviteForm() {
+        this.showInviteForm.set(false);
+        this.inviteEmail.set('');
+    }
+
+    async submitInvite() {
+        const email = this.inviteEmail().trim();
+        if (!email || !email.includes('@')) {
+            this.snackBar.open('Please enter a valid email address', 'Close', {
+                duration: 3000,
+                panelClass: ['error-snackbar']
+            });
+            return;
+        }
+
+        this.inviteLoading.set(true);
+
+        const { success, error } = await this.usersService.inviteUser({
+            email,
+            role: this.inviteRole()
+        });
+
+        if (success) {
+            this.snackBar.open(`Invitation sent to ${email}`, 'Close', {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+            });
+            this.closeInviteForm();
+        } else {
+            this.snackBar.open(`Error inviting user: ${error?.message || 'Unknown error'}`, 'Close', {
+                duration: 5000,
+                panelClass: ['error-snackbar']
+            });
+        }
+
+        this.inviteLoading.set(false);
+    }
+
     async onRoleChange(user: UserWithRole, newRole: 'admin' | 'user' | 'viewer') {
         // Prevent self-demotion from admin
         if (user.user_id === this.currentUserId() && user.role === 'admin' && newRole !== 'admin') {
@@ -140,6 +191,73 @@ export class UserManagementComponent implements OnInit {
         this.updatingUserId.set(null);
     }
 
+    async toggleUserBan(user: UserWithRole) {
+        // Prevent self-ban
+        if (user.user_id === this.currentUserId()) {
+            this.snackBar.open('You cannot ban yourself', 'Close', {
+                duration: 3000,
+                panelClass: ['error-snackbar']
+            });
+            return;
+        }
+
+        const action = user.is_banned ? 'unban' : 'ban';
+        if (!confirm(`Are you sure you want to ${action} ${user.email}?`)) {
+            return;
+        }
+
+        this.updatingUserId.set(user.user_id);
+
+        const { success, error } = await this.usersService.toggleUserBan(user.user_id, !user.is_banned);
+
+        if (success) {
+            this.snackBar.open(`User ${user.is_banned ? 'unbanned' : 'banned'} successfully`, 'Close', {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+            });
+        } else {
+            this.snackBar.open(`Error: ${error?.message || 'Unknown error'}`, 'Close', {
+                duration: 5000,
+                panelClass: ['error-snackbar']
+            });
+        }
+
+        this.updatingUserId.set(null);
+    }
+
+    async deleteUser(user: UserWithRole) {
+        // Prevent self-delete
+        if (user.user_id === this.currentUserId()) {
+            this.snackBar.open('You cannot delete your own account', 'Close', {
+                duration: 3000,
+                panelClass: ['error-snackbar']
+            });
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to permanently delete ${user.email}? This action cannot be undone.`)) {
+            return;
+        }
+
+        this.updatingUserId.set(user.user_id);
+
+        const { success, error } = await this.usersService.deleteUser(user.user_id);
+
+        if (success) {
+            this.snackBar.open(`User deleted successfully`, 'Close', {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+            });
+        } else {
+            this.snackBar.open(`Error deleting user: ${error?.message || 'Unknown error'}`, 'Close', {
+                duration: 5000,
+                panelClass: ['error-snackbar']
+            });
+        }
+
+        this.updatingUserId.set(null);
+    }
+
     onSearch(event: Event) {
         const input = event.target as HTMLInputElement;
         this.searchTerm.set(input.value);
@@ -156,7 +274,7 @@ export class UserManagementComponent implements OnInit {
     getProviderIcon(provider: string): string {
         switch (provider) {
             case 'google':
-                return 'g_translate'; // Using a Material icon that resembles Google
+                return 'g_translate';
             case 'github':
                 return 'code';
             default:
@@ -176,3 +294,4 @@ export class UserManagementComponent implements OnInit {
         return userId === this.currentUserId();
     }
 }
+
