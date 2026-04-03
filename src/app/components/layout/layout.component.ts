@@ -5,7 +5,6 @@ import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs/operators';
-import { AuctionSelectorComponent } from '../auction-selector/auction-selector.component';
 
 interface MenuItem {
   label: string;
@@ -18,7 +17,7 @@ interface MenuItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, AuctionSelectorComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
 })
@@ -38,7 +37,7 @@ export class LayoutComponent {
   currentPageTitle = computed(() => {
     const route = this.currentRoute();
     const menuItem = this.menuItems.find(item => item.route === route);
-    return menuItem ? menuItem.label : 'Dashboard';
+    return menuItem ? menuItem.label : 'Home';
   });
 
   // Computed signal for admin status
@@ -55,42 +54,18 @@ export class LayoutComponent {
     return this.menuItems.filter(item => !item.requiresAdmin || this.isAdmin());
   });
 
-  // Navigation menu items
+  // Global navigation — only cross-cutting pages (Phase 1.3)
+  // Auction-specific items live in AuctionWorkspaceLayoutComponent.
   menuItems: MenuItem[] = [
     {
-      label: 'Dashboard',
-      icon: 'dashboard',
-      route: '/dashboard'
+      label: 'My Auctions',
+      icon: 'home',
+      route: '/home'
     },
     {
-      label: 'Auctions',
-      icon: 'emoji_events',
-      route: '/auctions'
-    },
-    {
-      label: 'Auction Control',
-      icon: 'gavel',
-      route: '/auction-control'
-    },
-    {
-      label: 'Auction History',
-      icon: 'history',
-      route: '/auction-history'
-    },
-    {
-      label: 'Team Roster',
-      icon: 'groups',
-      route: '/team-roster'
-    },
-    {
-      label: 'Teams',
-      icon: 'flag',
-      route: '/teams'
-    },
-    {
-      label: 'My Players',
+      label: 'Player Pool',
       icon: 'sports_cricket',
-      route: '/players'
+      route: '/player-pool'
     },
     {
       label: 'User Management',

@@ -1,0 +1,239 @@
+<div class="workspace-shell">
+
+  <!-- ── Mobile overlay ───────────────────────────────────────────────────── -->
+  @if (mobileMenuOpen()) {
+  <div class="mobile-overlay" (click)="onOverlayClick()"></div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <aside class="sidebar-wrap" [class.collapsed]="sidebarCollapsed()">
+
+    <!-- ── Desktop Sidebar ──────────────────────────────────────────────── -->
+    <div class="sidebar desktop-sidebar"
+         [class.sidebar--collapsed]="sidebarCollapsed()"
+         (click)="onSidebarClick($event)">
+      <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: false }"></ng-container>
+    </div>
+
+    <!-- ── Mobile Sidebar ───────────────────────────────────────────────── -->
+    <div class="sidebar mobile-sidebar"
+         [class.mobile-sidebar--open]="mobileMenuOpen()"
+         (click)="onSidebarClick($event)">
+      <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: true }"></ng-container>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="main-wrap" [class.main-wrap--collapsed]="sidebarCollapsed()">
+
+    <!-- ── Top bar ─────────────────────────────────────────────────────── -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <!-- Mobile hamburger -->
+        <button class="icon-btn mobile-only" (click)="toggleMobileMenu()" aria-label="Open menu">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <!-- Desktop collapse -->
+        <button class="icon-btn desktop-only" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+          @if (sidebarCollapsed()) {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="13 17 18 12 13 7"/>
+            <polyline points="6 17 11 12 6 7"/>
+          </svg>
+          } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="11 17 6 12 11 7"/>
+            <polyline points="18 17 13 12 18 7"/>
+          </svg>
+          }
+        </button>
+      </div>
+
+      <!-- Breadcrumb -->
+      <div class="topbar__breadcrumb">
+        <a routerLink="/home" class="breadcrumb-link">My Auctions</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">{{ auctionName() }}</span>
+      </div>
+
+      <!-- Status badge (topbar) -->
+      <div class="topbar__right">
+        @if (auction()) {
+        <span class="status-pill status-pill--{{ auctionStatus() }}">
+          <span class="status-dot"></span>
+          {{ statusLabel() }}
+        </span>
+        }
+      </div>
+    </header>
+
+    <!-- ── Page content ────────────────────────────────────────────────── -->
+    <main class="page-content">
+      @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading auction…</p>
+      </div>
+      } @else {
+      <router-outlet></router-outlet>
+      }
+    </main>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SIDEBAR CONTENT TEMPLATE (shared between desktop and mobile)
+═════════════════════════════════════════════════════════════════════════════ -->
+<ng-template #sidebarContent let-mobile="mobile">
+
+  <!-- ── TOP: Brand + close (mobile) / collapse info (desktop) ────────── -->
+  <div class="sidebar__header">
+    <!-- Brand mark -->
+    <div class="brand">
+      <div class="brand__icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      @if (!sidebarCollapsed() || mobile) {
+      <span class="brand__name">Auction.io</span>
+      }
+    </div>
+
+    <!-- Mobile close button -->
+    @if (mobile) {
+    <button class="icon-btn close-btn" (click)="closeMobileMenu()" aria-label="Close menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    }
+  </div>
+
+  <!-- ── BACK BUTTON ────────────────────────────────────────────────────── -->
+  <div class="sidebar__back">
+    <a routerLink="/home" class="back-link" (click)="mobile && closeMobileMenu()">
+      <span class="back-link__icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </span>
+      @if (!sidebarCollapsed() || mobile) {
+      <span class="back-link__label">My Auctions</span>
+      }
+    </a>
+  </div>
+
+  <!-- ── AUCTION IDENTITY ───────────────────────────────────────────────── -->
+  @if (!sidebarCollapsed() || mobile) {
+  <div class="sidebar__auction-card">
+    @if (loading()) {
+    <div class="auction-card__skeleton"></div>
+    } @else {
+    <div class="auction-card">
+      <div class="auction-card__info">
+        <p class="auction-card__name">{{ auctionName() }}</p>
+        <span class="status-pill status-pill--{{ auctionStatus() }}">
+          <span class="status-dot"></span>
+          {{ statusLabel() }}
+        </span>
+      </div>
+      <!-- Share link button -->
+      @if (auction()?.public_slug) {
+      <button class="auction-card__share" (click)="copyShareLink()" title="Copy public link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6"  cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </button>
+      }
+    </div>
+    }
+  </div>
+  }
+
+  <!-- ── NAV ITEMS ──────────────────────────────────────────────────────── -->
+  <nav class="sidebar__nav">
+    <p class="nav-group-label" [class.sr-only]="sidebarCollapsed() && !mobile">Workspace</p>
+
+    @for (item of navItems; track item.segment) {
+    <a [routerLink]="navRoute(item.segment)"
+       routerLinkActive="nav-item--active"
+       class="nav-item"
+       [title]="sidebarCollapsed() && !mobile ? item.label : ''"
+       (click)="mobile && closeMobileMenu()">
+      <!-- Icon (Material Symbols via ligature, matching global layout) -->
+      <span class="nav-item__icon material-symbols-outlined">{{ item.icon }}</span>
+      @if (!sidebarCollapsed() || mobile) {
+      <span class="nav-item__label">{{ item.label }}</span>
+      }
+    </a>
+    }
+  </nav>
+
+  <!-- spacer -->
+  <div class="sidebar__spacer"></div>
+
+  <!-- ── USER + SIGN OUT ────────────────────────────────────────────────── -->
+  <div class="sidebar__footer">
+    @if (!sidebarCollapsed() || mobile) {
+    <div class="user-card">
+      <div class="user-card__avatar">{{ userDisplayName().charAt(0).toUpperCase() }}</div>
+      <div class="user-card__info">
+        <p class="user-card__name">{{ userDisplayName() }}</p>
+        <p class="user-card__role" [class.user-card__role--admin]="isAdmin()">
+          {{ isAdmin() ? 'Super Admin' : 'User' }}
+        </p>
+      </div>
+    </div>
+
+    <button class="signout-btn" (click)="onSignOut()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </button>
+
+    <div class="version-label">{{ appVersion() }}</div>
+    } @else {
+    <!-- Collapsed: avatar + icon sign-out -->
+    <div class="collapsed-footer">
+      <div class="user-card__avatar">{{ userDisplayName().charAt(0).toUpperCase() }}</div>
+      <button class="icon-btn signout-icon-btn" (click)="onSignOut()" title="Sign Out">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+      <p class="version-label version-label--sm" [title]="appVersion()">{{ appVersionShort() }}</p>
+    </div>
+    }
+  </div>
+</ng-template>

@@ -34,8 +34,8 @@ export class AuthCallbackComponent implements OnInit {
       const user = this.supabaseService.currentUserValue;
       if (user) {
         console.log('User authenticated successfully:', user.email);
-        // Redirect immediately to dashboard
-        this.router.navigate(['/dashboard']);
+        // Redirect to home (My Auctions) after successful OAuth
+        this.router.navigate(['/home']);
       } else {
         console.log('No user found after auth callback');
         this.router.navigate(['/login']);

@@ -29,9 +29,9 @@ export const adminGuard: CanActivateFn = (route, state) => {
             if (supabaseService.isAdminValue) {
                 return true;
             } else {
-                // User is authenticated but not admin - redirect to dashboard
+                // User is authenticated but not admin - redirect to home
                 console.warn('Access denied: Admin role required for', state.url);
-                router.navigate(['/dashboard']);
+                router.navigate(['/home']);
                 return false;
             }
         })

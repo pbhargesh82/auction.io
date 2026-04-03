@@ -91,8 +91,8 @@ export class LoginComponent implements OnInit {
     const user = this.supabaseService.currentUserValue;
     
     if (user) {
-      console.log('User already authenticated, redirecting to dashboard');
-      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+      console.log('User already authenticated, redirecting to home');
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
       this.router.navigate([returnUrl]);
     }
 
@@ -160,8 +160,8 @@ export class LoginComponent implements OnInit {
       if (result.error) {
         this.loginError.set(this.getErrorMessage(result.error.message));
       } else {
-        // Redirect to returnUrl if it exists, otherwise go to dashboard
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+        // Redirect to returnUrl if it exists, otherwise go to home
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
         this.router.navigate([returnUrl]);
       }
     } catch (error: any) {

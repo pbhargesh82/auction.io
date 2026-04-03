@@ -306,31 +306,31 @@ A route resolver that:
 ### Phase 1: Foundation & Routing (HIGH PRIORITY)
 > Restructure routes and layout — no feature changes yet
 
-- [ ] **1.1** Create new route structure in `app.routes.ts`
-  - [ ] Add `/home` route
-  - [ ] Add `/player-pool` route
-  - [ ] Add `/auction/:id` parent route with children
-  - [ ] Add `/auction/:id/overview`, `/teams`, `/players`, `/control`, `/rosters`, `/history`, `/settings` child routes
-  - [ ] Add redirects from old routes to new ones (temporary, for existing bookmarks)
-  - [ ] Remove `/dashboard`, `/auctions`, `/teams`, `/players`, `/team-roster`, `/auction-control`, `/auction-history`, `/auction-config` routes
+- [x] **1.1** Create new route structure in `app.routes.ts`
+  - [x] Add `/home` route
+  - [x] Add `/player-pool` route
+  - [x] Add `/auction/:id` parent route with children
+  - [x] Add `/auction/:id/overview`, `/teams`, `/players`, `/control`, `/rosters`, `/history`, `/settings` child routes
+  - [x] Add redirects from old routes to new ones (temporary, for existing bookmarks)
+  - [x] Remove `/dashboard`, `/auctions`, `/teams`, `/players`, `/team-roster`, `/auction-control`, `/auction-history`, `/auction-config` routes
 
-- [ ] **1.2** Create `AuctionWorkspaceLayoutComponent`
-  - [ ] New layout component for `/auction/:id/*` routes
-  - [ ] Auction-scoped sidebar with "Back to My Auctions" button
-  - [ ] Display current auction name + status in sidebar header
-  - [ ] Per-auction navigation menu items
-  - [ ] Receive `auctionId` from route params
+- [x] **1.2** Create `AuctionWorkspaceLayoutComponent`
+  - [x] New layout component for `/auction/:id/*` routes
+  - [x] Auction-scoped sidebar with "Back to My Auctions" button
+  - [x] Display current auction name + status in sidebar header
+  - [x] Per-auction navigation menu items
+  - [x] Receive `auctionId` from route params
 
-- [ ] **1.3** Update `LayoutComponent` (Global Layout)
-  - [ ] Simplify sidebar to only show global nav items (My Auctions, Player Pool, Settings)
-  - [ ] Remove `AuctionSelectorComponent` from header
-  - [ ] Remove auction-specific menu items from sidebar
+- [x] **1.3** Update `LayoutComponent` (Global Layout)
+  - [x] Simplify sidebar to only show global nav items (My Auctions, Player Pool, Settings)
+  - [x] Remove `AuctionSelectorComponent` from header
+  - [x] Remove auction-specific menu items from sidebar
 
-- [ ] **1.4** Create route resolver/guard for auction workspace
-  - [ ] Validate auction ID exists
-  - [ ] Validate user ownership (or super_admin)
-  - [ ] Pre-load auction data into `AuctionStateService`
-  - [ ] Redirect to `/home` if invalid
+- [x] **1.4** Create route resolver/guard for auction workspace
+  - [x] Validate auction ID exists
+  - [x] Validate user ownership (or super_admin)
+  - [x] Pre-load auction data into `AuctionStateService`
+  - [x] Redirect to `/home` if invalid
 
 ---
 
