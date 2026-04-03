@@ -1,0 +1,41 @@
+/* Custom animations and styling for Public Auction Dashboard */
+
+:host {
+  display: block;
+  background-color: #f8fafc;
+}
+
+/* Subtle pulse for live status */
+.animate-ping {
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Smooth transitions for cards */
+mat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+mat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Custom progress bar styles */
+::ng-deep .mat-mdc-progress-bar {
+  --mdc-linear-progress-active-indicator-color: #4f46e5;
+  --mdc-linear-progress-track-color: #e2e8f0;
+  height: 8px !important;
+  border-radius: 4px;
+}
+
+/* Team standing hover effect */
+.group:hover {
+  transform: scale(1.02);
+}

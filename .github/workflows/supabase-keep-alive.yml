@@ -1,27 +1,53 @@
 # Supabase Keep-Alive Workflow
 # This prevents your Supabase project from pausing due to inactivity
-# Runs every 6 days (before the 7-day pause window)
+# Also includes a heartbeat to prevent GitHub from disabling this schedule
 
 name: Supabase Keep Alive
 
 on:
   schedule:
-    # Run at midnight UTC every 6 days
-    - cron: '0 0 */6 * *'
+    # Run at midnight UTC every day
+    - cron: '0 0 * * *'
   workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write # Required for the keep-alive heartbeat
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Ping Supabase RPC
+        id: ping_rpc
+        continue-on-error: true
         run: |
           # Simple health check query to keep the database active
+          # Using the specialized RPC function if it exists
           curl -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/health_check" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{}' \
             --fail --silent --show-error
 
+      - name: Fallback Ping (Rest Root)
+        if: steps.ping_rpc.outcome == 'failure'
+        run: |
+          # Fallback to hitting the REST root if the RPC fails
+          # This still counts as activity for Supabase
+          echo "⚠️ RPC health_check failed, trying REST root..."
+          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            --fail --silent --show-error
+
       - name: Log success
         run: echo "✅ Supabase pinged successfully at $(date)"
+
+      - name: Keep GitHub Actions Active
+        uses: gautamkrishnar/keepalive-workflow@v2
+        with:
+          use_api: true

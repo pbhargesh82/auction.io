@@ -40,8 +40,8 @@
                         <mat-icon class="text-purple-600">admin_panel_settings</mat-icon>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Admins</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats().admins }}</p>
+                        <p class="text-sm font-medium text-gray-500">Super Admins</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats().superAdmins }}</p>
                     </div>
                 </div>
             </div>
@@ -185,7 +185,7 @@
                             </div>
                             } @else {
                             <select [value]="user.role" (change)="onRoleChange(user, $any($event.target).value)"
-                                [disabled]="isCurrentUser(user.user_id) && user.role === 'admin' || user.is_banned"
+                                [disabled]="isCurrentUser(user.user_id) && user.role === 'super_admin' || user.is_banned"
                                 class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white disabled:opacity-50 disabled:cursor-not-allowed">
                                 @for (role of availableRoles; track role.value) {
                                 <option [value]="role.value" [selected]="role.value === user.role">
@@ -270,9 +270,8 @@
             <div class="text-sm text-blue-700">
                 <p class="font-medium mb-1">Role Permissions</p>
                 <ul class="list-disc list-inside space-y-1">
-                    <li><strong>Admin:</strong> Full access to all features including user management</li>
-                    <li><strong>User:</strong> Access to dashboard and viewing features</li>
-                    <li><strong>Viewer:</strong> Read-only access to public data</li>
+                    <li><strong>Super Admin:</strong> Full access to all features including user management</li>
+                    <li><strong>User:</strong> Access to personal auctions, players, and teams</li>
                 </ul>
                 <p class="mt-2 text-xs">Note: Users must log out and log back in for role changes to take effect.</p>
             </div>

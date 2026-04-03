@@ -39,14 +39,14 @@ export class DashboardComponent implements OnInit {
   });
 
   // Computed signal for admin status
-  isAdmin = computed(() => this.userRole() === 'admin');
+  isAdmin = computed(() => this.userRole() === 'super_admin');
 
   playerStats = computed((): PlayerStats => {
     const allPlayers = this.auctionStateService.players();
     const activePlayers = allPlayers.filter(p => p.is_active);
     const soldPlayers = this.auctionStateService.soldPlayers();
     const availablePlayers = this.auctionStateService.availablePlayers();
-    
+
     return {
       totalPlayers: activePlayers.length,
       soldPlayers: soldPlayers.length,
@@ -55,11 +55,11 @@ export class DashboardComponent implements OnInit {
     };
   });
 
-  totalBudgetSpent = computed(() => 
+  totalBudgetSpent = computed(() =>
     this.teamsWithPlayers().reduce((sum, team) => sum + team.budget_spent, 0)
   );
 
-  totalBudgetRemaining = computed(() => 
+  totalBudgetRemaining = computed(() =>
     this.teamsWithPlayers().reduce((sum, team) => sum + (team.budget_cap - team.budget_spent), 0)
   );
 
@@ -122,19 +122,19 @@ export class DashboardComponent implements OnInit {
     // Check if we have teams and players configured
     const teamsCount = this.teamsWithPlayers().length;
     const playersCount = this.auctionStateService.players().length;
-    
+
     if (teamsCount === 0) {
       alert('Please configure teams first before starting the auction.');
       this.router.navigate(['/teams']);
       return;
     }
-    
+
     if (playersCount === 0) {
       alert('Please add players first before starting the auction.');
       this.router.navigate(['/players']);
       return;
     }
-    
+
 
     this.router.navigate(['/auction-control']);
   }
@@ -146,7 +146,7 @@ export class DashboardComponent implements OnInit {
 
   getTeamStatusColor(team: TeamWithPlayers): string {
     if (!team.is_active) return 'bg-red-100 text-red-800';
-    
+
     const budgetUsed = this.getBudgetPercentage(team);
     if (budgetUsed > 80) return 'bg-yellow-100 text-yellow-800';
     if (budgetUsed > 50) return 'bg-blue-100 text-blue-800';

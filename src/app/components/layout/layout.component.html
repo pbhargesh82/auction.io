@@ -88,9 +88,9 @@
               <p class="text-xs text-gray-500 truncate">
                 {{ user()?.email }}
               </p>
-              <p class="text-xs font-medium capitalize"
-                [class]="userRole() === 'admin' ? 'text-purple-600' : 'text-gray-600'">
-                {{ userRole() }}
+              <p class="text-xs font-medium"
+                [class]="userRole() === 'super_admin' ? 'text-purple-600' : 'text-gray-600'">
+                {{ formattedRole() }}
               </p>
             </div>
           </div>
@@ -201,8 +201,9 @@
               <p class="text-xs text-gray-500 truncate">
                 {{ user()?.email }}
               </p>
-              <p class="text-xs font-medium" [class]="userRole() === 'admin' ? 'text-purple-600' : 'text-gray-600'">
-                {{ userRole() }}
+              <p class="text-xs font-medium"
+                [class]="userRole() === 'super_admin' ? 'text-purple-600' : 'text-gray-600'">
+                {{ formattedRole() }}
               </p>
             </div>
           </div>
@@ -255,6 +256,11 @@
               }
             </svg>
           </button>
+        </div>
+
+        <!-- Auction Selector -->
+        <div class="flex-1 flex justify-center px-4">
+          <app-auction-selector></app-auction-selector>
         </div>
 
         <!-- Page Title or Breadcrumb -->

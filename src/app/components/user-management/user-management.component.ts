@@ -52,14 +52,13 @@ export class UserManagementComponent implements OnInit {
     // Invite form state
     showInviteForm = signal(false);
     inviteEmail = signal('');
-    inviteRole = signal<'admin' | 'user' | 'viewer'>('user');
+    inviteRole = signal<'super_admin' | 'user'>('user');
     inviteLoading = signal(false);
 
     // Available roles for selection
-    availableRoles: { value: 'admin' | 'user' | 'viewer'; label: string }[] = [
-        { value: 'admin', label: 'Admin' },
-        { value: 'user', label: 'User' },
-        { value: 'viewer', label: 'Viewer' }
+    availableRoles: { value: 'super_admin' | 'user'; label: string }[] = [
+        { value: 'super_admin', label: 'Super Admin' },
+        { value: 'user', label: 'User' }
     ];
 
     // Computed values
@@ -81,9 +80,8 @@ export class UserManagementComponent implements OnInit {
         const users = this.users();
         return {
             total: users.length,
-            admins: users.filter(u => u.role === 'admin').length,
+            superAdmins: users.filter(u => u.role === 'super_admin').length,
             regularUsers: users.filter(u => u.role === 'user').length,
-            viewers: users.filter(u => u.role === 'viewer').length,
             banned: users.filter(u => u.is_banned).length,
             active: users.filter(u => !u.is_banned).length
         };
@@ -162,9 +160,9 @@ export class UserManagementComponent implements OnInit {
         this.inviteLoading.set(false);
     }
 
-    async onRoleChange(user: UserWithRole, newRole: 'admin' | 'user' | 'viewer') {
-        // Prevent self-demotion from admin
-        if (user.user_id === this.currentUserId() && user.role === 'admin' && newRole !== 'admin') {
+    async onRoleChange(user: UserWithRole, newRole: 'super_admin' | 'user') {
+        // Prevent self-demotion from super_admin
+        if (user.user_id === this.currentUserId() && user.role === 'super_admin' && newRole !== 'super_admin') {
             this.snackBar.open('You cannot remove your own admin privileges', 'Close', {
                 duration: 5000,
                 panelClass: ['error-snackbar']

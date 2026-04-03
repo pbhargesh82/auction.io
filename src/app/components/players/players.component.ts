@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { PlayersService, Player, CreatePlayerData, UpdatePlayerData } from '../../services/players.service';
 import { TeamPlayersService } from '../../services/team-players.service';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
+import { ImageUploadService } from '../../services/image-upload.service';
 
 // Angular Material imports
 import { MatTableModule } from '@angular/material/table';
@@ -25,7 +26,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   selector: 'app-players',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
     MatTableModule,
     MatButtonModule,
@@ -60,7 +61,11 @@ export class PlayersComponent implements OnInit {
   filterStatus = signal<string>('');
   soldPlayerIds = signal<string[]>([]);
   userRole = signal<UserRole>('user');
-  
+
+  // Image upload signals
+  photoPreview = signal<string | null>(null);
+  uploadingPhoto = signal(false);
+
   // Scroll position preservation
   scrollPosition = signal<number>(0);
 
@@ -70,13 +75,17 @@ export class PlayersComponent implements OnInit {
   formValid = signal(false);
 
   // Predefined options
-  categories = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket Keeper'];
-  positions = ['Top Order', 'Middle Order', 'Lower Order', 'Opening Bowler', 'Spin Bowler', 'Fast Bowler', 'Medium Pace'];
+  categories = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper'];
+  specializations: { [key: string]: string[] } = {
+    'Batsman': ['Right-Hand Bat', 'Left-Hand Bat', 'Opener', 'Middle Order', 'Finisher'],
+    'Bowler': ['Fast Bowler', 'Medium Fast', 'Off Spinner', 'Leg Spinner', 'Left-Arm Spinner', 'Left-Arm Pace'],
+    'All-Rounder': ['Batting All-Rounder', 'Bowling All-Rounder'],
+    'Wicket-Keeper': ['Wicket-Keeper Batsman']
+  };
   statuses = ['Available', 'Sold', 'Inactive'];
-  nationalities = ['India', 'Australia', 'England', 'South Africa', 'New Zealand', 'Pakistan', 'Sri Lanka', 'Bangladesh', 'West Indies', 'Afghanistan', 'Other'];
 
   // Computed signal for admin status
-  isAdmin = computed(() => this.userRole() === 'admin');
+  isAdmin = computed(() => this.userRole() === 'super_admin');
 
   // Computed values
   filteredPlayers = computed(() => {
@@ -89,7 +98,7 @@ export class PlayersComponent implements OnInit {
     const statusFilter = this.filterStatus();
 
     // Filter by search term
-    let filtered = players.filter(player => 
+    let filtered = players.filter(player =>
       player.name.toLowerCase().includes(search) ||
       player.position.toLowerCase().includes(search) ||
       player.category.toLowerCase().includes(search) ||
@@ -106,36 +115,36 @@ export class PlayersComponent implements OnInit {
       filtered = filtered.filter(player => player.position === positionFilter);
     }
 
-         // Filter by status
-     if (statusFilter) {
-       const soldIds = this.soldPlayerIds();
-       filtered = filtered.filter(player => {
-         if (statusFilter === 'Sold') {
-           return soldIds.includes(player.id);
-         } else if (statusFilter === 'Available') {
-           return player.is_active && !soldIds.includes(player.id);
-         } else if (statusFilter === 'Inactive') {
-           return !player.is_active;
-         }
-         return true;
-       });
-     }
+    // Filter by status
+    if (statusFilter) {
+      const soldIds = this.soldPlayerIds();
+      filtered = filtered.filter(player => {
+        if (statusFilter === 'Sold') {
+          return soldIds.includes(player.id);
+        } else if (statusFilter === 'Available') {
+          return player.is_active && !soldIds.includes(player.id);
+        } else if (statusFilter === 'Inactive') {
+          return !player.is_active;
+        }
+        return true;
+      });
+    }
 
     // Sort
     filtered.sort((a, b) => {
       const aVal = a[field];
       const bVal = b[field];
-      
+
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         const result = aVal.localeCompare(bVal);
         return direction === 'asc' ? result : -result;
       }
-      
+
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         const result = aVal - bVal;
         return direction === 'asc' ? result : -result;
       }
-      
+
       return 0;
     });
 
@@ -143,8 +152,8 @@ export class PlayersComponent implements OnInit {
   });
 
   selectedCount = computed(() => this.selectedPlayers().size);
-  isAllSelected = computed(() => 
-    this.filteredPlayers().length > 0 && 
+  isAllSelected = computed(() =>
+    this.filteredPlayers().length > 0 &&
     this.selectedPlayers().size === this.filteredPlayers().length
   );
   isFormValid = computed(() => this.formValid());
@@ -171,37 +180,37 @@ export class PlayersComponent implements OnInit {
     private playersService: PlayersService,
     private teamPlayersService: TeamPlayersService,
     private supabaseService: SupabaseService,
+    private imageUploadService: ImageUploadService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
-    // Initialize form
+    // Initialize form with enhanced fields
     this.playerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      position: ['Middle Order'], // Default value for hidden field
-      category: ['Batsman'], // Hidden field with default value
-      subcategory: [''], // Hidden field
-      base_price: [0, [Validators.required, Validators.min(1000)]],
-      image_url: [''], // Hidden field
-      nationality: [''], // Hidden field
+      category: ['Batsman', Validators.required],
+      specialization: [''],
+      base_price: [100000, [Validators.required, Validators.min(1000)]],
+      image_url: [''],
       age: [null, [Validators.min(16), Validators.max(50)]],
-      experience_years: [null, [Validators.min(0), Validators.max(25)]] // Hidden field
+      experience_years: [null, [Validators.min(0), Validators.max(30)]],
+      bio: ['', [Validators.maxLength(500)]]
     });
 
     // Use service signals directly
     this.players = this.playersService.players;
     this.loading = this.playersService.loading;
     this.error = this.playersService.error;
-    
+
     // Subscribe to user role changes
     this.supabaseService.userRole.subscribe(role => {
       this.userRole.set(role);
     });
-    
+
     // Subscribe to form changes to update validity signal
     this.playerForm.statusChanges.subscribe(() => {
       this.formValid.set(this.playerForm.valid);
     });
-    
+
     this.playerForm.valueChanges.subscribe(() => {
       this.formValid.set(this.playerForm.valid);
     });
@@ -233,18 +242,18 @@ export class PlayersComponent implements OnInit {
   openCreateForm() {
     // Save current scroll position before opening form
     this.scrollPosition.set(window.scrollY);
-    
+
     this.editingPlayer.set(null);
+    this.photoPreview.set(null);
     this.playerForm.reset({
       name: '',
-      position: 'Middle Order',
       category: 'Batsman',
-      subcategory: '',
+      specialization: '',
       base_price: 100000,
       image_url: '',
-      nationality: '',
       age: null,
-      experience_years: null
+      experience_years: null,
+      bio: ''
     });
     this.formValid.set(this.playerForm.valid);
     this.showForm.set(true);
@@ -253,18 +262,18 @@ export class PlayersComponent implements OnInit {
   openEditForm(player: Player) {
     // Save current scroll position before opening form
     this.scrollPosition.set(window.scrollY);
-    
+
     this.editingPlayer.set(player);
+    this.photoPreview.set(player.image_url || null);
     this.playerForm.patchValue({
       name: player.name,
-      position: player.position || 'Middle Order',
       category: player.category || 'Batsman',
-      subcategory: player.subcategory || '',
+      specialization: player.subcategory || player.position || '',
       base_price: player.base_price,
       image_url: player.image_url || '',
-      nationality: player.nationality || '',
       age: player.age,
-      experience_years: player.experience_years
+      experience_years: player.experience_years,
+      bio: (player as any).bio || ''
     });
     this.formValid.set(this.playerForm.valid);
     this.showForm.set(true);
@@ -273,17 +282,59 @@ export class PlayersComponent implements OnInit {
   closeForm() {
     // Check if we were editing before closing
     const wasEditing = this.editingPlayer() !== null;
-    
+
     this.showForm.set(false);
     this.editingPlayer.set(null);
+    this.photoPreview.set(null);
     this.playerForm.reset();
-    
+
     // Restore scroll position when form is closed (for cancel/close actions)
     if (wasEditing) {
       this.restoreScrollPosition();
     }
   }
-  
+
+  // Handle photo file selection
+  async onPhotoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    this.uploadingPhoto.set(true);
+
+    try {
+      // Compress image before upload
+      const compressedFile = await this.imageUploadService.compressImage(file, 400, 0.8);
+
+      // Upload to Supabase Storage
+      const result = await this.imageUploadService.uploadImage(compressedFile, 'players');
+
+      if (result.success && result.url) {
+        this.photoPreview.set(result.url);
+        this.playerForm.patchValue({ image_url: result.url });
+        this.snackBar.open('Photo uploaded successfully', 'Close', { duration: 3000 });
+      } else {
+        this.snackBar.open(`Upload failed: ${result.error}`, 'Close', { duration: 5000 });
+      }
+    } catch (err: any) {
+      this.snackBar.open(`Upload error: ${err.message}`, 'Close', { duration: 5000 });
+    } finally {
+      this.uploadingPhoto.set(false);
+    }
+  }
+
+  // Remove photo
+  removePhoto() {
+    this.photoPreview.set(null);
+    this.playerForm.patchValue({ image_url: '' });
+  }
+
+  // Get specializations for current category
+  getSpecializations(): string[] {
+    const category = this.playerForm.get('category')?.value;
+    return this.specializations[category] || [];
+  }
+
   // Restore scroll position after form closes
   private restoreScrollPosition() {
     setTimeout(() => {
@@ -306,39 +357,39 @@ export class PlayersComponent implements OnInit {
         // Update existing player
         const { error } = await this.playersService.updatePlayer(editingPlayer.id, formData as UpdatePlayerData);
         if (error) {
-          this.snackBar.open(`Error updating player: ${error.message}`, 'Close', { 
-            duration: 5000, 
-            panelClass: ['error-snackbar'] 
+          this.snackBar.open(`Error updating player: ${error.message}`, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
           });
           return;
         }
-        this.snackBar.open('Player updated successfully!', 'Close', { 
-          duration: 3000, 
-          panelClass: ['success-snackbar'] 
+        this.snackBar.open('Player updated successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
         });
       } else {
         // Create new player
         const { error } = await this.playersService.createPlayer(formData as CreatePlayerData);
         if (error) {
-          this.snackBar.open(`Error creating player: ${error.message}`, 'Close', { 
-            duration: 5000, 
-            panelClass: ['error-snackbar'] 
+          this.snackBar.open(`Error creating player: ${error.message}`, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
           });
           return;
         }
-        this.snackBar.open('Player created successfully!', 'Close', { 
-          duration: 3000, 
-          panelClass: ['success-snackbar'] 
+        this.snackBar.open('Player created successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
         });
-             }
-       
-       this.closeForm();
-       // Restore scroll position after successful submission
-       this.restoreScrollPosition();
-     } catch (error: any) {
-      this.snackBar.open(`Error: ${error.message}`, 'Close', { 
-        duration: 5000, 
-        panelClass: ['error-snackbar'] 
+      }
+
+      this.closeForm();
+      // Restore scroll position after successful submission
+      this.restoreScrollPosition();
+    } catch (error: any) {
+      this.snackBar.open(`Error: ${error.message}`, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
       });
     } finally {
       this.formSubmitting.set(false);
@@ -353,14 +404,14 @@ export class PlayersComponent implements OnInit {
 
     const { error } = await this.playersService.deletePlayer(player.id);
     if (error) {
-      this.snackBar.open(`Error deleting player: ${error.message}`, 'Close', { 
-        duration: 5000, 
-        panelClass: ['error-snackbar'] 
+      this.snackBar.open(`Error deleting player: ${error.message}`, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
       });
     } else {
-      this.snackBar.open('Player deleted successfully!', 'Close', { 
-        duration: 3000, 
-        panelClass: ['success-snackbar'] 
+      this.snackBar.open('Player deleted successfully!', 'Close', {
+        duration: 3000,
+        panelClass: ['success-snackbar']
       });
     }
   }
@@ -368,14 +419,14 @@ export class PlayersComponent implements OnInit {
   async togglePlayerStatus(player: Player) {
     const { error } = await this.playersService.togglePlayerStatus(player.id);
     if (error) {
-      this.snackBar.open(`Error toggling player status: ${error.message}`, 'Close', { 
-        duration: 5000, 
-        panelClass: ['error-snackbar'] 
+      this.snackBar.open(`Error toggling player status: ${error.message}`, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
       });
     } else {
-      this.snackBar.open(`Player ${player.is_active ? 'deactivated' : 'activated'} successfully!`, 'Close', { 
-        duration: 3000, 
-        panelClass: ['success-snackbar'] 
+      this.snackBar.open(`Player ${player.is_active ? 'deactivated' : 'activated'} successfully!`, 'Close', {
+        duration: 3000,
+        panelClass: ['success-snackbar']
       });
     }
   }
@@ -394,13 +445,13 @@ export class PlayersComponent implements OnInit {
   toggleSelectPlayer(playerId: string) {
     const selected = this.selectedPlayers();
     const newSelected = new Set(selected);
-    
+
     if (newSelected.has(playerId)) {
       newSelected.delete(playerId);
     } else {
       newSelected.add(playerId);
     }
-    
+
     this.selectedPlayers.set(newSelected);
   }
 
@@ -417,9 +468,9 @@ export class PlayersComponent implements OnInit {
     }
 
     this.selectedPlayers.set(new Set());
-    this.snackBar.open(`${selectedIds.length} players deleted successfully!`, 'Close', { 
-      duration: 3000, 
-      panelClass: ['success-snackbar'] 
+    this.snackBar.open(`${selectedIds.length} players deleted successfully!`, 'Close', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
     });
   }
 
@@ -464,8 +515,8 @@ export class PlayersComponent implements OnInit {
 
   // Utility methods
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-IN', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0

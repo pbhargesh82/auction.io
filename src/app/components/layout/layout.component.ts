@@ -5,6 +5,7 @@ import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs/operators';
+import { AuctionSelectorComponent } from '../auction-selector/auction-selector.component';
 
 interface MenuItem {
   label: string;
@@ -17,7 +18,7 @@ interface MenuItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, AuctionSelectorComponent],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
 })
@@ -41,7 +42,13 @@ export class LayoutComponent {
   });
 
   // Computed signal for admin status
-  isAdmin = computed(() => this.userRole() === 'admin');
+  isAdmin = computed(() => this.userRole() === 'super_admin');
+
+  // Computed signal for formatted role display
+  formattedRole = computed(() => {
+    const role = this.userRole();
+    return role === 'super_admin' ? 'Super Admin' : 'User';
+  });
 
   // Computed signal for filtered menu items based on role
   filteredMenuItems = computed(() => {
@@ -56,16 +63,14 @@ export class LayoutComponent {
       route: '/dashboard'
     },
     {
-      label: 'Auction Control',
-      icon: 'gavel',
-      route: '/auction-control',
-      requiresAdmin: true
+      label: 'Auctions',
+      icon: 'emoji_events',
+      route: '/auctions'
     },
     {
-      label: 'Auction Config',
-      icon: 'settings',
-      route: '/auction-config',
-      requiresAdmin: true
+      label: 'Auction Control',
+      icon: 'gavel',
+      route: '/auction-control'
     },
     {
       label: 'Auction History',
@@ -80,14 +85,12 @@ export class LayoutComponent {
     {
       label: 'Teams',
       icon: 'flag',
-      route: '/teams',
-      requiresAdmin: true
+      route: '/teams'
     },
     {
-      label: 'Players',
+      label: 'My Players',
       icon: 'sports_cricket',
-      route: '/players',
-      requiresAdmin: true
+      route: '/players'
     },
     {
       label: 'User Management',

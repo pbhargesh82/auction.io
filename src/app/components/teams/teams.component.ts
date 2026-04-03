@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { TeamsService, Team, CreateTeamData, UpdateTeamData } from '../../services/teams.service';
 import { TeamWithPlayers } from '../team-card/team-card.component';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
+import { ImageUploadService } from '../../services/image-upload.service';
 
 // Angular Material imports
 import { MatTableModule } from '@angular/material/table';
@@ -25,7 +26,7 @@ import { TeamCardComponent } from '../team-card/team-card.component';
   selector: 'app-teams',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
     MatTableModule,
     MatButtonModule,
@@ -54,6 +55,10 @@ export class TeamsComponent implements OnInit {
   searchTerm = signal('');
   userRole = signal<UserRole>('user');
 
+  // Image upload signals
+  logoPreview = signal<string | null>(null);
+  uploadingLogo = signal(false);
+
   // Form
   teamForm: FormGroup;
   formSubmitting = signal(false);
@@ -65,7 +70,7 @@ export class TeamsComponent implements OnInit {
     const search = this.searchTerm().toLowerCase();
 
     // Filter by search term
-    return teams.filter(team => 
+    return teams.filter(team =>
       team.name.toLowerCase().includes(search) ||
       (team.short_name?.toLowerCase().includes(search))
     );
@@ -74,7 +79,7 @@ export class TeamsComponent implements OnInit {
   isFormValid = computed(() => this.formValid());
 
   // Computed signal for admin status
-  isAdmin = computed(() => this.userRole() === 'admin');
+  isAdmin = computed(() => this.userRole() === 'super_admin');
 
 
   // Table configuration
@@ -84,35 +89,37 @@ export class TeamsComponent implements OnInit {
   constructor(
     private teamsService: TeamsService,
     private supabaseService: SupabaseService,
+    private imageUploadService: ImageUploadService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
-    // Initialize form
+    // Initialize form with enhanced fields
     this.teamForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      short_name: ['', [Validators.maxLength(10)]],
-      logo_url: [''], // Hidden field
-      primary_color: ['#1976d2'], // Hidden field with default
-      secondary_color: ['#424242'], // Hidden field with default
-      budget_cap: [100000, [Validators.required, Validators.min(10000)]],
-      max_players: [25, [Validators.required, Validators.min(8), Validators.max(50)]]
+      short_name: ['', [Validators.maxLength(5)]],
+      logo_url: [''],
+      primary_color: ['#1976d2'],
+      secondary_color: ['#424242'],
+      budget_cap: [100000, [Validators.required, Validators.min(100000)]],
+      max_players: [25, [Validators.required, Validators.min(8), Validators.max(50)]],
+      owner_name: ['']
     });
 
     // Use service signals directly
     this.teams = this.teamsService.teams;
     this.loading = this.teamsService.loading;
     this.error = this.teamsService.error;
-    
+
     // Subscribe to user role changes
     this.supabaseService.userRole.subscribe(role => {
       this.userRole.set(role);
     });
-    
+
     // Subscribe to form changes to update validity signal
     this.teamForm.statusChanges.subscribe(() => {
       this.formValid.set(this.teamForm.valid);
     });
-    
+
     this.teamForm.valueChanges.subscribe(() => {
       this.formValid.set(this.teamForm.valid);
     });
@@ -133,6 +140,7 @@ export class TeamsComponent implements OnInit {
   // Form operations
   openCreateForm() {
     this.editingTeam.set(null);
+    this.logoPreview.set(null);
     this.teamForm.reset();
     this.teamForm.patchValue({
       name: '',
@@ -141,7 +149,8 @@ export class TeamsComponent implements OnInit {
       primary_color: '#1976d2',
       secondary_color: '#424242',
       budget_cap: 100000,
-      max_players: 25
+      max_players: 25,
+      owner_name: ''
     });
     this.teamForm.markAsUntouched();
     this.teamForm.updateValueAndValidity();
@@ -151,6 +160,7 @@ export class TeamsComponent implements OnInit {
 
   openEditForm(team: Team | TeamWithPlayers) {
     this.editingTeam.set(team);
+    this.logoPreview.set(team.logo_url || null);
     this.teamForm.patchValue({
       name: team.name,
       short_name: team.short_name || '',
@@ -158,7 +168,8 @@ export class TeamsComponent implements OnInit {
       primary_color: team.primary_color,
       secondary_color: team.secondary_color,
       budget_cap: team.budget_cap,
-      max_players: team.max_players
+      max_players: team.max_players,
+      owner_name: (team as any).owner_name || ''
     });
     this.showForm.set(true);
   }
@@ -166,7 +177,43 @@ export class TeamsComponent implements OnInit {
   closeForm() {
     this.showForm.set(false);
     this.editingTeam.set(null);
+    this.logoPreview.set(null);
     this.teamForm.reset();
+  }
+
+  // Handle logo file selection
+  async onLogoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    this.uploadingLogo.set(true);
+
+    try {
+      // Compress image before upload
+      const compressedFile = await this.imageUploadService.compressImage(file, 400, 0.8);
+
+      // Upload to Supabase Storage
+      const result = await this.imageUploadService.uploadImage(compressedFile, 'teams');
+
+      if (result.success && result.url) {
+        this.logoPreview.set(result.url);
+        this.teamForm.patchValue({ logo_url: result.url });
+        this.snackBar.open('Logo uploaded successfully', 'Close', { duration: 3000 });
+      } else {
+        this.snackBar.open(`Upload failed: ${result.error}`, 'Close', { duration: 5000 });
+      }
+    } catch (err: any) {
+      this.snackBar.open(`Upload error: ${err.message}`, 'Close', { duration: 5000 });
+    } finally {
+      this.uploadingLogo.set(false);
+    }
+  }
+
+  // Remove logo
+  removeLogo() {
+    this.logoPreview.set(null);
+    this.teamForm.patchValue({ logo_url: '' });
   }
 
   async onSubmit() {
@@ -181,37 +228,37 @@ export class TeamsComponent implements OnInit {
         // Update existing team
         const { error } = await this.teamsService.updateTeam(editingTeam.id, formData as UpdateTeamData);
         if (error) {
-          this.snackBar.open(`Error updating team: ${error.message}`, 'Close', { 
-            duration: 5000, 
-            panelClass: ['error-snackbar'] 
+          this.snackBar.open(`Error updating team: ${error.message}`, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
           });
           return;
         }
-        this.snackBar.open('Team updated successfully!', 'Close', { 
-          duration: 3000, 
-          panelClass: ['success-snackbar'] 
+        this.snackBar.open('Team updated successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
         });
       } else {
         // Create new team
         const { error } = await this.teamsService.createTeam(formData as CreateTeamData);
         if (error) {
-          this.snackBar.open(`Error creating team: ${error.message}`, 'Close', { 
-            duration: 5000, 
-            panelClass: ['error-snackbar'] 
+          this.snackBar.open(`Error creating team: ${error.message}`, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
           });
           return;
         }
-        this.snackBar.open('Team created successfully!', 'Close', { 
-          duration: 3000, 
-          panelClass: ['success-snackbar'] 
+        this.snackBar.open('Team created successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
         });
       }
-      
+
       this.closeForm();
     } catch (error: any) {
-      this.snackBar.open(`Error: ${error.message}`, 'Close', { 
-        duration: 5000, 
-        panelClass: ['error-snackbar'] 
+      this.snackBar.open(`Error: ${error.message}`, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
       });
     } finally {
       this.formSubmitting.set(false);
@@ -226,9 +273,9 @@ export class TeamsComponent implements OnInit {
 
     const { error } = await this.teamsService.deleteTeam(team.id);
     if (error) {
-      this.snackBar.open(`Error deleting team: ${error.message}`, 'Close', { 
-        duration: 5000, 
-        panelClass: ['error-snackbar'] 
+      this.snackBar.open(`Error deleting team: ${error.message}`, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
       });
     }
   }
@@ -255,7 +302,7 @@ export class TeamsComponent implements OnInit {
   async toggleTeamStatus(team: Team | TeamWithPlayers) {
     const newStatus = !team.is_active;
     const { error } = await this.teamsService.updateTeam(team.id, { is_active: newStatus });
-    
+
     if (error) {
       this.snackBar.open(`Error updating team status: ${error.message}`, 'Close', {
         duration: 5000,

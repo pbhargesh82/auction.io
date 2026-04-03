@@ -1,0 +1,240 @@
+<div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
+  <!-- Header with Logo/Title -->
+  <header class="mb-8 flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <div class="flex items-center gap-3">
+      <div class="bg-indigo-600 p-2 rounded-lg">
+        <mat-icon class="text-white">emoji_events</mat-icon>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold text-gray-900">Auction.io Live</h1>
+        <p class="text-xs text-gray-500">Real-time Auction Dashboard</p>
+      </div>
+    </div>
+    @if (auction()) {
+      <div [ngClass]="getStatusClass(auction()?.status)" class="px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">
+        {{ auction()?.status }}
+      </div>
+    }
+  </header>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <mat-icon class="text-red-400 text-4xl mb-2">error_outline</mat-icon>
+      <h3 class="text-lg font-medium text-red-800">{{ error() }}</h3>
+      <p class="text-sm text-red-700 mt-1">Please check the link or contact the auction host.</p>
+      <button routerLink="/login" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+        Back to Home
+      </button>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex flex-col items-center justify-center py-24">
+      <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+      <p class="text-gray-600 animate-pulse font-medium">Connecting to live auction...</p>
+    </div>
+  } @else if (auction()) {
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      
+      <!-- Left Column: Current Player & Stats -->
+      <div class="xl:col-span-2 space-y-6">
+        <!-- Auction Summary & Progress -->
+        <mat-card class="overflow-hidden border-none shadow-sm rounded-2xl">
+          <mat-card-header class="bg-white border-b border-gray-100 p-6">
+            <div class="flex flex-col w-full">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <mat-card-title class="text-2xl font-bold text-gray-900">{{ auction()?.name }}</mat-card-title>
+                  <mat-card-subtitle class="text-gray-500 mt-1">{{ auction()?.description }}</mat-card-subtitle>
+                </div>
+                <div class="bg-indigo-50 px-4 py-2 rounded-xl text-center">
+                  <div class="text-xs text-indigo-600 font-bold uppercase tracking-tight">Progress</div>
+                  <div class="text-xl font-black text-indigo-700">{{ auctionStateService.progressPercentage() }}%</div>
+                </div>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="auctionStateService.progressPercentage()" class="h-2 rounded-full"></mat-progress-bar>
+              <div class="flex justify-between mt-3">
+                <div class="flex items-baseline gap-1">
+                  <span class="text-sm font-bold text-gray-900">{{ auctionStateService.soldPlayers().length }}</span>
+                  <span class="text-xs text-gray-500">sold</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-sm font-bold text-gray-900">{{ auctionStateService.totalPlayers() }}</span>
+                  <span class="text-xs text-gray-500">total</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-header>
+          
+          <mat-card-content class="p-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+               <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                  <div class="text-xs text-blue-600 font-bold mb-1 uppercase">Remaning</div>
+                  <div class="text-xl font-bold text-blue-900">{{ auctionStateService.remainingPlayers() }}</div>
+               </div>
+               <div class="bg-green-50/50 p-4 rounded-xl border border-green-100">
+                  <div class="text-xs text-green-600 font-bold mb-1 uppercase">Sold</div>
+                  <div class="text-xl font-bold text-green-900">{{ auctionStateService.soldPlayers().length }}</div>
+               </div>
+               <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+                  <div class="text-xs text-purple-600 font-bold mb-1 uppercase">Max Players</div>
+                  <div class="text-xl font-bold text-purple-900">{{ auction()?.max_players_per_team }}</div>
+               </div>
+               <div class="bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+                  <div class="text-xs text-orange-600 font-bold mb-1 uppercase">Team Budget</div>
+                  <div class="text-xl font-bold text-orange-900">₹{{ formatNumber(auction()?.budget_per_team) }}</div>
+               </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Current Player Highlight -->
+        @if (auctionStateService.currentPlayer()) {
+          <div class="relative overflow-hidden bg-white border border-indigo-100 p-8 rounded-2xl shadow-md border-t-4 border-t-indigo-600">
+            <div class="absolute top-0 right-0 p-4">
+                <span class="flex h-3 w-3 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                <span class="text-[10px] font-bold text-red-600 uppercase ml-5 -mt-4 block tracking-widest">LIVE BIDDING</span>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-8 items-center">
+              <div class="w-32 h-32 md:w-48 md:h-48 rounded-2xl bg-gray-100 flex items-center justify-center overflow-hidden border-2 border-indigo-50 shadow-inner">
+                @if (auctionStateService.currentPlayer()?.image_url) {
+                  <img [src]="auctionStateService.currentPlayer()?.image_url" class="w-full h-full object-cover">
+                } @else {
+                  <mat-icon class="text-6xl text-gray-300">person</mat-icon>
+                }
+              </div>
+              
+              <div class="flex-1 space-y-4 text-center md:text-left">
+                <div>
+                  <h3 class="text-3xl md:text-4xl font-black text-gray-900 mb-1">{{ auctionStateService.currentPlayer()?.name }}</h3>
+                  <div class="flex flex-wrap justify-center md:justify-start gap-2">
+                    <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold uppercase">{{ auctionStateService.currentPlayer()?.position }}</span>
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold uppercase">{{ auctionStateService.currentPlayer()?.category }}</span>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto md:mx-0">
+                  <div class="p-3 bg-gray-50 rounded-xl">
+                    <div class="text-[10px] font-bold text-gray-500 uppercase">Base Price</div>
+                    <div class="text-lg font-black text-indigo-600">₹{{ formatNumber(auctionStateService.currentPlayer()?.base_price) }}</div>
+                  </div>
+                  <div class="p-3 bg-gray-50 rounded-xl">
+                    <div class="text-[10px] font-bold text-gray-500 uppercase">Nationality</div>
+                    <div class="text-lg font-black text-gray-900">{{ auctionStateService.currentPlayer()?.nationality || 'N/A' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <mat-icon class="text-6xl text-gray-200 mb-4">hourglass_empty</mat-icon>
+            <h3 class="text-xl font-bold text-gray-400">Waiting for next player...</h3>
+            <p class="text-gray-400 mt-2">The auction host will select a player soon.</p>
+          </div>
+        }
+
+        <!-- Recent Bids / History -->
+        <mat-card class="border-none shadow-sm rounded-2xl overflow-hidden">
+          <mat-card-header class="bg-gray-50 p-4 border-b border-gray-100">
+             <div class="flex items-center gap-2">
+                <mat-icon class="text-gray-400">history</mat-icon>
+                <mat-card-title class="text-sm font-bold text-gray-700 uppercase tracking-wider">Recent Transactions</mat-card-title>
+             </div>
+          </mat-card-header>
+          <mat-card-content class="p-0">
+            @if (auctionStateService.auctionHistory().length > 0) {
+              <div class="divide-y divide-gray-100">
+                @for (item of auctionStateService.auctionHistory().slice(0, 5); track item.id) {
+                  <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 font-bold">
+                        @if (item.player?.image_url) {
+                            <img [src]="item.player?.image_url" class="w-full h-full object-cover rounded-lg">
+                        } @else {
+                            {{ item.player?.name?.charAt(0) }}
+                        }
+                      </div>
+                      <div>
+                        <div class="text-sm font-bold text-gray-900">{{ item.player?.name }}</div>
+                        <div class="text-xs text-gray-500">{{ item.status }}</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      @if (item.status === 'SOLD') {
+                        <div class="text-sm font-black text-green-600">₹{{ formatNumber(item.final_price) }}</div>
+                        <div class="text-xs font-bold text-gray-700">{{ item.team?.short_name || item.team?.name }}</div>
+                      } @else {
+                        <div class="text-xs font-bold text-red-500">{{ item.status }}</div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+               <div class="p-12 text-center text-gray-400">
+                 No transactions yet.
+               </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Right Column: Team Standings -->
+      <div class="space-y-6">
+        <h3 class="flex items-center gap-2 text-lg font-black text-gray-900">
+           <mat-icon class="text-indigo-600">groups</mat-icon>
+           TEAM STANDINGS
+        </h3>
+        
+        <div class="space-y-3">
+          @for (team of auctionStateService.teamsWithPlayers(); track team.id) {
+            <div class="group bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:border-indigo-200 transition-all">
+              <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black shadow-md"
+                       [style.background-color]="team.primary_color">
+                    {{ team.short_name || team.name.charAt(0) }}
+                  </div>
+                  <div>
+                    <h4 class="font-black text-gray-900 leading-tight">{{ team.name }}</h4>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase">{{ team.players_count }} / {{ auction()?.max_players_per_team }} Players</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs mb-1">
+                   <span class="text-gray-500 font-bold">REMAINING BUDGET</span>
+                   <span class="text-gray-900 font-black">₹{{ formatNumber(team.budget_remaining) }}</span>
+                </div>
+                <mat-progress-bar mode="determinate" [value]="(team.budget_remaining / (auction()?.budget_per_team || 1)) * 100" 
+                                  class="h-1 rounded-full bg-gray-100 shrink-0"></mat-progress-bar>
+              </div>
+
+              <!-- List of some players -->
+              @if (team.players && team.players.length > 0) {
+                 <div class="mt-4 pt-4 border-t border-gray-50 flex flex-wrap gap-1">
+                    @for (p of team.players.slice(0, 5); track p.id) {
+                       <span class="px-2 py-1 bg-gray-50 text-gray-600 rounded text-[9px] font-bold border border-gray-100 uppercase">{{ p.name }}</span>
+                    }
+                    @if (team.players.length > 5) {
+                       <span class="px-2 py-1 text-gray-400 text-[9px] font-bold">+{{ team.players.length - 5 }}</span>
+                    }
+                 </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+</div>
