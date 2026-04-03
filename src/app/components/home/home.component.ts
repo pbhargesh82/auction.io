@@ -1,28 +1,225 @@
-import { Component } from '@angular/core';
+import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuctionContextService, Auction } from '../../services/auction-context.service';
 
-/**
- * HomeComponent — My Auctions landing page.
- * This is a stub created in Phase 1.1 (routing scaffold).
- * Full implementation will be done in Phase 2.1.
- */
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  template: `
-    <div class="home-stub">
-      <h1>My Auctions</h1>
-      <p>Phase 2 implementation coming soon…</p>
-    </div>
-  `,
-  styles: [`
-    .home-stub {
-      padding: 2rem;
-      text-align: center;
-      color: var(--text-primary, #fff);
-    }
-  `]
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css'],
 })
-export class HomeComponent {}
+export class HomeComponent implements OnInit {
+  // ── State ────────────────────────────────────────────────────────────────────
+  searchQuery   = signal('');
+  statusFilter  = signal<'all' | Auction['status']>('all');
+  showModal     = signal(false);
+  editingAuction = signal<Auction | null>(null);
+  duplicating   = signal(false);
+  submitting    = signal(false);
+  deletingId    = signal<string | null>(null);
+  copiedId      = signal<string | null>(null);
+  toastMessage  = signal<string | null>(null);
+  toastType     = signal<'success' | 'error'>('success');
+
+  // ── Form ─────────────────────────────────────────────────────────────────────
+  auctionForm: FormGroup;
+
+  // ── Computed ──────────────────────────────────────────────────────────────────
+  loading  = computed(() => this.ctx.loading());
+  allAuctions = computed(() => this.ctx.userAuctions());
+
+  filteredAuctions = computed(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    const s = this.statusFilter();
+    return this.allAuctions().filter(a => {
+      const matchesSearch = !q || a.name.toLowerCase().includes(q)
+        || (a.description ?? '').toLowerCase().includes(q);
+      const matchesStatus = s === 'all' || a.status === s;
+      return matchesSearch && matchesStatus;
+    });
+  });
+
+  isEditing = computed(() => this.editingAuction() !== null && !this.duplicating());
+  modalTitle = computed(() => {
+    if (this.duplicating()) return 'Duplicate Auction';
+    return this.isEditing() ? 'Edit Auction' : 'Create New Auction';
+  });
+
+  statusOptions: { value: 'all' | Auction['status']; label: string }[] = [
+    { value: 'all',       label: 'All Auctions' },
+    { value: 'draft',     label: 'Draft' },
+    { value: 'active',    label: 'Live' },
+    { value: 'paused',    label: 'Paused' },
+    { value: 'completed', label: 'Completed' },
+  ];
+
+  constructor(
+    private ctx: AuctionContextService,
+    private fb: FormBuilder,
+    private router: Router,
+  ) {
+    this.auctionForm = this.fb.group({
+      name:                 ['', [Validators.required, Validators.minLength(3)]],
+      description:          [''],
+      budget_per_team:      [10_000_000, [Validators.required, Validators.min(1000)]],
+      max_players_per_team: [25, [Validators.required, Validators.min(1)]],
+      min_players_per_team: [15, [Validators.required, Validators.min(1)]],
+      is_public:            [true],
+    });
+  }
+
+  async ngOnInit() {
+    await this.ctx.initialize();
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────────────
+  enterAuction(auction: Auction) {
+    this.router.navigate(['/auction', auction.id, 'overview']);
+  }
+
+  // ── Modal helpers ─────────────────────────────────────────────────────────────
+  openCreate() {
+    this.editingAuction.set(null);
+    this.duplicating.set(false);
+    this.auctionForm.reset({
+      name: '', description: '',
+      budget_per_team: 10_000_000,
+      max_players_per_team: 25,
+      min_players_per_team: 15,
+      is_public: true,
+    });
+    this.showModal.set(true);
+  }
+
+  openEdit(auction: Auction) {
+    this.editingAuction.set(auction);
+    this.duplicating.set(false);
+    this.auctionForm.patchValue({
+      name:                 auction.name,
+      description:          auction.description ?? '',
+      budget_per_team:      auction.budget_per_team,
+      max_players_per_team: auction.max_players_per_team,
+      min_players_per_team: auction.min_players_per_team,
+      is_public:            auction.is_public,
+    });
+    this.showModal.set(true);
+  }
+
+  openDuplicate(auction: Auction) {
+    this.editingAuction.set(auction);
+    this.duplicating.set(true);
+    this.auctionForm.patchValue({
+      name:                 `${auction.name} (Copy)`,
+      description:          auction.description ?? '',
+      budget_per_team:      auction.budget_per_team,
+      max_players_per_team: auction.max_players_per_team,
+      min_players_per_team: auction.min_players_per_team,
+      is_public:            auction.is_public,
+    });
+    this.showModal.set(true);
+  }
+
+  closeModal() {
+    this.showModal.set(false);
+    this.editingAuction.set(null);
+    this.duplicating.set(false);
+  }
+
+  onOverlayClick(event: MouseEvent) {
+    // Only close if clicking directly on the backdrop, not on the modal card
+    if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
+      this.closeModal();
+    }
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────────
+  async submitForm() {
+    if (this.auctionForm.invalid) {
+      this.auctionForm.markAllAsTouched();
+      return;
+    }
+    this.submitting.set(true);
+    const v = this.auctionForm.value;
+
+    try {
+      if (this.isEditing()) {
+        const { error } = await this.ctx.updateAuction(this.editingAuction()!.id, v);
+        if (error) { this.toast('Failed to update: ' + error.message, 'error'); return; }
+        this.toast('Auction updated successfully!');
+      } else {
+        // Create or Duplicate (both just create with given values)
+        const { error } = await this.ctx.createAuction(v);
+        if (error) { this.toast('Failed to create: ' + error.message, 'error'); return; }
+        this.toast(this.duplicating() ? 'Auction duplicated!' : 'Auction created!');
+      }
+      this.closeModal();
+    } finally {
+      this.submitting.set(false);
+    }
+  }
+
+  // ── Delete ────────────────────────────────────────────────────────────────────
+  async deleteAuction(auction: Auction, event: Event) {
+    event.stopPropagation();
+    if (!confirm(`Delete "${auction.name}"? This cannot be undone.`)) return;
+    this.deletingId.set(auction.id);
+    try {
+      const { error } = await this.ctx.deleteAuction(auction.id);
+      if (error) { this.toast('Failed to delete: ' + error.message, 'error'); }
+      else { this.toast('Auction deleted.'); }
+    } finally {
+      this.deletingId.set(null);
+    }
+  }
+
+  // ── Share ─────────────────────────────────────────────────────────────────────
+  async copyShareLink(auction: Auction, event: Event) {
+    event.stopPropagation();
+    const url = `${window.location.origin}/view/${auction.public_slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      this.copiedId.set(auction.id);
+      this.toast('Share link copied!');
+      setTimeout(() => this.copiedId.set(null), 2000);
+    } catch {
+      this.toast('Could not copy link.', 'error');
+    }
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────────────────────
+  statusMeta(status: Auction['status']): { label: string; cls: string } {
+    switch (status) {
+      case 'active':    return { label: 'Live',      cls: 'badge--active' };
+      case 'paused':    return { label: 'Paused',    cls: 'badge--paused' };
+      case 'completed': return { label: 'Completed', cls: 'badge--completed' };
+      default:          return { label: 'Draft',     cls: 'badge--draft' };
+    }
+  }
+
+  formatCurrency(v: number): string {
+    if (v >= 10_000_000) return `₹${(v / 10_000_000).toFixed(1)}Cr`;
+    if (v >= 100_000)    return `₹${(v / 100_000).toFixed(1)}L`;
+    return `₹${v.toLocaleString('en-IN')}`;
+  }
+
+  formatDate(d: string): string {
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  setStatusFilter(v: 'all' | Auction['status']) {
+    this.statusFilter.set(v);
+  }
+
+  trackByAuction(_: number, a: Auction) { return a.id; }
+
+  private toastTimer: any;
+  private toast(msg: string, type: 'success' | 'error' = 'success') {
+    clearTimeout(this.toastTimer);
+    this.toastMessage.set(msg);
+    this.toastType.set(type);
+    this.toastTimer = setTimeout(() => this.toastMessage.set(null), 3500);
+  }
+}

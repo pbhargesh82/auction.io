@@ -1,0 +1,400 @@
+<!-- ══════════════════════════════════════════════════════════════════════════
+     HOME — My Auctions
+══════════════════════════════════════════════════════════════════════════ -->
+<div class="home-page">
+
+  <!-- ── Page Header ──────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <div class="page-header__text">
+      <h1 class="page-header__title">My Auctions</h1>
+      <p class="page-header__sub">Create and manage your auction workspaces</p>
+    </div>
+    <button class="btn btn--primary" (click)="openCreate()" id="create-auction-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Create Auction
+    </button>
+  </header>
+
+  <!-- ── Search + Filter bar ──────────────────────────────────────────────── -->
+  @if (allAuctions().length > 0) {
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input"
+             type="text"
+             placeholder="Search auctions…"
+             [value]="searchQuery()"
+             (input)="searchQuery.set($any($event.target).value)"
+             id="auction-search" />
+    </div>
+
+    <div class="status-tabs">
+      @for (opt of statusOptions; track opt.value) {
+        <button class="status-tab"
+                [class.status-tab--active]="statusFilter() === opt.value"
+                (click)="setStatusFilter(opt.value)">
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+  </div>
+  }
+
+  <!-- ── Loading ───────────────────────────────────────────────────────────── -->
+  @if (loading()) {
+  <div class="loading-grid">
+    @for (n of [1,2,3]; track n) {
+    <div class="skeleton-card">
+      <div class="skeleton-card__h"></div>
+      <div class="skeleton-card__b">
+        <div class="skeleton-line" style="width:60%"></div>
+        <div class="skeleton-line" style="width:40%"></div>
+        <div class="skeleton-line" style="width:50%"></div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- ── Empty State ───────────────────────────────────────────────────────── -->
+  } @else if (allAuctions().length === 0) {
+  <div class="empty-state">
+    <div class="empty-state__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    </div>
+    <h2 class="empty-state__title">No auctions yet</h2>
+    <p class="empty-state__sub">Create your first auction to get started. Invite teams, add players, and run your live auction.</p>
+    <button class="btn btn--primary btn--lg" (click)="openCreate()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Create Your First Auction
+    </button>
+    <div class="empty-state__steps">
+      <div class="step"><span class="step__num">1</span><span>Create an auction</span></div>
+      <div class="step__arrow">→</div>
+      <div class="step"><span class="step__num">2</span><span>Add teams &amp; players</span></div>
+      <div class="step__arrow">→</div>
+      <div class="step"><span class="step__num">3</span><span>Run the live auction</span></div>
+    </div>
+  </div>
+
+  <!-- ── No results (search/filter) ───────────────────────────────────────── -->
+  } @else if (filteredAuctions().length === 0) {
+  <div class="no-results">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <p>No auctions match <strong>"{{ searchQuery() }}"</strong></p>
+    <button class="btn btn--ghost" (click)="searchQuery.set(''); setStatusFilter('all')">Clear filters</button>
+  </div>
+
+  <!-- ── Auction Card Grid ─────────────────────────────────────────────────── -->
+  } @else {
+  <div class="auction-grid">
+
+    @for (auction of filteredAuctions(); track auction.id) {
+    <!-- ── Auction Card ─────────────────────────────────────────────────── -->
+    <article class="auction-card" [class.auction-card--entering]="true"
+             (click)="enterAuction(auction)" role="button" tabindex="0"
+             (keydown.enter)="enterAuction(auction)"
+             [attr.aria-label]="'Open ' + auction.name">
+
+      <!-- Status stripe at top -->
+      <div class="auction-card__stripe auction-card__stripe--{{ auction.status }}"></div>
+
+      <!-- Card Header -->
+      <div class="auction-card__header">
+        <div class="auction-card__title-row">
+          <h2 class="auction-card__name">{{ auction.name }}</h2>
+          <span class="badge {{ statusMeta(auction.status).cls }}">
+            <span class="badge__dot"></span>
+            {{ statusMeta(auction.status).label }}
+          </span>
+        </div>
+        @if (auction.description) {
+        <p class="auction-card__desc">{{ auction.description }}</p>
+        }
+      </div>
+
+      <!-- Stats -->
+      <div class="auction-card__stats">
+        <div class="stat">
+          <span class="stat__icon">💰</span>
+          <div>
+            <p class="stat__value">{{ formatCurrency(auction.budget_per_team) }}</p>
+            <p class="stat__label">Budget / Team</p>
+          </div>
+        </div>
+        <div class="stat">
+          <span class="stat__icon">👥</span>
+          <div>
+            <p class="stat__value">{{ auction.max_players_per_team }}</p>
+            <p class="stat__label">Max Players</p>
+          </div>
+        </div>
+        <div class="stat">
+          <span class="stat__icon">📅</span>
+          <div>
+            <p class="stat__value">{{ formatDate(auction.created_at) }}</p>
+            <p class="stat__label">Created</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visibility chip -->
+      <div class="auction-card__meta">
+        @if (auction.is_public) {
+        <span class="visibility-chip visibility-chip--public">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+          </svg>
+          Public
+        </span>
+        } @else {
+        <span class="visibility-chip visibility-chip--private">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Private
+        </span>
+        }
+      </div>
+
+      <!-- Card Actions -->
+      <div class="auction-card__actions" (click)="$event.stopPropagation()">
+        <!-- Primary: Enter -->
+        <button class="action-btn action-btn--enter" (click)="enterAuction(auction)"
+                [attr.id]="'enter-' + auction.id">
+          Enter Workspace
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+
+        <div class="action-icon-row">
+          <!-- Share -->
+          @if (auction.is_public) {
+          <button class="action-icon-btn"
+                  [class.action-icon-btn--copied]="copiedId() === auction.id"
+                  (click)="copyShareLink(auction, $event)"
+                  title="Copy share link"
+                  [attr.id]="'share-' + auction.id">
+            @if (copiedId() === auction.id) {
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            }
+          </button>
+          }
+
+          <!-- Duplicate -->
+          <button class="action-icon-btn" (click)="openDuplicate(auction); $event.stopPropagation()"
+                  title="Duplicate"
+                  [attr.id]="'duplicate-' + auction.id">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+          </button>
+
+          <!-- Edit -->
+          <button class="action-icon-btn" (click)="openEdit(auction); $event.stopPropagation()"
+                  title="Edit"
+                  [attr.id]="'edit-' + auction.id">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+
+          <!-- Delete -->
+          <button class="action-icon-btn action-icon-btn--danger"
+                  [class.action-icon-btn--loading]="deletingId() === auction.id"
+                  (click)="deleteAuction(auction, $event)"
+                  title="Delete"
+                  [attr.id]="'delete-' + auction.id">
+            @if (deletingId() === auction.id) {
+            <svg class="spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
+              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+            </svg>
+            }
+          </button>
+        </div>
+      </div>
+    </article>
+    }
+
+    <!-- "+ New Auction" ghost card -->
+    <button class="new-auction-card" (click)="openCreate()" id="new-auction-card">
+      <div class="new-auction-card__inner">
+        <div class="new-auction-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+        <p>New Auction</p>
+      </div>
+    </button>
+  </div>
+  }
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     CREATE / EDIT / DUPLICATE MODAL
+══════════════════════════════════════════════════════════════════════════ -->
+@if (showModal()) {
+<div class="modal-backdrop" (click)="onOverlayClick($event)" role="dialog"
+     aria-modal="true" [attr.aria-label]="modalTitle()">
+  <div class="modal-card">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">{{ modalTitle() }}</h2>
+      <button class="modal-close" (click)="closeModal()" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="auctionForm" (ngSubmit)="submitForm()" class="modal-body">
+
+      <!-- Name -->
+      <div class="field">
+        <label class="field__label" for="f-name">Auction Name <span class="req">*</span></label>
+        <input id="f-name" type="text" formControlName="name"
+               class="field__input" [class.field__input--error]="auctionForm.get('name')?.invalid && auctionForm.get('name')?.touched"
+               placeholder="e.g. IPL 2026 Draft" autocomplete="off">
+        @if (auctionForm.get('name')?.hasError('required') && auctionForm.get('name')?.touched) {
+        <p class="field__error">Name is required.</p>
+        }
+        @if (auctionForm.get('name')?.hasError('minlength') && auctionForm.get('name')?.touched) {
+        <p class="field__error">Name must be at least 3 characters.</p>
+        }
+      </div>
+
+      <!-- Description -->
+      <div class="field">
+        <label class="field__label" for="f-desc">Description</label>
+        <textarea id="f-desc" formControlName="description" rows="2"
+                  class="field__input field__input--ta"
+                  placeholder="Optional — describe the auction"></textarea>
+      </div>
+
+      <!-- Budget -->
+      <div class="field">
+        <label class="field__label" for="f-budget">Budget per Team <span class="req">*</span></label>
+        <div class="field__prefix-wrap">
+          <span class="field__prefix">₹</span>
+          <input id="f-budget" type="number" formControlName="budget_per_team"
+                 class="field__input field__input--prefixed" placeholder="10000000">
+        </div>
+      </div>
+
+      <!-- Player limits -->
+      <div class="field-row">
+        <div class="field">
+          <label class="field__label" for="f-max">Max Players / Team <span class="req">*</span></label>
+          <input id="f-max" type="number" formControlName="max_players_per_team"
+                 class="field__input" min="1">
+        </div>
+        <div class="field">
+          <label class="field__label" for="f-min">Min Players / Team <span class="req">*</span></label>
+          <input id="f-min" type="number" formControlName="min_players_per_team"
+                 class="field__input" min="1">
+        </div>
+      </div>
+
+      <!-- Public toggle -->
+      <div class="field-toggle">
+        <div class="field-toggle__text">
+          <p class="field-toggle__label">Public Auction</p>
+          <p class="field-toggle__hint">Anyone with the link can view the live results</p>
+        </div>
+        <label class="toggle" for="f-public">
+          <input id="f-public" type="checkbox" formControlName="is_public" class="toggle__input">
+          <span class="toggle__track"></span>
+        </label>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn--primary"
+                [disabled]="auctionForm.invalid || submitting()">
+          @if (submitting()) {
+          <svg class="spin btn-spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+          </svg>
+          Saving…
+          } @else {
+          {{ isEditing() ? 'Save Changes' : (duplicating() ? 'Duplicate' : 'Create Auction') }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     TOAST
+══════════════════════════════════════════════════════════════════════════ -->
+@if (toastMessage()) {
+<div class="toast" [class.toast--error]="toastType() === 'error'" role="alert">
+  @if (toastType() === 'success') {
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+  } @else {
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+  </svg>
+  }
+  {{ toastMessage() }}
+</div>
+}

@@ -337,23 +337,23 @@ A route resolver that:
 ### Phase 2: Home Page — My Auctions (HIGH PRIORITY)
 > The new landing page after login
 
-- [ ] **2.1** Create `HomeComponent` (`/home`)
-  - [ ] Auction card grid layout
-  - [ ] Each card: name, status badge, team count, player progress, budget bar
-  - [ ] "Create Auction" card/button
-  - [ ] Quick actions per card: Enter, Share Link, Edit, Delete
-  - [ ] Empty state with onboarding guidance
-  - [ ] Search/filter auctions (by name, status)
-  - [ ] Responsive: 3-col desktop, 2-col tablet, 1-col mobile
+- [x] **2.1** Create `HomeComponent` (`/home`)
+  - [x] Auction card grid layout
+  - [x] Each card: name, status badge, team count, player progress, budget bar
+  - [x] "Create Auction" card/button
+  - [x] Quick actions per card: Enter, Share Link, Edit, Delete
+  - [x] Empty state with onboarding guidance
+  - [x] Search/filter auctions (by name, status)
+  - [x] Responsive: 3-col desktop, 2-col tablet, 1-col mobile
 
-- [ ] **2.2** Migrate create/edit auction form from `AuctionsComponent`
-  - [ ] Reuse existing form logic
-  - [ ] Show as modal/dialog instead of inline form
-  - [ ] Add "Duplicate Auction" action
+- [x] **2.2** Migrate create/edit auction form from `AuctionsComponent`
+  - [x] Reuse existing form logic
+  - [x] Show as modal/dialog instead of inline form
+  - [x] Add "Duplicate Auction" action
 
-- [ ] **2.3** Update auth guard redirect
-  - [ ] After login, redirect to `/home` instead of `/dashboard`
-  - [ ] Update `LoginComponent` redirect target
+- [x] **2.3** Update auth guard redirect
+  - [x] After login, redirect to `/home` instead of `/dashboard`
+  - [x] Update `LoginComponent` redirect target
 
 ---
 
