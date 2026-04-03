@@ -360,16 +360,16 @@ A route resolver that:
 ### Phase 3: Auction Overview (HIGH PRIORITY)
 > Per-auction dashboard replacing the global dashboard
 
-- [ ] **3.1** Create `AuctionOverviewComponent` (`/auction/:id/overview`)
-  - [ ] Read `auctionId` from route params
-  - [ ] Auction status banner with name, status, public link
-  - [ ] Quick stat cards: Teams, Players Sold/Total, Budget Spent/Total, Progress %
-  - [ ] Team summary grid using `TeamCardComponent`
-  - [ ] Recent activity feed (last 5 transactions from auction_history)
-  - [ ] Quick action buttons: Start Auction, Add Players, Share
+- [x] **3.1** Create `AuctionOverviewComponent` (`/auction/:id/overview`)
+  - [x] Read `auctionId` from route params
+  - [x] Auction status banner with name, status, public link
+  - [x] Quick stat cards: Teams, Players Sold/Total, Budget Spent/Total, Progress %
+  - [x] Team summary grid using `TeamCardComponent`
+  - [x] Recent activity feed (last 5 transactions from auction_history)
+  - [x] Quick action buttons: Start Auction, Add Players, Share
 
-- [ ] **3.2** Deprecate `DashboardComponent`
-  - [ ] Remove component or redirect to `/home`
+- [x] **3.2** Deprecate `DashboardComponent`
+  - [x] Remove component or redirect to `/home`
 
 ---
 

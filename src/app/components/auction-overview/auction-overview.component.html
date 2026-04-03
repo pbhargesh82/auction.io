@@ -1,0 +1,316 @@
+<div class="overview-page">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STATUS BANNER
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  @if (auctionLoading()) {
+    <div class="banner skeleton-banner"></div>
+  } @else if (auction()) {
+  <div class="banner banner--{{ auctionStatus() }}">
+    <div class="banner__left">
+      <div class="banner__icon banner__icon--{{ auctionStatus() }}">
+        @if (auctionStatus() === 'active') {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        } @else if (auctionStatus() === 'paused') {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+          </svg>
+        } @else if (auctionStatus() === 'completed') {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        }
+      </div>
+      <div>
+        <h1 class="banner__name">{{ auction()!.name }}</h1>
+        @if (auction()!.description) {
+          <p class="banner__desc">{{ auction()!.description }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="banner__right">
+      <span class="status-pill status-pill--{{ auctionStatus() }}">
+        <span class="status-dot"></span>
+        {{ statusLabel() }}
+      </span>
+
+      @if (auction()!.is_public && auction()!.public_slug) {
+      <button class="banner__share-btn" (click)="copyShareLink()"
+              [class.banner__share-btn--copied]="linkCopied()" id="copy-share-link-btn">
+        @if (linkCopied()) {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Copied!
+        } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          Share Link
+        }
+      </button>
+      }
+    </div>
+  </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STAT CARDS
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  @if (loading()) {
+  <div class="stat-grid">
+    @for (n of [1,2,3,4]; track n) {
+      <div class="stat-card skeleton-card"></div>
+    }
+  </div>
+  } @else {
+  <div class="stat-grid">
+
+    <!-- Teams -->
+    <div class="stat-card" (click)="goToTeams()" role="button" tabindex="0"
+         (keydown.enter)="goToTeams()" id="stat-teams">
+      <div class="stat-card__icon stat-card__icon--blue">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+          <path d="M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+      </div>
+      <div class="stat-card__body">
+        <p class="stat-card__value">{{ teamCount() }}</p>
+        <p class="stat-card__label">Teams</p>
+      </div>
+      <div class="stat-card__arrow">›</div>
+    </div>
+
+    <!-- Players Sold -->
+    <div class="stat-card" (click)="goToHistory()" role="button" tabindex="0"
+         (keydown.enter)="goToHistory()" id="stat-players-sold">
+      <div class="stat-card__icon stat-card__icon--green">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="stat-card__body">
+        <p class="stat-card__value">{{ soldCount() }}<span class="stat-card__sub">/ {{ totalPlayers() }}</span></p>
+        <p class="stat-card__label">Players Sold</p>
+        <!-- Progress bar -->
+        <div class="mini-bar">
+          <div class="mini-bar__fill mini-bar__fill--green"
+               [style.width.%]="progressPct()"></div>
+        </div>
+        <p class="stat-card__pct">{{ progressPct() }}% complete</p>
+      </div>
+      <div class="stat-card__arrow">›</div>
+    </div>
+
+    <!-- Budget Spent -->
+    <div class="stat-card" id="stat-budget">
+      <div class="stat-card__icon stat-card__icon--indigo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+        </svg>
+      </div>
+      <div class="stat-card__body">
+        <p class="stat-card__value">{{ formatCurrency(totalBudgetSpent()) }}</p>
+        <p class="stat-card__label">Budget Spent</p>
+        <div class="mini-bar">
+          <div class="mini-bar__fill mini-bar__fill--indigo"
+               [style.width.%]="budgetPct()"></div>
+        </div>
+        <p class="stat-card__pct">{{ formatCurrency(totalBudgetCap() - totalBudgetSpent()) }} remaining</p>
+      </div>
+    </div>
+
+    <!-- Progress % -->
+    <div class="stat-card" id="stat-progress">
+      <div class="stat-card__icon stat-card__icon--amber">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6"  y1="20" x2="6"  y2="14"/>
+        </svg>
+      </div>
+      <div class="stat-card__body">
+        <p class="stat-card__value">{{ progressPct() }}<span class="stat-card__unit">%</span></p>
+        <p class="stat-card__label">Auction Progress</p>
+
+        <!-- Ring progress indicator -->
+        <svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
+          <circle class="ring__track" cx="18" cy="18" r="15.9" fill="none" stroke-width="3"/>
+          <circle class="ring__fill" cx="18" cy="18" r="15.9" fill="none" stroke-width="3"
+                  stroke-dasharray="100"
+                  [attr.stroke-dashoffset]="100 - progressPct()"
+                  transform="rotate(-90 18 18)"/>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       QUICK ACTIONS
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="quick-actions">
+    <button class="qa-btn qa-btn--primary" (click)="goToControl()"
+            [disabled]="!canStart()" id="qa-go-control">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+      {{ auctionStatus() === 'active' ? 'Continue Auction' : auctionStatus() === 'paused' ? 'Resume Auction' : 'Start Auction' }}
+    </button>
+
+    <button class="qa-btn" (click)="goToPlayers()" id="qa-go-players">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Manage Players
+    </button>
+
+    <button class="qa-btn" (click)="goToTeams()" id="qa-go-teams">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+        <path d="M16 3.13a4 4 0 010 7.75"/>
+      </svg>
+      Manage Teams
+    </button>
+
+    @if (auction()?.is_public && auction()?.public_slug) {
+    <button class="qa-btn" (click)="copyShareLink()" id="qa-share">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+      Copy Share Link
+    </button>
+    }
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MAIN CONTENT: Team Grid + Recent Activity
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="content-grid">
+
+    <!-- ── Teams Section ────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section__header">
+        <h2 class="section__title">Teams</h2>
+        <button class="section__link" (click)="goToTeams()" id="view-all-teams-btn">
+          View all
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (loading()) {
+      <div class="teams-grid">
+        @for (n of [1,2,3]; track n) {
+          <div class="skeleton-card skeleton-card--team"></div>
+        }
+      </div>
+      } @else if (teamsWithPlayers().length === 0) {
+      <div class="section__empty">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+        </svg>
+        <p>No teams yet.</p>
+        <button class="section__empty-cta" (click)="goToTeams()">Add Teams →</button>
+      </div>
+      } @else {
+      <div class="teams-grid">
+        @for (team of teamsWithPlayers(); track team.id) {
+          <app-team-card [team]="team" [config]="teamCardConfig"></app-team-card>
+        }
+      </div>
+      }
+    </section>
+
+    <!-- ── Recent Activity ───────────────────────────────────────────────── -->
+    <section class="section section--activity">
+      <div class="section__header">
+        <h2 class="section__title">Recent Activity</h2>
+        <button class="section__link" (click)="goToHistory()" id="view-all-history-btn">
+          Full history
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (historyLoading()) {
+      <div class="activity-list">
+        @for (n of [1,2,3,4,5]; track n) {
+          <div class="activity-skeleton"></div>
+        }
+      </div>
+      } @else if (recentHistory().length === 0) {
+      <div class="section__empty">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <p>No transactions yet. Start the auction to see activity here.</p>
+      </div>
+      } @else {
+      <div class="activity-list">
+        @for (entry of recentHistory(); track entry.id) {
+        <div class="activity-item">
+          <!-- Team color dot -->
+          <div class="activity-dot"
+               [style.background]="entry.team?.primary_color || '#6366f1'"></div>
+
+          <!-- Player info -->
+          <div class="activity-info">
+            <p class="activity-player">{{ entry.player?.name ?? 'Unknown Player' }}</p>
+            <p class="activity-team">→ {{ entry.team?.name ?? 'Unknown Team' }}</p>
+          </div>
+
+          <!-- Right: price + time -->
+          <div class="activity-right">
+            <p class="activity-price">{{ formatCurrency(entry.sold_price) }}</p>
+            <p class="activity-time">{{ formatTime(entry.sold_at) }}</p>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </section>
+
+  </div>
+
+</div>
