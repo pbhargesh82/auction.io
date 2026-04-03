@@ -3,6 +3,7 @@ import { SupabaseService } from './supabase.service';
 
 export interface Player {
   id: string;
+  owner_id?: string;
   name: string;
   position: string;
   category: string;
@@ -12,6 +13,8 @@ export interface Player {
   nationality?: string;
   age?: number;
   experience_years?: number;
+  jersey_number?: number;
+  bio?: string;
   stats?: any; // JSONB field
   is_sold: boolean;
   is_active: boolean;
@@ -22,14 +25,17 @@ export interface Player {
 
 export interface CreatePlayerData {
   name: string;
-  position: string;
+  position?: string;
   category: string;
   subcategory?: string;
+  specialization?: string;
   base_price?: number;
   image_url?: string;
   nationality?: string;
   age?: number;
   experience_years?: number;
+  jersey_number?: number;
+  bio?: string;
   stats?: any;
 }
 
@@ -47,18 +53,27 @@ export class PlayersService {
   loading = signal(false);
   error = signal<string | null>(null);
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(private supabaseService: SupabaseService) { }
 
-  // Get all players
+  // Get all players for current user
   async getPlayers(): Promise<{ data: Player[] | null, error: any }> {
     this.loading.set(true);
     this.error.set(null);
-    
+
+    const user = this.supabaseService.currentUserValue;
+
     try {
-      const { data, error } = await this.supabaseService.db
+      let query = this.supabaseService.db
         .from('players')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Filter by owner_id if user is logged in (for user's player pool)
+      if (user) {
+        query = query.eq('owner_id', user.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         this.error.set(error.message);
@@ -94,10 +109,12 @@ export class PlayersService {
     }
   }
 
-  // Create new player
+  // Create new player for current user's pool
   async createPlayer(playerData: CreatePlayerData): Promise<{ data: Player | null, error: any }> {
     this.loading.set(true);
     this.error.set(null);
+
+    const user = this.supabaseService.currentUserValue;
 
     try {
       const { data, error } = await this.supabaseService.db
@@ -112,7 +129,8 @@ export class PlayersService {
           nationality: playerData.nationality,
           age: playerData.age,
           experience_years: playerData.experience_years,
-          stats: playerData.stats
+          stats: playerData.stats,
+          owner_id: user?.id
         }])
         .select()
         .single();
@@ -155,7 +173,7 @@ export class PlayersService {
       }
 
       // Update local state
-      this.players.update(players => 
+      this.players.update(players =>
         players.map(player => player.id === id ? data as Player : player)
       );
       return { data: data as Player, error: null };

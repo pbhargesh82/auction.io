@@ -67,7 +67,7 @@ export class AuctionService {
   // Player queue observable removed - using players table directly
   public auctionHistory$ = this.auctionHistorySubject.asObservable();
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService) { }
 
   // Auction Configuration Methods
   async getAuctionConfig(): Promise<{ data: AuctionConfig | null, error: any }> {
@@ -75,7 +75,7 @@ export class AuctionService {
       const { data, error } = await this.supabase.db
         .from('auction_config')
         .select('*')
-        .single();
+        .maybeSingle();  // Use maybeSingle() to handle 0 rows gracefully
 
       if (error) throw error;
       return { data, error: null };
@@ -181,10 +181,10 @@ export class AuctionService {
         .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
 
       if (error) throw error;
-      
+
       // Update the subject
       this.auctionHistorySubject.next([]);
-      
+
       return { error: null };
     } catch (error) {
       console.error('Error clearing auction history:', error);
@@ -206,7 +206,7 @@ export class AuctionService {
       // 1. Reset auction config
       const { data: updatedConfig, error: configError } = await this.supabase.db
         .from('auction_config')
-        .update({ 
+        .update({
           current_player_id: null,
           current_player_position: 0
         })
@@ -235,7 +235,7 @@ export class AuctionService {
       // 4. Reset team budgets and player counts
       const { error: teamsError } = await this.supabase.db
         .from('teams')
-        .update({ 
+        .update({
           budget_spent: 0,
           players_count: 0
         })
@@ -270,7 +270,7 @@ export class AuctionService {
   subscribeToAuctionUpdates() {
     return this.supabase.db
       .channel('auction-updates')
-      .on('postgres_changes', 
+      .on('postgres_changes',
         { event: '*', schema: 'public', table: 'auction_config' },
         (payload: any) => {
           this.currentAuctionSubject.next(payload.new as AuctionConfig);
@@ -295,13 +295,12 @@ export class AuctionService {
       const { data, error } = await this.supabase.db
         .from('auction_config')
         .select('*')
-        .in('status', ['ACTIVE', 'DRAFT'])
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();  // Use maybeSingle() to handle 0 rows gracefully
 
       if (error) throw error;
-      this.currentAuctionSubject.next(data);
+      if (data) this.currentAuctionSubject.next(data);
       return { data, error: null };
     } catch (error) {
       console.error('Error fetching current auction:', error);

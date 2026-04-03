@@ -78,7 +78,7 @@ export class AuctionStateService {
   teamsWithPlayers = computed(() => {
     const teams = this._teams();
     const teamPlayers = this._teamPlayers();
-    
+
     return teams.map(team => {
       const players = teamPlayers
         .filter(tp => tp.team_id === team.id)
@@ -98,19 +98,19 @@ export class AuctionStateService {
 
   // Player queue computed from players table
   playerQueue = computed(() => {
-    return this._players().filter(p => 
-      p.auction_status === 'PENDING' || 
-      p.auction_status === 'CURRENT' || 
-      p.auction_status === 'SOLD' || 
-      p.auction_status === 'UNSOLD' || 
+    return this._players().filter(p =>
+      p.auction_status === 'PENDING' ||
+      p.auction_status === 'CURRENT' ||
+      p.auction_status === 'SOLD' ||
+      p.auction_status === 'UNSOLD' ||
       p.auction_status === 'SKIPPED'
     ).sort((a, b) => {
       // Sort by auction status priority, then by name
-      const statusOrder: Record<string, number> = { 
-        'CURRENT': 0, 
-        'PENDING': 1, 
-        'SOLD': 2, 
-        'UNSOLD': 3, 
+      const statusOrder: Record<string, number> = {
+        'CURRENT': 0,
+        'PENDING': 1,
+        'SOLD': 2,
+        'UNSOLD': 3,
         'SKIPPED': 4,
         'INACTIVE': 5
       };
@@ -152,8 +152,8 @@ export class AuctionStateService {
     this.setupRealtimeSubscriptions();
   }
 
-  // Load all auction data
-  async loadAllData() {
+  // Load all auction data for a specific auction or the current context
+  async loadAllData(auctionId?: string) {
     this._loading.set(true);
     this._error.set(null);
 
@@ -165,11 +165,11 @@ export class AuctionStateService {
         historyResult,
         teamPlayersResult
       ] = await Promise.all([
-        this.loadAuctionConfig(),
-        this.loadTeams(),
-        this.loadPlayers(),
-        this.loadAuctionHistory(),
-        this.loadTeamPlayers()
+        this.loadAuctionConfig(auctionId),
+        this.loadTeams(auctionId),
+        this.loadPlayers(auctionId),
+        this.loadAuctionHistory(auctionId),
+        this.loadTeamPlayers(auctionId)
       ]);
 
       // Update signals
@@ -191,62 +191,118 @@ export class AuctionStateService {
   }
 
   // Individual load methods
-  async loadAuctionConfig() {
-    const { data, error } = await this.supabase.db
-      .from('auction_config')
-      .select('*')
-      .single();
+  async loadAuctionConfig(auctionId?: string) {
+    let query = this.supabase.db.from('auctions').select('*');
     
-    if (error) throw error;
+    if (auctionId) {
+      query = query.eq('id', auctionId);
+    } else {
+      // Fallback to legacy auction_config or first auction if no ID provided
+      const { data: legacyConfig } = await this.supabase.db
+        .from('auction_config')
+        .select('*')
+        .maybeSingle();
+      
+      if (legacyConfig) return { data: legacyConfig, error: null };
+      
+      // If no legacy, just get the most recent auction
+      query = query.order('created_at', { ascending: false }).limit(1);
+    }
+
+    const { data, error } = await query.maybeSingle();
+
+    if (error) {
+      console.error('Error loading auction config:', error);
+      return { data: null, error };
+    }
     return { data, error: null };
   }
 
-  async loadTeams() {
-    const { data, error } = await this.supabase.db
+  async loadTeams(auctionId?: string) {
+    let query = this.supabase.db
       .from('teams')
       .select('*')
-      .eq('is_active', true)
-      .order('name');
+      .eq('is_active', true);
     
+    if (auctionId) {
+      query = query.eq('auction_id', auctionId);
+    }
+
+    const { data, error } = await query.order('name');
+
     if (error) throw error;
     return { data, error: null };
   }
 
-  async loadPlayers() {
+  async loadPlayers(auctionId?: string) {
+    if (auctionId) {
+      // Load players for specific auction via junction table
+      const { data, error } = await this.supabase.db
+        .from('auction_players')
+        .select(`
+          *,
+          player:players(*)
+        `)
+        .eq('auction_id', auctionId);
+      
+      if (error) throw error;
+      
+      // Map to Player-like objects for compatibility
+      const mappedPlayers = (data || []).map(ap => ({
+        ...ap.player,
+        auction_status: ap.status.toUpperCase(), // Map 'available' to 'PENDING', etc. if needed
+        base_price: ap.base_price,
+        is_sold: ap.status === 'sold'
+      }));
+      
+      return { data: mappedPlayers, error: null };
+    }
+
+    // Legacy/Global fallback
     const { data, error } = await this.supabase.db
       .from('players')
       .select('*')
       .eq('is_active', true)
       .order('name');
-    
+
     if (error) throw error;
     return { data, error: null };
   }
 
-  async loadAuctionHistory() {
-    const { data, error } = await this.supabase.db
+  async loadAuctionHistory(auctionId?: string) {
+    let query = this.supabase.db
       .from('auction_history')
       .select(`
         *,
         player:players(*),
         team:teams!auction_history_winning_team_id_fkey(*)
-      `)
-      .order('sold_at', { ascending: false });
+      `);
     
+    if (auctionId) {
+      query = query.eq('auction_id', auctionId);
+    }
+
+    const { data, error } = await query.order('sold_at', { ascending: false });
+
     if (error) throw error;
     return { data, error: null };
   }
 
-  async loadTeamPlayers() {
-    const { data, error } = await this.supabase.db
+  async loadTeamPlayers(auctionId?: string) {
+    let query = this.supabase.db
       .from('team_players')
       .select(`
         *,
         team:teams(*),
         player:players(*)
-      `)
-      .order('purchased_at', { ascending: false });
+      `);
     
+    if (auctionId) {
+      query = query.eq('auction_id', auctionId);
+    }
+
+    const { data, error } = await query.order('purchased_at', { ascending: false });
+
     if (error) throw error;
     return { data, error: null };
   }
@@ -261,7 +317,7 @@ export class AuctionStateService {
   async updatePlayerAuctionStatus(playerId: string, status: 'PENDING' | 'CURRENT' | 'SOLD' | 'UNSOLD' | 'SKIPPED' | 'INACTIVE') {
     const { data, error } = await this.supabase.db
       .from('players')
-      .update({ 
+      .update({
         auction_status: status,
         // Also update is_sold for consistency with database trigger
         is_sold: status === 'SOLD'
@@ -273,7 +329,7 @@ export class AuctionStateService {
     if (error) throw error;
 
     // Update local state
-    this._players.update(players => 
+    this._players.update(players =>
       players.map(p => p.id === playerId ? { ...p, auction_status: status, is_sold: status === 'SOLD' } : p)
     );
 
@@ -346,8 +402,8 @@ export class AuctionStateService {
     if (error) throw error;
 
     // Update local state
-    this._players.update(players => 
-      players.map(p => 
+    this._players.update(players =>
+      players.map(p =>
         playerIds.includes(p.id) ? { ...p, auction_status: 'PENDING' } : p
       )
     );
@@ -365,8 +421,8 @@ export class AuctionStateService {
     if (error) throw error;
 
     // Update local state
-    this._players.update(players => 
-      players.map(p => 
+    this._players.update(players =>
+      players.map(p =>
         playerIds.includes(p.id) ? { ...p, auction_status: 'INACTIVE' } : p
       )
     );
@@ -377,12 +433,12 @@ export class AuctionStateService {
   async getNextPlayer() {
     const players = this._players();
     const nextPlayer = players.find(p => p.auction_status === 'PENDING');
-    
+
     if (nextPlayer) {
       await this.updatePlayerAuctionStatus(nextPlayer.id, 'CURRENT');
       return nextPlayer;
     }
-    
+
     // No more pending players, clear current player
     this._currentPlayer.set(null);
     return null;
@@ -403,7 +459,7 @@ export class AuctionStateService {
       // 1. Reset auction config
       const { error: configError } = await this.supabase.db
         .from('auction_config')
-        .update({ 
+        .update({
           status: 'DRAFT',
           current_player_id: null,
           current_player_position: 0,
@@ -417,7 +473,7 @@ export class AuctionStateService {
       // 2. Reset all players to PENDING status
       const { error: playersError } = await this.supabase.db
         .from('players')
-        .update({ 
+        .update({
           auction_status: 'PENDING',
           is_sold: false
         })
@@ -444,7 +500,7 @@ export class AuctionStateService {
       // 5. Reset team budgets
       const { error: teamsError } = await this.supabase.db
         .from('teams')
-        .update({ 
+        .update({
           budget_spent: 0,
           players_count: 0
         })
@@ -468,7 +524,7 @@ export class AuctionStateService {
     // Auction config changes
     this.supabase.db
       .channel('auction-config-changes')
-      .on('postgres_changes', 
+      .on('postgres_changes',
         { event: '*', schema: 'public', table: 'auction_config' },
         () => this.loadAuctionConfig().then(result => this._auctionConfig.set(result.data))
       )
@@ -477,7 +533,7 @@ export class AuctionStateService {
     // Players changes
     this.supabase.db
       .channel('players-changes')
-      .on('postgres_changes', 
+      .on('postgres_changes',
         { event: '*', schema: 'public', table: 'players' },
         () => this.loadPlayers().then(result => {
           this._players.set(result.data || []);
@@ -489,7 +545,7 @@ export class AuctionStateService {
     // Auction history changes
     this.supabase.db
       .channel('auction-history-changes')
-      .on('postgres_changes', 
+      .on('postgres_changes',
         { event: '*', schema: 'public', table: 'auction_history' },
         () => this.loadAuctionHistory().then(result => this._auctionHistory.set(result.data || []))
       )
@@ -498,7 +554,7 @@ export class AuctionStateService {
     // Team players changes
     this.supabase.db
       .channel('team-players-changes')
-      .on('postgres_changes', 
+      .on('postgres_changes',
         { event: '*', schema: 'public', table: 'team_players' },
         () => this.loadTeamPlayers().then(result => this._teamPlayers.set(result.data || []))
       )
@@ -507,7 +563,7 @@ export class AuctionStateService {
     // Teams changes
     this.supabase.db
       .channel('teams-changes')
-      .on('postgres_changes', 
+      .on('postgres_changes',
         { event: '*', schema: 'public', table: 'teams' },
         () => this.loadTeams().then(result => this._teams.set(result.data || []))
       )

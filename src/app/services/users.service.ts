@@ -4,7 +4,7 @@ import { SupabaseService } from './supabase.service';
 export interface AppUser {
     id: string;
     email: string;
-    role: 'admin' | 'user' | 'viewer';
+    role: 'super_admin' | 'user';
     created_at: string;
     last_sign_in_at: string | null;
     provider: string;
@@ -15,7 +15,7 @@ export interface AppUser {
 export interface UserWithRole {
     user_id: string;
     email: string;
-    role: 'admin' | 'user' | 'viewer';
+    role: 'super_admin' | 'user';
     created_at: string;
     last_sign_in_at: string | null;
     provider: string;
@@ -26,7 +26,7 @@ export interface UserWithRole {
 
 export interface InviteUserData {
     email: string;
-    role: 'admin' | 'user' | 'viewer';
+    role: 'super_admin' | 'user';
 }
 
 @Injectable({
@@ -74,7 +74,7 @@ export class UsersService {
      */
     async updateUserRole(
         userId: string,
-        newRole: 'admin' | 'user' | 'viewer'
+        newRole: 'super_admin' | 'user'
     ): Promise<{ success: boolean; error: Error | null }> {
         try {
             // Call the RPC function to update role

@@ -1,8 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { AuctionContextService } from './auction-context.service';
 
 export interface Team {
   id: string;
+  owner_id?: string;
+  auction_id?: string;
   name: string;
   short_name?: string;
   logo_url?: string;
@@ -13,6 +16,7 @@ export interface Team {
   budget_remaining: number;
   players_count: number;
   max_players: number;
+  owner_name?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -26,6 +30,7 @@ export interface CreateTeamData {
   secondary_color?: string;
   budget_cap?: number;
   max_players?: number;
+  owner_name?: string;
 }
 
 export interface UpdateTeamData extends Partial<CreateTeamData> {
@@ -41,17 +46,27 @@ export class TeamsService {
   loading = signal(false);
   error = signal<string | null>(null);
 
-  constructor(private supabaseService: SupabaseService) {}
+  private auctionContext = inject(AuctionContextService);
 
-  // Get all teams
+  constructor(private supabaseService: SupabaseService) { }
+
+  // Get all teams for current auction
   async getTeams(): Promise<{ data: Team[] | null, error: any }> {
     this.loading.set(true);
     this.error.set(null);
-    
+
+    const auctionId = this.auctionContext.currentAuctionId();
+    if (!auctionId) {
+      this.loading.set(false);
+      this.teams.set([]);
+      return { data: [], error: null };
+    }
+
     try {
       const { data, error } = await this.supabaseService.db
         .from('teams')
         .select('*')
+        .eq('auction_id', auctionId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -88,10 +103,19 @@ export class TeamsService {
     }
   }
 
-  // Create new team
+  // Create new team for current auction
   async createTeam(teamData: CreateTeamData): Promise<{ data: Team | null, error: any }> {
     this.loading.set(true);
     this.error.set(null);
+
+    const auctionId = this.auctionContext.currentAuctionId();
+    const user = this.supabaseService.currentUserValue;
+
+    if (!auctionId) {
+      this.error.set('No auction selected');
+      this.loading.set(false);
+      return { data: null, error: { message: 'No auction selected' } };
+    }
 
     try {
       const { data, error } = await this.supabaseService.db
@@ -103,7 +127,9 @@ export class TeamsService {
           primary_color: teamData.primary_color || '#1976d2',
           secondary_color: teamData.secondary_color || '#424242',
           budget_cap: teamData.budget_cap || 10000000,
-          max_players: teamData.max_players || 25
+          max_players: teamData.max_players || 25,
+          owner_id: user?.id,
+          auction_id: auctionId
         }])
         .select()
         .single();
@@ -146,7 +172,7 @@ export class TeamsService {
       }
 
       // Update local state
-      this.teams.update(teams => 
+      this.teams.update(teams =>
         teams.map(team => team.id === id ? data as Team : team)
       );
       return { data: data as Team, error: null };

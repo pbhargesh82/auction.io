@@ -4,7 +4,7 @@ import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 
-export type UserRole = 'admin' | 'user';
+export type UserRole = 'super_admin' | 'user';
 
 @Injectable({
   providedIn: 'root'
@@ -54,21 +54,19 @@ export class SupabaseService {
       return;
     }
 
-    // First try to get role from JWT app_metadata (set by database trigger)
-    const jwtRole = user.app_metadata?.['role'] as UserRole;
-    if (jwtRole && (jwtRole === 'admin' || jwtRole === 'user')) {
-      this._userRole.next(jwtRole);
-      console.log(`User role from JWT: ${jwtRole} for email: ${user.email}`);
-      return;
-    }
-
-    // Fallback: fetch role from user_roles table
+    // ALWAYS fetch role from user_roles table first (most authoritative)
     try {
       const { data, error } = await this.supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();  // Use maybeSingle to handle no rows
+
+      console.log('DB role query result:', { data, error, userId: user.id });
+
+      if (error) {
+        console.error('Error fetching role from DB:', error);
+      }
 
       if (data && !error) {
         const dbRole = data.role as UserRole;
@@ -77,7 +75,15 @@ export class SupabaseService {
         return;
       }
     } catch (err) {
-      console.warn('Could not fetch role from database, defaulting to user');
+      console.warn('Could not fetch role from database:', err);
+    }
+
+    // Fallback: check JWT app_metadata (may be stale)
+    const jwtRole = user.app_metadata?.['role'] as UserRole;
+    if (jwtRole && (jwtRole === 'super_admin' || jwtRole === 'user')) {
+      this._userRole.next(jwtRole);
+      console.log(`User role from JWT: ${jwtRole} for email: ${user.email}`);
+      return;
     }
 
     // Default to 'user' if no role found
@@ -104,13 +110,13 @@ export class SupabaseService {
   get isAdmin(): Observable<boolean> {
     return new Observable(observer => {
       this._userRole.subscribe(role => {
-        observer.next(role === 'admin');
+        observer.next(role === 'super_admin');
       });
     });
   }
 
   get isAdminValue(): boolean {
-    return this._userRole.value === 'admin';
+    return this._userRole.value === 'super_admin';
   }
 
   // Wait for auth initialization to complete
