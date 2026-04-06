@@ -1,6 +1,7 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TeamsService, Team, CreateTeamData, UpdateTeamData } from '../../services/teams.service';
 import { TeamWithPlayers } from '../team-card/team-card.component';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
@@ -91,7 +92,8 @@ export class TeamsComponent implements OnInit {
     private supabaseService: SupabaseService,
     private imageUploadService: ImageUploadService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute,
   ) {
     // Initialize form with enhanced fields
     this.teamForm = this.fb.group({
@@ -131,10 +133,21 @@ export class TeamsComponent implements OnInit {
 
   // Data operations
   async loadTeams() {
-    const { error } = await this.teamsService.getTeams();
+    const { error } = await this.teamsService.getTeams(this.auctionId());
     if (error) {
       console.error('Error loading teams:', error);
     }
+  }
+
+  // Resolve the auction :id from the route param tree
+  private auctionId(): string {
+    let r: ActivatedRoute | null = this.route;
+    while (r) {
+      const id = r.snapshot.paramMap.get('id');
+      if (id) return id;
+      r = r.parent;
+    }
+    return '';
   }
 
   // Form operations
@@ -239,8 +252,8 @@ export class TeamsComponent implements OnInit {
           panelClass: ['success-snackbar']
         });
       } else {
-        // Create new team
-        const { error } = await this.teamsService.createTeam(formData as CreateTeamData);
+        // Create new team — pass explicit auctionId from route
+        const { error } = await this.teamsService.createTeam(formData as CreateTeamData, this.auctionId());
         if (error) {
           this.snackBar.open(`Error creating team: ${error.message}`, 'Close', {
             duration: 5000,

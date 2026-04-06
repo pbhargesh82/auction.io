@@ -1,5 +1,6 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { AuctionStateService, TeamWithPlayers } from '../../services/auction-state.service';
 import { TeamCardComponent } from '../team-card/team-card.component';
 import { SupabaseService } from '../../services/supabase.service';
@@ -45,7 +46,8 @@ export class TeamRosterComponent implements OnInit {
 
   constructor(
     private auctionStateService: AuctionStateService,
-    private supabaseService: SupabaseService
+    private supabaseService: SupabaseService,
+    private route: ActivatedRoute,
   ) {
     this.teamsWithPlayers = this.auctionStateService.teamsWithPlayers;
     this.loading = this.auctionStateService.loading;
@@ -58,25 +60,28 @@ export class TeamRosterComponent implements OnInit {
   }
 
   async ngOnInit() {
-    await this.auctionStateService.loadAllData();
-    
-    // Debug logging
-    console.log('🔍 Team Roster Debug Info:');
-    console.log('Teams with players:', this.teamsWithPlayers());
-    console.log('Loading state:', this.loading());
-    console.log('Error state:', this.error());
+    await this.auctionStateService.loadAllData(this.auctionId());
   }
 
   async refreshData() {
-    await this.auctionStateService.loadAllData();
+    await this.auctionStateService.loadAllData(this.auctionId());
+  }
+
+  // Resolve the auction :id from the route param tree
+  private auctionId(): string {
+    let r: ActivatedRoute | null = this.route;
+    while (r) {
+      const id = r.snapshot.paramMap.get('id');
+      if (id) return id;
+      r = r.parent;
+    }
+    return '';
   }
 
   // Handle player sold back event
-  async onPlayerSoldBack(event: {teamId: string, playerId: string, refundAmount: number}) {
-    console.log('Player sold back:', event);
-    
+  async onPlayerSoldBack(_event: {teamId: string, playerId: string, refundAmount: number}) {
     // Refresh data to show updated team budgets and player lists
-    await this.auctionStateService.loadAllData();
+    await this.auctionStateService.loadAllData(this.auctionId());
   }
 
   formatCurrency(amount: number): string {

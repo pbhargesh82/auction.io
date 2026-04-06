@@ -12,9 +12,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ActivatedRoute } from '@angular/router';
 
-import { AuctionService, AuctionHistory } from '../../services/auction.service';
-import { AuctionStateService } from '../../services/auction-state.service';
+import { AuctionHistory } from '../../services/auction.service';
+import { SupabaseService } from '../../services/supabase.service';
 
 type SortOption = 'time' | 'price' | 'name';
 type SortDirection = 'asc' | 'desc';
@@ -101,32 +102,65 @@ export class AuctionHistoryComponent implements OnInit {
   });
 
   constructor(
-    private auctionService: AuctionService,
-    private auctionStateService: AuctionStateService,
+    private supabase: SupabaseService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
   ) {}
 
   async ngOnInit() {
     await this.loadAuctionHistory();
   }
 
+  // Resolve the auction :id from the route param tree
+  private auctionId(): string {
+    let r: ActivatedRoute | null = this.route;
+    while (r) {
+      const id = r.snapshot.paramMap.get('id');
+      if (id) return id;
+      r = r.parent;
+    }
+    return '';
+  }
+
   async loadAuctionHistory() {
     this.loading.set(true);
     this.error.set(null);
-    
+
+    const auctionId = this.auctionId();
+    if (!auctionId) {
+      this.loading.set(false);
+      this.auctionHistory.set([]);
+      return;
+    }
+
     try {
-      const { data, error } = await this.auctionService.getAuctionHistory();
-      
+      const { data, error } = await this.supabase.db
+        .from('auction_history')
+        .select(`
+          id, player_id, winning_team_id, final_price, auction_date, sold_at,
+          auction_round, bidding_duration, notes, status,
+          player:players(id, name, position, base_price, image_url),
+          team:teams!auction_history_winning_team_id_fkey(id, name, primary_color)
+        `)
+        .eq('auction_id', auctionId)
+        .order('sold_at', { ascending: false });
+
       if (error) {
         this.error.set(error.message);
         this.snackBar.open(`Error loading auction history: ${error.message}`, 'Close', { duration: 5000 });
       } else {
-        this.auctionHistory.set(data || []);
+        // Normalize Supabase array-shaped joins
+        const entries = ((data ?? []) as any[]).map(row => ({
+          ...row,
+          player: Array.isArray(row.player) ? row.player[0] ?? null : row.player,
+          team:   Array.isArray(row.team)   ? row.team[0]   ?? null : row.team,
+        }));
+        this.auctionHistory.set(entries as AuctionHistory[]);
       }
-    } catch (error: any) {
-      this.error.set(error.message);
-      this.snackBar.open(`Error loading auction history: ${error.message}`, 'Close', { duration: 5000 });
+    } catch (err: any) {
+      this.error.set(err.message);
+      this.snackBar.open(`Error loading auction history: ${err.message}`, 'Close', { duration: 5000 });
     } finally {
       this.loading.set(false);
     }
@@ -138,8 +172,11 @@ export class AuctionHistoryComponent implements OnInit {
 
     this.loading.set(true);
     try {
-      const { error } = await this.auctionService.clearAuctionHistory();
-      
+      const { error } = await this.supabase.db
+        .from('auction_history')
+        .delete()
+        .eq('auction_id', this.auctionId());
+
       if (error) {
         this.error.set(error.message);
         this.snackBar.open(`Error clearing history: ${error.message}`, 'Close', { duration: 5000 });
@@ -147,9 +184,9 @@ export class AuctionHistoryComponent implements OnInit {
         this.auctionHistory.set([]);
         this.snackBar.open('Auction history cleared successfully!', 'Close', { duration: 3000 });
       }
-    } catch (error: any) {
-      this.error.set(error.message);
-      this.snackBar.open(`Error clearing history: ${error.message}`, 'Close', { duration: 5000 });
+    } catch (err: any) {
+      this.error.set(err.message);
+      this.snackBar.open(`Error clearing history: ${err.message}`, 'Close', { duration: 5000 });
     } finally {
       this.loading.set(false);
     }

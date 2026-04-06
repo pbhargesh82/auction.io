@@ -14,7 +14,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { AuctionService, AuctionConfig } from '../../services/auction.service';
 import { PlayersService, Player } from '../../services/players.service';
@@ -96,7 +96,8 @@ export class AuctionControlComponent implements OnInit {
     private auctionStateService: AuctionStateService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
   ) {
     this.sellForm = this.fb.group({
       team_id: ['', [Validators.required]],
@@ -124,12 +125,23 @@ export class AuctionControlComponent implements OnInit {
   }
 
   async ngOnInit() {
-    await this.auctionStateService.loadAllData();
-    
+    await this.auctionStateService.loadAllData(this.auctionId());
+
     // Update local signals
     this.auctionConfig.set(this.auctionStateService.auctionConfig());
     this.currentPlayer.set(this.auctionStateService.currentPlayer());
     this.teams.set(this.auctionStateService.teams());
+  }
+
+  // Resolve the auction :id from the route param tree
+  private auctionId(): string {
+    let r: ActivatedRoute | null = this.route;
+    while (r) {
+      const id = r.snapshot.paramMap.get('id');
+      if (id) return id;
+      r = r.parent;
+    }
+    return '';
   }
 
   async loadAuctionConfig() {
@@ -183,10 +195,10 @@ export class AuctionControlComponent implements OnInit {
     try {
       await this.auctionStateService.resetAuction();
       this.snackBar.open('Auction reset successfully! All data has been cleared.', 'Close', { duration: 3000 });
-      
+
       // Refresh all data using centralized service
-      await this.auctionStateService.loadAllData();
-      
+      await this.auctionStateService.loadAllData(this.auctionId());
+
       // Update local signals
       this.auctionConfig.set(this.auctionStateService.auctionConfig());
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
@@ -231,8 +243,8 @@ export class AuctionControlComponent implements OnInit {
       this.snackBar.open(`Successfully added ${activePlayerIds.length} players to the auction!`, 'Close', { duration: 3000 });
       
       // Refresh data
-      await this.auctionStateService.loadAllData();
-      
+      await this.auctionStateService.loadAllData(this.auctionId());
+
       // Update local signals
       this.auctionConfig.set(this.auctionStateService.auctionConfig());
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
@@ -305,22 +317,24 @@ export class AuctionControlComponent implements OnInit {
         'SOLD'
       );
       
-      // Add to auction history
+      // Add to auction history — include auction_id for workspace scoping
       await this.auctionStateService.addBidToHistory({
         player_id: this.currentPlayer()!.id,
         winning_team_id: formData.team_id,
         final_price: formData.price,
         auction_date: new Date().toISOString().split('T')[0],
         status: 'SOLD',
-        notes: formData.notes || undefined
+        notes: formData.notes || undefined,
+        auction_id: this.auctionId(),
       });
 
-      // Assign player to team
+      // Assign player to team — include auction_id
       await this.auctionStateService.assignPlayerToTeam({
         team_id: formData.team_id,
         player_id: this.currentPlayer()!.id,
         purchase_price: formData.price,
-        purchased_at: new Date().toISOString()
+        purchased_at: new Date().toISOString(),
+        auction_id: this.auctionId(),
       });
       
       this.snackBar.open('Player sold successfully!', 'Close', { duration: 3000 });

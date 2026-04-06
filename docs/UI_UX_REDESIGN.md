@@ -376,35 +376,35 @@ A route resolver that:
 ### Phase 4: Scope Existing Components to Auction (MEDIUM PRIORITY)
 > Adapt existing pages to work within the auction workspace
 
-- [ ] **4.1** Update `TeamsComponent`
-  - [ ] Read `auctionId` from route params (via parent route)
-  - [ ] Pass `auctionId` to `TeamsService` for CRUD operations
-  - [ ] Filter teams by `auction_id`
-  - [ ] Auto-set `auction_id` and `owner_id` when creating teams
-  - [ ] Update breadcrumb: "IPL 2026 > Teams"
+- [x] **4.1** Update `TeamsComponent`
+  - [x] Read `auctionId` from route params (via parent route)
+  - [x] Pass `auctionId` to `TeamsService` for CRUD operations
+  - [x] Filter teams by `auction_id`
+  - [x] Auto-set `auction_id` and `owner_id` when creating teams
+  - [x] Update breadcrumb: "IPL 2026 > Teams"
 
-- [ ] **4.2** Update `TeamRosterComponent`
-  - [ ] Read `auctionId` from route params
-  - [ ] Filter team_players by `auction_id`
-  - [ ] Show only teams belonging to this auction
-  - [ ] Update breadcrumb
+- [x] **4.2** Update `TeamRosterComponent`
+  - [x] Read `auctionId` from route params
+  - [x] Filter team_players by `auction_id`
+  - [x] Show only teams belonging to this auction
+  - [x] Update breadcrumb
 
-- [ ] **4.3** Update `AuctionControlComponent`
-  - [ ] Read `auctionId` from route params
-  - [ ] Use auction-specific player list (from `auction_players`)
-  - [ ] Sell player → creates `team_players` record with `auction_id`
-  - [ ] Update breadcrumb
+- [x] **4.3** Update `AuctionControlComponent`
+  - [x] Read `auctionId` from route params
+  - [x] Use auction-specific player list (from `auction_players`)
+  - [x] Sell player → creates `team_players` record with `auction_id`
+  - [x] Update breadcrumb
 
-- [ ] **4.4** Update `AuctionHistoryComponent`
-  - [ ] Read `auctionId` from route params
-  - [ ] Filter history by `auction_id`
-  - [ ] Update breadcrumb
+- [x] **4.4** Update `AuctionHistoryComponent`
+  - [x] Read `auctionId` from route params
+  - [x] Filter history by `auction_id`
+  - [x] Update breadcrumb
 
-- [ ] **4.5** Create `AuctionSettingsComponent` (from `AuctionConfigComponent`)
-  - [ ] Read `auctionId` from route params
-  - [ ] Edit auction config (budget, player limits, name, description)
-  - [ ] Manage public slug / sharing settings
-  - [ ] Danger zone: Reset auction, Delete auction
+- [x] **4.5** Create `AuctionSettingsComponent` (from `AuctionConfigComponent`)
+  - [x] Read `auctionId` from route params
+  - [x] Edit auction config (budget, player limits, name, description)
+  - [x] Manage public slug / sharing settings
+  - [x] Danger zone: Reset auction, Delete auction
 
 ---
 
