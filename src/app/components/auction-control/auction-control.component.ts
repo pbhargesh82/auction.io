@@ -65,6 +65,9 @@ export class AuctionControlComponent implements OnInit {
   // Computed values
   auctionStatus = computed(() => this.auctionStateService.auctionConfig()?.status ?? 'draft');
 
+  // Micro-animation flag
+  playerJustSold = signal<boolean>(false);
+
   totalPlayers = computed(() => {
     // Count all active players that can be auctioned
     return this.auctionStateService.players().filter(p => p.is_active).length;
@@ -285,6 +288,11 @@ export class AuctionControlComponent implements OnInit {
     }
   }
 
+  // Trigger micro-animation for sold player
+  private triggerSoldAnimation() {
+    this.playerJustSold.set(true);
+    setTimeout(() => this.playerJustSold.set(false), 1500);
+  }
 
 
   async markUnsold() {
@@ -364,7 +372,11 @@ export class AuctionControlComponent implements OnInit {
         auction_id: this.auctionId(),
       });
       
-      this.snackBar.open('Player sold successfully!', 'Close', { duration: 3000 });
+      this.triggerSoldAnimation();
+      this.snackBar.open('Player sold successfully!', 'Close', { 
+        duration: 3000,
+        panelClass: ['bg-green-600', 'text-white']
+      });
       this.sellForm.reset();
       
       // Update local signals

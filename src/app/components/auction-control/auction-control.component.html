@@ -109,7 +109,7 @@
 
         <!-- Current Player Section -->
         @if (currentPlayer()) {
-          <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" [class.success-pop]="playerJustSold()">
             <!-- Player Header -->
             <div class="px-6 py-4 border-b border-gray-200">
               <h2 class="text-lg font-semibold text-gray-900">Current Player</h2>

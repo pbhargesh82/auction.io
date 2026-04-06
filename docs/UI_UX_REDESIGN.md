@@ -473,11 +473,11 @@ A route resolver that:
   - [ ] Theme variables for all components
   - [ ] Toggle in settings
 
-- [ ] **7.6** Micro-animations
-  - [ ] Card entrance animations on home page
-  - [ ] Smooth page transitions within auction workspace
-  - [ ] Sold player animation in auction control
-  - [ ] Progress bar animations
+- [x] **7.6** Micro-animations
+  - [x] Card entrance animations on home page
+  - [x] Smooth page transitions within auction workspace
+  - [x] Sold player animation in auction control
+  - [x] Progress bar animations
 
 ---
 
