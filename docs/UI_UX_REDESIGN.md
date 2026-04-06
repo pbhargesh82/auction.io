@@ -484,13 +484,13 @@ A route resolver that:
 ### Phase 8: Public View Improvements (LOW PRIORITY)
 > Improve the public auction sharing experience
 
-- [ ] **8.1** Redesign public auction page
-  - [ ] Professional read-only view of auction state
-  - [ ] Live team standings with player lists
-  - [ ] Budget visualization
-  - [ ] Current player being auctioned (real-time)
-  - [ ] QR code for sharing
-  - [ ] No navigation sidebar — standalone page
+- [x] **8.1** Redesign public auction page
+  - [x] Professional read-only view of auction state
+  - [x] Live team standings with player lists
+  - [x] Budget visualization
+  - [x] Current player being auctioned (real-time)
+  - [x] QR code for sharing
+  - [x] No navigation sidebar — standalone page
 
 ---
 

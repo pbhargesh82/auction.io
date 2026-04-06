@@ -32,6 +32,7 @@ export class PublicAuctionComponent implements OnInit, OnDestroy {
   loading = signal(true);
   error = signal<string | null>(null);
   auction = signal<Auction | null>(null);
+  currentUrl = signal<string>('');
   
   private subscription: any;
 
@@ -42,6 +43,9 @@ export class PublicAuctionComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    if (typeof window !== 'undefined') {
+      this.currentUrl.set(window.location.href);
+    }
     const slug = this.route.snapshot.paramMap.get('slug');
     if (!slug) {
       this.error.set('Invalid auction link');
