@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
+import { ThemeService } from '../../services/theme.service';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs/operators';
 
@@ -87,7 +88,8 @@ export class LayoutComponent {
   constructor(
     private supabaseService: SupabaseService,
     private versionService: VersionService,
-    private router: Router
+    private router: Router,
+    public themeService: ThemeService
   ) {
     // Get current user and role
     this.supabaseService.currentUser.subscribe(user => {

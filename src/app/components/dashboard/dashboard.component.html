@@ -1,12 +1,12 @@
 <!-- Dashboard Content -->
-<div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
+<div class="p-4 lg:p-6 bg-gray-50 dark:bg-slate-950 min-h-screen">
       
   @if (loading()) {
     <!-- Loading State -->
     <div class="flex items-center justify-center py-12">
       <div class="flex flex-col items-center space-y-4">
-        <mat-icon fontSize="32" class="animate-spin text-indigo-600">autorenew</mat-icon>
-        <p class="text-gray-600">Loading your dashboard...</p>
+        <mat-icon fontSize="32" class="animate-spin text-indigo-600 dark:text-indigo-400">autorenew</mat-icon>
+        <p class="text-gray-600 dark:text-slate-300">Loading your dashboard...</p>
       </div>
     </div>
   } @else if (error()) {
@@ -22,19 +22,19 @@
     
     <!-- Welcome Message -->
     <!-- <div class="mb-6 lg:mb-8">
-      <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">{{ welcomeMessage() }}</h2>
-      <p class="text-gray-600 text-sm lg:text-base">Here's your auction dashboard overview</p>
+      <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ welcomeMessage() }}</h2>
+      <p class="text-gray-600 dark:text-slate-300 text-sm lg:text-base">Here's your auction dashboard overview</p>
     </div> -->
 
     <!-- Overall Statistics -->
     <div class="grid grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
       <!-- Total Players -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 hover:shadow-md transition-shadow">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-3 hover:shadow-md transition-shadow">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div class="mb-2 lg:mb-0">
-            <p class="text-sm font-medium text-gray-600 mb-1">Total Players</p>
-            <p class="text-2xl lg:text-4xl font-bold text-gray-900">{{ formatNumber(playerStats().totalPlayers) }}</p>
-            <p class="text-sm text-gray-500 mt-1">Registered</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-slate-300 mb-1">Total Players</p>
+            <p class="text-2xl lg:text-4xl font-bold text-gray-900 dark:text-white">{{ formatNumber(playerStats().totalPlayers) }}</p>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">Registered</p>
           </div>
           <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center self-start lg:self-auto">
             <mat-icon fontSize="32" [style.color]="'#1e40af'">sports_cricket</mat-icon>
@@ -43,10 +43,10 @@
       </div>
 
       <!-- Sold Players -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 hover:shadow-md transition-shadow">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-3 hover:shadow-md transition-shadow">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div class="mb-2 lg:mb-0">
-            <p class="text-sm font-medium text-gray-600 mb-1">Sold Players</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-slate-300 mb-1">Sold Players</p>
             <p class="text-2xl lg:text-4xl font-bold text-green-600">{{ formatNumber(playerStats().soldPlayers) }}</p>
             <p class="text-sm text-green-500 mt-1">Auctioned</p>
           </div>
@@ -57,10 +57,10 @@
       </div>
 
       <!-- Available Players -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 hover:shadow-md transition-shadow">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-3 hover:shadow-md transition-shadow">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div class="mb-2 lg:mb-0">
-            <p class="text-sm font-medium text-gray-600 mb-1">Available</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-slate-300 mb-1">Available</p>
             <p class="text-2xl lg:text-4xl font-bold text-orange-600">{{ formatNumber(playerStats().availablePlayers) }}</p>
             <p class="text-sm text-orange-500 mt-1">For auction</p>
           </div>
@@ -98,7 +98,7 @@
         </button>
         <button 
           (click)="navigateToPlayers()"
-          class="bg-white hover:bg-gray-50 text-gray-700 px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium border border-gray-300 transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px]">
+          class="bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 text-gray-700 dark:text-slate-200 px-4 lg:px-6 py-3 lg:py-4 rounded-lg font-medium border border-gray-300 transition-colors flex items-center justify-center space-x-2 text-sm lg:text-base min-h-[48px]">
           <mat-icon fontSize="24" class="flex-shrink-0">sports_cricket</mat-icon>
           <span>{{ isAdmin() ? 'Manage' : 'View' }} Players</span>
         </button>
@@ -108,9 +108,9 @@
     <!-- Teams Grid -->
     <div class="mb-6 lg:mb-8">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-gray-900">Teams Overview</h3>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Teams Overview</h3>
         <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-500">{{ teamsWithPlayers().length }} teams</span>
+          <span class="text-sm text-gray-500 dark:text-slate-400">{{ teamsWithPlayers().length }} teams</span>
           <button 
             (click)="refreshData()"
             [disabled]="loading()"
@@ -122,10 +122,10 @@
       </div>
       
       @if (teamsWithPlayers().length === 0) {
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-          <mat-icon fontSize="64" class="text-gray-400 mx-auto mb-4">groups</mat-icon>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">No teams found</h3>
-          <p class="text-gray-600 mb-6">Get started by creating your first team.</p>
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-12 text-center">
+          <mat-icon fontSize="64" class="text-gray-400 dark:text-slate-500 mx-auto mb-4">groups</mat-icon>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No teams found</h3>
+          <p class="text-gray-600 dark:text-slate-300 mb-6">Get started by creating your first team.</p>
           <button 
             (click)="navigateToTeams()"
             class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
@@ -151,8 +151,8 @@
     </div>
 
     <!-- Budget Summary -->
-    <!-- <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Budget Summary</h3>
+    <!-- <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 lg:p-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Budget Summary</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                  <div class="text-center p-4 bg-blue-50 rounded-lg">
            <p class="text-sm font-medium text-blue-600 mb-1">Total Budget</p>

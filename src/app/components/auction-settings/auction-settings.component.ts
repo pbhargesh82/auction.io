@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
 import { Auction } from '../../services/auctions.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-auction-settings',
@@ -48,6 +49,7 @@ export class AuctionSettingsComponent implements OnInit {
     private router: Router,
     private supabase: SupabaseService,
     private fb: FormBuilder,
+    public themeService: ThemeService
   ) {
     this.settingsForm = this.fb.group({
       name:                 ['', [Validators.required, Validators.minLength(3)]],

@@ -469,9 +469,9 @@ A route resolver that:
   - [x] Swipeable auction cards on home page
   - [x] Touch-optimized auction control
 
-- [ ] **7.5** Dark mode support
-  - [ ] Theme variables for all components
-  - [ ] Toggle in settings
+- [x] **7.5** Dark mode support
+  - [x] Theme variables for all components
+  - [x] Toggle in settings
 
 - [x] **7.6** Micro-animations
   - [x] Card entrance animations on home page

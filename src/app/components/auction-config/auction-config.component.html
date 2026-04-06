@@ -1,4 +1,4 @@
-<div class="p-4 lg:p-6 bg-gray-50">
+<div class="p-4 lg:p-6 bg-gray-50 dark:bg-slate-950">
     <!-- Error State -->
     @if (error()) {
       <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
@@ -20,16 +20,16 @@
       <div class="flex items-center justify-center py-12">
         <div class="text-center">
           <mat-spinner class="mx-auto mb-4"></mat-spinner>
-          <p class="text-gray-600">Loading auction configuration...</p>
+          <p class="text-gray-600 dark:text-slate-300">Loading auction configuration...</p>
         </div>
       </div>
     } @else {
       <!-- Auction Configuration Form -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
         <!-- Form Header -->
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">Auction Settings</h2>
-          <p class="text-sm text-gray-600 mt-1">Configure basic auction parameters</p>
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Auction Settings</h2>
+          <p class="text-sm text-gray-600 dark:text-slate-300 mt-1">Configure basic auction parameters</p>
         </div>
 
         <!-- Form Content -->
@@ -37,7 +37,7 @@
           <form [formGroup]="configForm" (ngSubmit)="onSubmit()" class="space-y-5">
             <!-- Auction Name -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                 Auction Name <span class="text-red-500">*</span>
               </label>
               <input 
@@ -56,7 +56,7 @@
             <!-- Budget and Players -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                   Budget Cap (₹) <span class="text-red-500">*</span>
                 </label>
                 <input 
@@ -71,7 +71,7 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                   Max Players per Team <span class="text-red-500">*</span>
                 </label>
                 <input 
@@ -87,7 +87,7 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                   Min Players per Team <span class="text-red-500">*</span>
                 </label>
                 <input 
@@ -107,7 +107,7 @@
 
             <!-- Description -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                 Description
               </label>
               <textarea 
@@ -118,13 +118,13 @@
             </div>
 
             <!-- Form Actions -->
-            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-slate-700">
               @if (auctionConfig()) {
                 <button 
                   type="button" 
                   (click)="loadAuctionConfig()"
                   [disabled]="loading()"
-                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                  class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                   Refresh
                 </button>
               }
@@ -149,12 +149,12 @@
 </div> 
 
 <!-- Player Sell-Back Management Section -->
-<div class="p-4 lg:p-6 bg-gray-50 mt-6">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+<div class="p-4 lg:p-6 bg-gray-50 dark:bg-slate-950 mt-6">
+  <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
     <!-- Section Header -->
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h2 class="text-lg font-semibold text-gray-900">Player Sell-Back Management</h2>
-      <p class="text-sm text-gray-600 mt-1">Allow teams to sell players back to the auction pool</p>
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Player Sell-Back Management</h2>
+      <p class="text-sm text-gray-600 dark:text-slate-300 mt-1">Allow teams to sell players back to the auction pool</p>
     </div>
 
     <!-- Sell-Back Content -->

@@ -1,10 +1,10 @@
-<div class="p-4 lg:p-6 bg-gray-50 min-h-full">
+<div class="p-4 lg:p-6 bg-gray-50 dark:bg-slate-950 min-h-full">
     <!-- Header Section with Stats Cards -->
     <div class="mb-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900">User Management</h1>
-                <p class="text-sm text-gray-500 mt-1">Manage user roles and permissions</p>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">User Management</h1>
+                <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">Manage user roles and permissions</p>
             </div>
             <div class="flex gap-2">
                 <button (click)="openInviteForm()"
@@ -13,8 +13,8 @@
                     Invite User
                 </button>
                 <button (click)="loadUsers()" [disabled]="loading()"
-                    class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50">
-                    <mat-icon class="mr-2 text-gray-500">refresh</mat-icon>
+                    class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50">
+                    <mat-icon class="mr-2 text-gray-500 dark:text-slate-400">refresh</mat-icon>
                     Refresh
                 </button>
             </div>
@@ -22,50 +22,50 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-4">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-blue-100 rounded-lg">
                         <mat-icon class="text-blue-600">people</mat-icon>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Total Users</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats().total }}</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-slate-400">Total Users</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ stats().total }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-4">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-purple-100 rounded-lg">
                         <mat-icon class="text-purple-600">admin_panel_settings</mat-icon>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Super Admins</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats().superAdmins }}</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-slate-400">Super Admins</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ stats().superAdmins }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-4">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-green-100 rounded-lg">
                         <mat-icon class="text-green-600">check_circle</mat-icon>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Active</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats().active }}</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-slate-400">Active</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ stats().active }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-4">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-red-100 rounded-lg">
                         <mat-icon class="text-red-600">block</mat-icon>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Banned</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats().banned }}</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-slate-400">Banned</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ stats().banned }}</p>
                     </div>
                 </div>
             </div>
@@ -74,10 +74,10 @@
 
     <!-- Search Bar -->
     <div class="mb-6">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3"
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-3"
             style="box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
             <div class="flex items-center space-x-3">
-                <mat-icon class="text-gray-400">search</mat-icon>
+                <mat-icon class="text-gray-400 dark:text-slate-500">search</mat-icon>
                 <input type="text" (input)="onSearch($event)"
                     placeholder="Search users by email, role, or login provider..."
                     class="flex-1 border-none outline-none text-sm placeholder-gray-500 bg-transparent">
@@ -106,15 +106,15 @@
     <div class="flex items-center justify-center py-12">
         <div class="text-center">
             <mat-spinner class="mx-auto mb-4"></mat-spinner>
-            <p class="text-gray-600">Loading users...</p>
+            <p class="text-gray-600 dark:text-slate-300">Loading users...</p>
         </div>
     </div>
     } @else if (filteredUsers().length === 0) {
     <div class="text-center py-12">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 max-w-md mx-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-8 max-w-md mx-auto">
             <mat-icon class="text-6xl text-gray-300 mb-4">person_search</mat-icon>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-            <p class="text-gray-500">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No users found</h3>
+            <p class="text-gray-500 dark:text-slate-400">
                 @if (searchTerm()) {
                 No users match your search criteria.
                 } @else {
@@ -124,37 +124,37 @@
         </div>
     </div>
     } @else {
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
         <!-- Table Header -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <p class="text-sm text-gray-500">
-                Showing <span class="font-medium text-gray-900">{{ filteredUsers().length }}</span>
-                of <span class="font-medium text-gray-900">{{ users().length }}</span> users
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-950">
+            <p class="text-sm text-gray-500 dark:text-slate-400">
+                Showing <span class="font-medium text-gray-900 dark:text-white">{{ filteredUsers().length }}</span>
+                of <span class="font-medium text-gray-900 dark:text-white">{{ users().length }}</span> users
             </p>
         </div>
 
         <!-- Table -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-gray-50 dark:bg-slate-950">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">User
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Role
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Login
                             Method</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                             Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Last
                             Sign In</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                             Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200">
                     @for (user of filteredUsers(); track user.user_id) {
-                    <tr class="hover:bg-gray-50 transition-colors" [class.opacity-60]="user.is_banned">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors" [class.opacity-60]="user.is_banned">
                         <!-- User Email -->
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
@@ -163,13 +163,13 @@
                                     {{ user.email.charAt(0).toUpperCase() }}
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                                         {{ user.email }}
                                         @if (isCurrentUser(user.user_id)) {
-                                        <span class="ml-2 text-xs text-indigo-600 font-normal">(You)</span>
+                                        <span class="ml-2 text-xs text-indigo-600 dark:text-indigo-400 font-normal">(You)</span>
                                         }
                                     </div>
-                                    <div class="text-xs text-gray-500">
+                                    <div class="text-xs text-gray-500 dark:text-slate-400">
                                         ID: {{ user.user_id.substring(0, 8) }}...
                                     </div>
                                 </div>
@@ -181,12 +181,12 @@
                             @if (updatingUserId() === user.user_id) {
                             <div class="flex items-center">
                                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
-                                <span class="text-sm text-gray-500">Updating...</span>
+                                <span class="text-sm text-gray-500 dark:text-slate-400">Updating...</span>
                             </div>
                             } @else {
                             <select [value]="user.role" (change)="onRoleChange(user, $any($event.target).value)"
                                 [disabled]="isCurrentUser(user.user_id) && user.role === 'super_admin' || user.is_banned"
-                                class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white disabled:opacity-50 disabled:cursor-not-allowed">
+                                class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed">
                                 @for (role of availableRoles; track role.value) {
                                 <option [value]="role.value" [selected]="role.value === user.role">
                                     {{ role.label }}
@@ -199,9 +199,9 @@
                         <!-- Login Method -->
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <mat-icon class="text-gray-400 mr-2 text-lg">{{ getProviderIcon(user.provider)
+                                <mat-icon class="text-gray-400 dark:text-slate-500 mr-2 text-lg">{{ getProviderIcon(user.provider)
                                     }}</mat-icon>
-                                <span class="text-sm text-gray-700">{{ getProviderLabel(user.provider) }}</span>
+                                <span class="text-sm text-gray-700 dark:text-slate-200">{{ getProviderLabel(user.provider) }}</span>
                             </div>
                         </td>
 
@@ -229,7 +229,7 @@
                         </td>
 
                         <!-- Last Sign In -->
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
                             {{ formatDate(user.last_sign_in_at) }}
                         </td>
 
@@ -251,7 +251,7 @@
                                     <mat-icon class="text-lg">delete</mat-icon>
                                 </button>
                                 } @else {
-                                <span class="text-xs text-gray-400 italic">—</span>
+                                <span class="text-xs text-gray-400 dark:text-slate-500 italic">—</span>
                                 }
                             </div>
                         </td>
@@ -282,13 +282,13 @@
 <!-- Invite User Modal -->
 @if (showInviteForm()) {
 <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-md">
         <!-- Modal Header -->
-        <div class="border-b border-gray-200 px-6 py-4 rounded-t-xl">
+        <div class="border-b border-gray-200 dark:border-slate-700 px-6 py-4 rounded-t-xl">
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold text-gray-900">Invite New User</h2>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Invite New User</h2>
                 <button (click)="closeInviteForm()"
-                    class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1">
+                    class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 rounded-lg p-1">
                     <mat-icon>close</mat-icon>
                 </button>
             </div>
@@ -298,7 +298,7 @@
         <div class="p-6 space-y-5">
             <!-- Email Field -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                     Email Address <span class="text-red-500">*</span>
                 </label>
                 <input type="email" [value]="inviteEmail()" (input)="inviteEmail.set($any($event.target).value)"
@@ -308,23 +308,23 @@
 
             <!-- Role Field -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                     Assign Role
                 </label>
                 <select [value]="inviteRole()" (change)="inviteRole.set($any($event.target).value)"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-900">
                     @for (role of availableRoles; track role.value) {
                     <option [value]="role.value">{{ role.label }}</option>
                     }
                 </select>
-                <p class="mt-1 text-xs text-gray-500">The user will receive an email invitation to set their password.
+                <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">The user will receive an email invitation to set their password.
                 </p>
             </div>
 
             <!-- Form Actions -->
-            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-slate-700">
                 <button type="button" (click)="closeInviteForm()"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
                     Cancel
                 </button>
                 <button (click)="submitInvite()" [disabled]="inviteLoading() || !inviteEmail()"
