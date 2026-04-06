@@ -1,5 +1,21 @@
 <div class="workspace-shell">
 
+  <!-- ── Bottom Nav (Mobile) ──────────────────────────────────────────────── -->
+  <nav class="bottom-nav mobile-only">
+    <!-- Top 4 Items -->
+    @for (item of navItems.slice(0, 4); track item.segment) {
+      <a [routerLink]="navRoute(item.segment)" routerLinkActive="active" class="bottom-nav-item">
+        <span class="bottom-nav-item__icon material-symbols-outlined">{{ item.icon }}</span>
+        <span class="bottom-nav-label">{{ item.label.replace('Auction ', '') }}</span>
+      </a>
+    }
+    <!-- More Button -->
+    <button class="bottom-nav-item" (click)="toggleMobileMenu()">
+      <span class="bottom-nav-item__icon material-symbols-outlined">menu</span>
+      <span class="bottom-nav-label">More</span>
+    </button>
+  </nav>
+
   <!-- ── Mobile overlay ───────────────────────────────────────────────────── -->
   @if (mobileMenuOpen()) {
   <div class="mobile-overlay" (click)="onOverlayClick()"></div>

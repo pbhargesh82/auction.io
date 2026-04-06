@@ -464,10 +464,10 @@ A route resolver that:
   - [x] No players in auction → "Add players from your pool"
   - [x] No history → "Auction hasn't started yet"
 
-- [ ] **7.4** Mobile-first responsive polish
-  - [ ] Bottom navigation bar on mobile for auction workspace
-  - [ ] Swipeable auction cards on home page
-  - [ ] Touch-optimized auction control
+- [x] **7.4** Mobile-first responsive polish
+  - [x] Bottom navigation bar on mobile for auction workspace
+  - [x] Swipeable auction cards on home page
+  - [x] Touch-optimized auction control
 
 - [ ] **7.5** Dark mode support
   - [ ] Theme variables for all components
