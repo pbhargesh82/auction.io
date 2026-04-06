@@ -411,19 +411,19 @@ A route resolver that:
 ### Phase 5: Player Pool & Auction Players (MEDIUM PRIORITY)
 > Split the monolithic "My Players" into two distinct views
 
-- [ ] **5.1** Refactor `PlayersComponent` → `PlayerPoolComponent` (`/player-pool`)
-  - [ ] Rename component and route
-  - [ ] This is the global player catalog — CRUD, CSV import, search/filter
-  - [ ] No auction-specific state (no sold/unsold badges here)
-  - [ ] Add "Used in X auctions" count per player (nice-to-have)
+- [x] **5.1** Refactor `PlayersComponent` → `PlayerPoolComponent` (`/player-pool`)
+  - [x] Rename component and route
+  - [x] This is the global player catalog — CRUD, CSV import, search/filter
+  - [x] No auction-specific state (no sold/unsold badges here)
+  - [x] Add "Used in X auctions" count per player (nice-to-have)
 
-- [ ] **5.2** Create `AuctionPlayersComponent` (`/auction/:id/players`)
-  - [ ] List players added to *this* auction (from `auction_players` table)
-  - [ ] "Add from Pool" button → opens modal with global player list + checkboxes
-  - [ ] Batch add players to auction (creates `auction_players` records)
-  - [ ] Per-player: edit base price, remove from auction
-  - [ ] Status indicators: Available, Sold (with team name + price), Unsold, Skipped
-  - [ ] Bulk actions: Add all, Remove unsold, Reset statuses
+- [x] **5.2** Create `AuctionPlayersComponent` (`/auction/:id/players`)
+  - [x] List players added to *this* auction (from `auction_players` table)
+  - [x] "Add from Pool" button → opens modal with global player list + checkboxes
+  - [x] Batch add players to auction (creates `auction_players` records)
+  - [x] Per-player: edit base price, remove from auction
+  - [x] Status indicators: Available, Sold (with team name + price), Unsold, Skipped
+  - [x] Bulk actions: Add all, Remove unsold, Reset statuses
 
 ---
 

@@ -1,0 +1,352 @@
+<!-- ══════════════════════════════════════════════════════════════════════
+     AUCTION PLAYERS  —  /auction/:id/players
+══════════════════════════════════════════════════════════════════════════ -->
+<div class="ap-page">
+
+  <!-- ── Page header ──────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Auction Players</h1>
+      <p class="page-sub">Players entered into this auction</p>
+    </div>
+    <div class="header-actions">
+      <!-- Bulk -->
+      <button class="btn btn--ghost btn--sm" (click)="removeUnsold()" [disabled]="saving()"
+              id="remove-unsold-btn" title="Remove all unsold">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/>
+          <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+        </svg>
+        Remove Unsold
+      </button>
+      <button class="btn btn--ghost btn--sm" (click)="resetStatuses()" [disabled]="saving()"
+              id="reset-statuses-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+        </svg>
+        Reset Statuses
+      </button>
+      <button class="btn btn--primary" (click)="openModal()" id="add-from-pool-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add from Pool
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Stat chips ───────────────────────────────────────────────────── -->
+  @if (!loading()) {
+  <div class="stat-row">
+    <div class="stat-chip stat-chip--total"  (click)="setStatus('all')"     [class.stat-chip--active]="statusFilter()==='all'">
+      <span class="stat-chip__n">{{ stats().total }}</span>
+      <span class="stat-chip__l">Total</span>
+    </div>
+    <div class="stat-chip stat-chip--pending" (click)="setStatus('PENDING')" [class.stat-chip--active]="statusFilter()==='PENDING'">
+      <span class="stat-chip__n">{{ stats().pending }}</span>
+      <span class="stat-chip__l">Available</span>
+    </div>
+    <div class="stat-chip stat-chip--sold"    (click)="setStatus('SOLD')"    [class.stat-chip--active]="statusFilter()==='SOLD'">
+      <span class="stat-chip__n">{{ stats().sold }}</span>
+      <span class="stat-chip__l">Sold</span>
+    </div>
+    <div class="stat-chip stat-chip--unsold"  (click)="setStatus('UNSOLD')"  [class.stat-chip--active]="statusFilter()==='UNSOLD'">
+      <span class="stat-chip__n">{{ stats().unsold }}</span>
+      <span class="stat-chip__l">Unsold</span>
+    </div>
+    <div class="stat-chip stat-chip--skipped" (click)="setStatus('SKIPPED')" [class.stat-chip--active]="statusFilter()==='SKIPPED'">
+      <span class="stat-chip__n">{{ stats().skipped }}</span>
+      <span class="stat-chip__l">Skipped</span>
+    </div>
+  </div>
+  }
+
+  <!-- ── Search + Filter ──────────────────────────────────────────────── -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input" type="text" placeholder="Search players…"
+             [value]="searchTerm()"
+             (input)="searchTerm.set($any($event.target).value)" id="ap-search">
+    </div>
+    <div class="status-tabs">
+      @for (opt of statusOptions; track opt.value) {
+        <button class="status-tab" [class.status-tab--active]="statusFilter()===opt.value"
+                (click)="setStatus(opt.value)">{{ opt.label }}</button>
+      }
+    </div>
+  </div>
+
+  <!-- ── Loading skeletons ─────────────────────────────────────────────── -->
+  @if (loading()) {
+  <div class="player-list">
+    @for (n of [1,2,3,4,5,6]; track n) {
+      <div class="player-row skeleton-row"></div>
+    }
+  </div>
+
+  <!-- ── Empty (no players in auction yet) ────────────────────────────── -->
+  } @else if (auctionPlayers().length === 0) {
+  <div class="empty-state">
+    <div class="empty-state__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <line x1="19" y1="8" x2="19" y2="14"/>
+        <line x1="22" y1="11" x2="16" y2="11"/>
+      </svg>
+    </div>
+    <h2 class="empty-state__title">No players in this auction yet</h2>
+    <p class="empty-state__sub">Add players from your global pool to start the auction.</p>
+    <button class="btn btn--primary btn--lg" (click)="openModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Add from Player Pool
+    </button>
+  </div>
+
+  <!-- ── No results (filter) ──────────────────────────────────────────── -->
+  } @else if (filtered().length === 0) {
+  <div class="no-results">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.5">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <p>No players match the current filter.</p>
+    <button class="btn btn--ghost btn--sm" (click)="searchTerm.set(''); setStatus('all')">Clear filters</button>
+  </div>
+
+  <!-- ── Player list ───────────────────────────────────────────────────── -->
+  } @else {
+  <div class="player-list">
+    @for (ap of filtered(); track ap.id) {
+    <div class="player-row player-row--{{ ap.auction_status.toLowerCase() }}">
+
+      <!-- Avatar -->
+      <div class="player-row__avatar">
+        @if (ap.player.image_url) {
+          <img [src]="ap.player.image_url" [alt]="ap.player.name" loading="lazy">
+        } @else {
+          <span>{{ ap.player.name[0] }}</span>
+        }
+      </div>
+
+      <!-- Info -->
+      <div class="player-row__info">
+        <p class="player-row__name">{{ ap.player.name }}</p>
+        <p class="player-row__meta">
+          {{ ap.player.category }}
+          @if (ap.player.nationality) { · {{ ap.player.nationality }} }
+        </p>
+      </div>
+
+      <!-- Status badge -->
+      <div class="player-row__status">
+        <span class="badge {{ statusMeta(ap.auction_status).cls }}">
+          {{ statusMeta(ap.auction_status).label }}
+        </span>
+        @if (ap.auction_status === 'SOLD' && ap.sold_team_name) {
+        <p class="sold-info">{{ ap.sold_team_name }} · {{ formatCurrency(ap.sold_price ?? 0) }}</p>
+        }
+      </div>
+
+      <!-- Base price -->
+      <div class="player-row__price">
+        <p class="price-value">{{ formatCurrency(ap.base_price) }}</p>
+        <p class="price-label">Base Price</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="player-row__actions">
+        @if (ap.auction_status !== 'SOLD') {
+        <button class="icon-btn" (click)="openEdit(ap)"
+                title="Edit base price" [attr.id]="'edit-ap-' + ap.id">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
+        }
+        <button class="icon-btn icon-btn--danger" (click)="removeFromAuction(ap)"
+                title="Remove from auction" [attr.id]="'remove-ap-' + ap.id">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     ADD FROM POOL MODAL
+══════════════════════════════════════════════════════════════════════════ -->
+@if (showModal()) {
+<div class="modal-backdrop" (click)="onOverlayClick($event, true)" role="dialog" aria-modal="true">
+  <div class="modal-card modal-card--wide">
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title">Add from Player Pool</h2>
+        @if (poolSelectedCount() > 0) {
+        <p class="modal-sub">{{ poolSelectedCount() }} selected</p>
+        }
+      </div>
+      <button class="modal-close" (click)="closeModal()" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Pool search -->
+    <div class="modal-search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input" type="text" placeholder="Search pool…"
+             [value]="poolSearch()" (input)="poolSearch.set($any($event.target).value)" id="pool-search">
+    </div>
+
+    <!-- Loading -->
+    @if (poolLoading()) {
+    <div class="modal-loading">
+      <div class="spinner"></div><p>Loading player pool…</p>
+    </div>
+
+    } @else if (poolFiltered().length === 0) {
+    <div class="modal-empty">
+      <p>All players from your pool are already in this auction.</p>
+    </div>
+
+    } @else {
+    <!-- Select all row -->
+    <div class="pool-select-all">
+      <label class="checkbox-row">
+        <input type="checkbox" [checked]="isAllPoolSelected()" (change)="toggleAllPool()">
+        <span>Select all ({{ poolFiltered().length }})</span>
+      </label>
+    </div>
+
+    <!-- Pool list -->
+    <div class="pool-list">
+      @for (p of poolFiltered(); track p.id) {
+      <label class="pool-item" [class.pool-item--selected]="selectedIds().has(p.id)">
+        <input type="checkbox" [checked]="selectedIds().has(p.id)"
+               (change)="togglePool(p.id)" [id]="'pool-' + p.id">
+        <div class="pool-item__avatar">
+          @if (p.image_url) {
+            <img [src]="p.image_url" [alt]="p.name" loading="lazy">
+          } @else {
+            <span>{{ p.name[0] }}</span>
+          }
+        </div>
+        <div class="pool-item__info">
+          <p class="pool-item__name">{{ p.name }}</p>
+          <p class="pool-item__meta">{{ p.category }}@if (p.nationality) { · {{ p.nationality }} }</p>
+        </div>
+        <div class="pool-item__price">{{ formatCurrency(p.base_price) }}</div>
+      </label>
+      }
+    </div>
+    }
+
+    <!-- Modal footer -->
+    <div class="modal-footer">
+      <button class="btn btn--ghost" (click)="closeModal()">Cancel</button>
+      <button class="btn btn--primary" (click)="addSelected()"
+              [disabled]="poolSelectedCount() === 0 || saving()" id="confirm-add-btn">
+        @if (saving()) {
+          <svg class="spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+          </svg> Adding…
+        } @else {
+          Add {{ poolSelectedCount() > 0 ? poolSelectedCount() : '' }} Player{{ poolSelectedCount() !== 1 ? 's' : '' }}
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     EDIT BASE PRICE MODAL
+══════════════════════════════════════════════════════════════════════════ -->
+@if (showEditModal() && editingAP()) {
+<div class="modal-backdrop" (click)="onOverlayClick($event, false)" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title">Edit Base Price</h2>
+      <button class="modal-close" (click)="closeEdit()" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="editForm" (ngSubmit)="saveBasePrice()" class="modal-body">
+      <p class="edit-player-name">{{ editingAP()!.player.name }}</p>
+
+      <div class="field">
+        <label class="field__label" for="e-price">Base Price <span class="req">*</span></label>
+        <div class="field__prefix-wrap">
+          <span class="field__prefix">₹</span>
+          <input id="e-price" type="number" formControlName="base_price"
+                 class="field__input field__input--prefixed" min="1000">
+        </div>
+        @if (editForm.get('base_price')?.hasError('min') && editForm.get('base_price')?.touched) {
+        <p class="field__error">Minimum ₹1,000.</p>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn--ghost" (click)="closeEdit()">Cancel</button>
+        <button type="submit" class="btn btn--primary"
+                [disabled]="editForm.invalid || saving()" id="save-price-btn">
+          @if (saving()) {
+            <svg class="spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg> Saving…
+          } @else { Save }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     TOAST
+══════════════════════════════════════════════════════════════════════════ -->
+@if (toast()) {
+<div class="toast" [class.toast--err]="toast()!.type === 'err'" role="alert">
+  @if (toast()!.type === 'ok') {
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  } @else {
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  }
+  {{ toast()!.msg }}
+</div>
+}
