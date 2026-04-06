@@ -430,19 +430,19 @@ A route resolver that:
 ### Phase 6: Deprecate AuctionContextService (MEDIUM PRIORITY)
 > Remove the "selected auction" pattern in favor of route-based context
 
-- [ ] **6.1** Audit all usages of `AuctionContextService`
-  - [ ] List every component/service that injects it
-  - [ ] Replace `currentAuctionId()` with route param reads
-  - [ ] Replace `selectAuction()` calls with router navigation
-  - [ ] Remove `localStorage` persistence of auction ID
+- [x] **6.1** Audit all usages of `AuctionContextService`
+  - [x] List every component/service that injects it
+  - [x] Replace `currentAuctionId()` with route param reads
+  - [x] Replace `selectAuction()` calls with router navigation
+  - [x] Remove `localStorage` persistence of auction ID
 
-- [ ] **6.2** Remove `AuctionSelectorComponent`
-  - [ ] Remove from layout header
-  - [ ] Delete component files
+- [x] **6.2** Remove `AuctionSelectorComponent`
+  - [x] Remove from layout header
+  - [x] Delete component files
 
-- [ ] **6.3** Remove `AuctionContextService`
-  - [ ] Keep `createAuction()` and `deleteAuction()` methods — move to a simpler service or into `HomeComponent`
-  - [ ] Delete service file
+- [x] **6.3** Remove `AuctionContextService`
+  - [x] Keep `createAuction()` and `deleteAuction()` methods — move to a simpler service or into `HomeComponent`
+  - [x] Delete service file
 
 ---
 

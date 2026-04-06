@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
-import { Auction } from '../../services/auction-context.service';
+import { Auction } from '../../services/auctions.service';
 
 @Component({
   selector: 'app-auction-settings',

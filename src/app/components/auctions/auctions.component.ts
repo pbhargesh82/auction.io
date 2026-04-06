@@ -1,8 +1,9 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { AuctionContextService, Auction } from '../../services/auction-context.service';
+import { Router, RouterModule } from '@angular/router';
+import { AuctionsService } from '../../services/auctions.service';
+import { Auction } from '../../services/auctions.service';
 
 // Angular Material
 import { MatIconModule } from '@angular/material/icon';
@@ -51,14 +52,14 @@ export class AuctionsComponent implements OnInit {
     auctionForm: FormGroup;
 
     // Computed
-    auctions = computed(() => this.auctionContext.userAuctions());
-    loading = computed(() => this.auctionContext.loading());
-    currentAuctionId = computed(() => this.auctionContext.currentAuctionId());
+    auctions = computed(() => this.auctionsSvc.auctions());
+    loading = computed(() => this.auctionsSvc.loading());
 
     constructor(
-        public auctionContext: AuctionContextService,
+        private auctionsSvc: AuctionsService,
         private fb: FormBuilder,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private router: Router,
     ) {
         this.auctionForm = this.fb.group({
             name: ['', [Validators.required, Validators.minLength(3)]],
@@ -71,7 +72,7 @@ export class AuctionsComponent implements OnInit {
     }
 
     async ngOnInit() {
-        await this.auctionContext.initialize();
+        await this.auctionsSvc.loadAuctions();
     }
 
     // Open create form
@@ -118,7 +119,7 @@ export class AuctionsComponent implements OnInit {
         try {
             if (this.editingAuction()) {
                 // Update
-                const { error } = await this.auctionContext.updateAuction(
+                const { error } = await this.auctionsSvc.updateAuction(
                     this.editingAuction()!.id,
                     formValue
                 );
@@ -131,7 +132,7 @@ export class AuctionsComponent implements OnInit {
                 }
             } else {
                 // Create
-                const { error } = await this.auctionContext.createAuction(formValue);
+                const { error } = await this.auctionsSvc.createAuction(formValue);
 
                 if (error) {
                     this.showError('Failed to create auction: ' + error.message);
@@ -154,7 +155,7 @@ export class AuctionsComponent implements OnInit {
         this.deletingId.set(auction.id);
 
         try {
-            const { error } = await this.auctionContext.deleteAuction(auction.id);
+            const { error } = await this.auctionsSvc.deleteAuction(auction.id);
 
             if (error) {
                 this.showError('Failed to delete auction: ' + error.message);
@@ -166,10 +167,9 @@ export class AuctionsComponent implements OnInit {
         }
     }
 
-    // Select as current auction
+    // Navigate into the auction workspace
     selectAuction(auction: Auction) {
-        this.auctionContext.selectAuction(auction.id);
-        this.showSuccess(`Selected "${auction.name}" as current auction`);
+        this.router.navigate(['/auction', auction.id, 'overview']);
     }
 
     // Copy share link

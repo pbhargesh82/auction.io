@@ -1,6 +1,5 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import { AuctionContextService } from './auction-context.service';
 
 export interface Team {
   id: string;
@@ -46,18 +45,14 @@ export class TeamsService {
   loading = signal(false);
   error = signal<string | null>(null);
 
-  private auctionContext = inject(AuctionContextService);
-
   constructor(private supabaseService: SupabaseService) { }
 
-  // Get all teams for current auction.
-  // Pass an explicit auctionId to bypass AuctionContextService (Phase 4+).
-  async getTeams(auctionId?: string): Promise<{ data: Team[] | null, error: any }> {
+  // Get teams for a given auction. auctionId is required (Phase 6).
+  async getTeams(auctionId: string): Promise<{ data: Team[] | null, error: any }> {
     this.loading.set(true);
     this.error.set(null);
 
-    const resolvedId = auctionId ?? this.auctionContext.currentAuctionId();
-    if (!resolvedId) {
+    if (!auctionId) {
       this.loading.set(false);
       this.teams.set([]);
       return { data: [], error: null };
@@ -67,7 +62,7 @@ export class TeamsService {
       const { data, error } = await this.supabaseService.db
         .from('teams')
         .select('*')
-        .eq('auction_id', resolvedId)
+        .eq('auction_id', auctionId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -104,19 +99,17 @@ export class TeamsService {
     }
   }
 
-  // Create new team for current auction.
-  // Pass an explicit auctionId to bypass AuctionContextService (Phase 4+).
-  async createTeam(teamData: CreateTeamData, auctionId?: string): Promise<{ data: Team | null, error: any }> {
+  // Create a new team for a given auction. auctionId is required (Phase 6).
+  async createTeam(teamData: CreateTeamData, auctionId: string): Promise<{ data: Team | null, error: any }> {
     this.loading.set(true);
     this.error.set(null);
 
-    const resolvedId = auctionId ?? this.auctionContext.currentAuctionId();
     const user = this.supabaseService.currentUserValue;
 
-    if (!resolvedId) {
-      this.error.set('No auction selected');
+    if (!auctionId) {
+      this.error.set('No auction ID provided');
       this.loading.set(false);
-      return { data: null, error: { message: 'No auction selected' } };
+      return { data: null, error: { message: 'No auction ID provided' } };
     }
 
     try {
@@ -131,7 +124,7 @@ export class TeamsService {
           budget_cap: teamData.budget_cap || 10000000,
           max_players: teamData.max_players || 25,
           owner_id: user?.id,
-          auction_id: resolvedId
+          auction_id: auctionId
         }])
         .select()
         .single();

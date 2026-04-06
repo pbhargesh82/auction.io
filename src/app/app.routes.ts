@@ -48,7 +48,6 @@ export const routes: Routes = [
       { path: 'settings',        redirectTo: '/home', pathMatch: 'full' }, // Phase 7
 
       // Backwards-compatibility redirects (old flat routes → /home or /player-pool)
-      // TODO (Phase 6): Remove once AuctionContextService is deprecated.
       { path: 'dashboard',       redirectTo: '/home',        pathMatch: 'full' },
       { path: 'auctions',        redirectTo: '/home',        pathMatch: 'full' },
       { path: 'teams',           redirectTo: '/home',        pathMatch: 'full' },

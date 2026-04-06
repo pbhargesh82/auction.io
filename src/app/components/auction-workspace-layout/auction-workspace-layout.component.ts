@@ -13,7 +13,7 @@ import { filter } from 'rxjs/operators';
 
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
-import { Auction } from '../../services/auction-context.service';
+import { Auction } from '../../services/auctions.service';
 
 interface WorkspaceNavItem {
   label: string;

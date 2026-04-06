@@ -2,7 +2,8 @@ import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuctionContextService, Auction } from '../../services/auction-context.service';
+import { AuctionsService } from '../../services/auctions.service';
+import { Auction } from '../../services/auctions.service';
 
 @Component({
   selector: 'app-home',
@@ -28,8 +29,8 @@ export class HomeComponent implements OnInit {
   auctionForm: FormGroup;
 
   // ── Computed ──────────────────────────────────────────────────────────────────
-  loading  = computed(() => this.ctx.loading());
-  allAuctions = computed(() => this.ctx.userAuctions());
+  loading  = computed(() => this.auctionsSvc.loading());
+  allAuctions = computed(() => this.auctionsSvc.auctions());
 
   filteredAuctions = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
@@ -57,7 +58,7 @@ export class HomeComponent implements OnInit {
   ];
 
   constructor(
-    private ctx: AuctionContextService,
+    private auctionsSvc: AuctionsService,
     private fb: FormBuilder,
     private router: Router,
   ) {
@@ -72,7 +73,7 @@ export class HomeComponent implements OnInit {
   }
 
   async ngOnInit() {
-    await this.ctx.initialize();
+    await this.auctionsSvc.loadAuctions();
   }
 
   // ── Navigation ────────────────────────────────────────────────────────────────
@@ -146,12 +147,12 @@ export class HomeComponent implements OnInit {
 
     try {
       if (this.isEditing()) {
-        const { error } = await this.ctx.updateAuction(this.editingAuction()!.id, v);
+        const { error } = await this.auctionsSvc.updateAuction(this.editingAuction()!.id, v);
         if (error) { this.toast('Failed to update: ' + error.message, 'error'); return; }
         this.toast('Auction updated successfully!');
       } else {
         // Create or Duplicate (both just create with given values)
-        const { error } = await this.ctx.createAuction(v);
+        const { error } = await this.auctionsSvc.createAuction(v);
         if (error) { this.toast('Failed to create: ' + error.message, 'error'); return; }
         this.toast(this.duplicating() ? 'Auction duplicated!' : 'Auction created!');
       }
@@ -167,7 +168,7 @@ export class HomeComponent implements OnInit {
     if (!confirm(`Delete "${auction.name}"? This cannot be undone.`)) return;
     this.deletingId.set(auction.id);
     try {
-      const { error } = await this.ctx.deleteAuction(auction.id);
+      const { error } = await this.auctionsSvc.deleteAuction(auction.id);
       if (error) { this.toast('Failed to delete: ' + error.message, 'error'); }
       else { this.toast('Auction deleted.'); }
     } finally {

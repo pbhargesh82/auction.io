@@ -8,9 +8,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 
-import { AuctionContextService, Auction } from '../../services/auction-context.service';
 import { AuctionStateService } from '../../services/auction-state.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { Auction } from '../../services/auctions.service';
 
 @Component({
   selector: 'app-public-auction',
@@ -37,7 +37,6 @@ export class PublicAuctionComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private auctionContextService: AuctionContextService,
     public auctionStateService: AuctionStateService,
     private supabaseService: SupabaseService
   ) {}
@@ -51,7 +50,12 @@ export class PublicAuctionComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const { data, error } = await this.auctionContextService.getPublicAuction(slug);
+      const { data, error } = await this.supabaseService.db
+        .from('auctions')
+        .select('*')
+        .eq('public_slug', slug)
+        .eq('is_public', true)
+        .single();
       if (error || !data) {
         this.error.set('Auction not found or it is not public');
         return;
@@ -75,9 +79,13 @@ export class PublicAuctionComponent implements OnInit, OnDestroy {
     this.subscription = this.supabaseService.db
       .channel(`public-auction-${auctionId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'auctions', filter: `id=eq.${auctionId}` }, () => {
-          this.auctionContextService.getPublicAuction(this.auction()?.public_slug || '').then(({data}) => {
-              if (data) this.auction.set(data);
-          });
+          this.supabaseService.db
+            .from('auctions')
+            .select('*')
+            .eq('public_slug', this.auction()?.public_slug ?? '')
+            .eq('is_public', true)
+            .single()
+            .then(({ data }: { data: any }) => { if (data) this.auction.set(data as Auction); });
           this.auctionStateService.loadAllData(auctionId);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'teams', filter: `auction_id=eq.${auctionId}` }, () => this.auctionStateService.loadAllData(auctionId))

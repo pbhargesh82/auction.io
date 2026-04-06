@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { AuctionStateService } from '../../services/auction-state.service';
 import { TeamWithPlayers } from '../../services/auction-state.service';
 import { SupabaseService } from '../../services/supabase.service';
-import { Auction } from '../../services/auction-context.service';
+import { Auction } from '../../services/auctions.service';
 import { TeamCardComponent, TeamCardConfig } from '../team-card/team-card.component';
 
 interface HistoryEntry {
