@@ -64,7 +64,9 @@
       <div class="topbar__breadcrumb">
         <a routerLink="/home" class="breadcrumb-link">My Auctions</a>
         <span class="breadcrumb-sep">/</span>
-        <span class="breadcrumb-current">{{ auctionName() }}</span>
+        <a [routerLink]="['/auction', auctionId(), 'overview']" class="breadcrumb-link">{{ auctionName() }}</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">{{ currentSegmentLabel() }}</span>
       </div>
 
       <!-- Status badge (topbar) -->

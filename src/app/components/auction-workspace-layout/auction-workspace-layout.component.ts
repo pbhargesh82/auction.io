@@ -39,6 +39,7 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
 
   user = signal<any>(null);
   userRole = signal<UserRole>('user');
+  currentRoute = signal<string>('');
 
   // ── Computed ──────────────────────────────────────────────────────────────────
   appVersion = computed(() => this.versionService.getVersionWithPrefix());
@@ -69,6 +70,12 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
   /** Full route prefix for building child links */
   baseRoute = computed(() => `/auction/${this.auctionId()}`);
 
+  currentSegmentLabel = computed(() => {
+    const route = this.currentRoute();
+    const item = this.navItems.find(n => route.includes(`/auction/${this.auctionId()}/${n.segment}`));
+    return item ? item.label : 'Overview';
+  });
+
   // ── Workspace Nav ────────────────────────────────────────────────────────────
   readonly navItems: WorkspaceNavItem[] = [
     { label: 'Overview',         icon: 'bar_chart',        segment: 'overview' },
@@ -98,12 +105,18 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
       this.supabaseService.userRole.subscribe(r => this.userRole.set(r))
     );
 
-    // Close mobile sidebar on navigation
+    // Close mobile sidebar on navigation & track current route
     this.subs.add(
       this.router.events
         .pipe(filter(e => e instanceof NavigationEnd))
-        .subscribe(() => this.mobileMenuOpen.set(false))
+        .subscribe((event: any) => {
+          this.currentRoute.set(event.urlAfterRedirects || event.url);
+          this.mobileMenuOpen.set(false);
+        })
     );
+
+    // Initial route
+    this.currentRoute.set(this.router.url);
 
     // Load auction from route param
     this.loadAuction();

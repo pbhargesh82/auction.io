@@ -28,9 +28,24 @@
       @if (auctionConfig()) {
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <!-- Status Header -->
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">Auction Status</h2>
-            <p class="text-sm text-gray-600 mt-1">Control the auction flow</p>
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900">Auction Status</h2>
+              <p class="text-sm text-gray-600 mt-1">Control the auction flow</p>
+            </div>
+            @if (auctionStatus() === 'draft') {
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider bg-slate-100 text-slate-500">
+                <span class="w-2 h-2 rounded-full bg-slate-400"></span> Draft
+              </span>
+            } @else if (auctionStatus() === 'active') {
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider bg-green-100 text-green-700">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live
+              </span>
+            } @else if (auctionStatus() === 'completed') {
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider bg-purple-100 text-purple-700">
+                <span class="w-2 h-2 rounded-full bg-purple-500"></span> Completed
+              </span>
+            }
           </div>
 
           <!-- Status Content -->
@@ -65,16 +80,28 @@
                 </button>
               }
 
-              @if (false) {
+              <!-- Status transitions -->
+              @if (auctionStatus() === 'draft') {
                 <button 
-                  mat-stroked-button 
-                  color="warn"
-                  (click)="resetAuction()"
-                  [disabled]="loading()"
-                  class="border-red-600 text-red-600 hover:bg-red-50 px-6 py-3 rounded-lg transition-all duration-200">
-                  <mat-icon class="mr-2">refresh</mat-icon>
-                  Reset Auction
+                  (click)="updateAuctionStatus('active')"
+                  [disabled]="loading() || (remainingPlayers() === 0 && totalPlayers() === 0)"
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                  <mat-icon class="mr-2">play_arrow</mat-icon>
+                  Start Auction
                 </button>
+              } @else if (auctionStatus() === 'active') {
+                <button 
+                  (click)="updateAuctionStatus('completed')"
+                  [disabled]="loading()"
+                  class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                  <mat-icon class="mr-2">check_circle</mat-icon>
+                  Complete Auction
+                </button>
+              } @else if (auctionStatus() === 'completed') {
+                 <div class="px-6 py-3 bg-purple-100 text-purple-800 rounded-lg flex items-center font-semibold shadow-inner">
+                   <mat-icon class="mr-2">verified</mat-icon>
+                   Auction Completed
+                 </div>
               }
             </div>
           </div>

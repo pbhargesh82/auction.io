@@ -174,14 +174,44 @@
        QUICK ACTIONS
   ═══════════════════════════════════════════════════════════════════════════ -->
   <div class="quick-actions">
-    <button class="qa-btn qa-btn--primary" (click)="goToControl()"
-            [disabled]="!canStart()" id="qa-go-control">
+    @if (auctionStatus() === 'draft') {
+    <button class="qa-btn qa-btn--primary" (click)="updateAuctionStatus('active')"
+            [disabled]="!canStart() || isTransitioning()" id="qa-start-auction"
+            [title]="!canStart() ? 'You need both teams and players to start' : ''">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="5 3 19 12 5 21 5 3"/>
       </svg>
-      {{ auctionStatus() === 'active' ? 'Continue Auction' : auctionStatus() === 'paused' ? 'Resume Auction' : 'Start Auction' }}
+      {{ isTransitioning() ? 'Starting...' : 'Start Auction' }}
     </button>
+    } @else if (auctionStatus() === 'active' || auctionStatus() === 'paused') {
+    <button class="qa-btn qa-btn--primary" (click)="goToControl()" id="qa-go-control">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      Manage Live Auction
+    </button>
+    <button class="qa-btn qa-btn--success" (click)="updateAuctionStatus('completed')" 
+            [disabled]="isTransitioning()" id="qa-complete-auction">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      Complete Auction
+    </button>
+    } @else if (auctionStatus() === 'completed') {
+    <button class="qa-btn" disabled id="qa-auction-completed">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Auction Completed
+    </button>
+    }
 
     <button class="qa-btn" (click)="goToPlayers()" id="qa-go-players">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"

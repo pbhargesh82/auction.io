@@ -281,6 +281,15 @@
 .qa-btn--primary:hover { background: #4f46e5; border-color: #4f46e5; box-shadow: 0 4px 12px rgba(99,102,241,.4); }
 .qa-btn--primary:disabled { background: var(--brand); opacity: .45; }
 
+.qa-btn--success {
+  background: #10b981;
+  color: #fff;
+  border-color: #10b981;
+  box-shadow: 0 1px 3px rgba(16,185,129,.3);
+}
+.qa-btn--success:hover { background: #059669; border-color: #059669; box-shadow: 0 4px 12px rgba(16,185,129,.4); }
+.qa-btn--success:disabled { background: #10b981; opacity: .45; }
+
 /* ══════════════════════════════════════════════════════════════════════════
    MAIN CONTENT GRID
 ══════════════════════════════════════════════════════════════════════════ */

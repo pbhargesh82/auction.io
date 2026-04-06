@@ -449,14 +449,14 @@ A route resolver that:
 ### Phase 7: UI Polish & Design System (LOW PRIORITY)
 > Visual improvements across the redesigned app
 
-- [ ] **7.1** Implement consistent breadcrumb navigation
-  - [ ] Show: My Auctions > IPL 2026 > Teams
-  - [ ] Clickable breadcrumb links
+- [x] **7.1** Implement consistent breadcrumb navigation
+  - [x] Show: My Auctions > IPL 2026 > Teams
+  - [x] Clickable breadcrumb links
 
-- [ ] **7.2** Add auction status transitions in UI
-  - [ ] Draft → Active: "Start Auction" in overview + auction control
-  - [ ] Active → Completed: "Complete Auction" button
-  - [ ] Visual status indicators (color-coded headers)
+- [x] **7.2** Add auction status transitions in UI
+  - [x] Draft → Active: "Start Auction" in overview + auction control
+  - [x] Active → Completed: "Complete Auction" button
+  - [x] Visual status indicators (color-coded headers)
 
 - [ ] **7.3** Improve empty states
   - [ ] No auctions → "Create your first auction" with illustration

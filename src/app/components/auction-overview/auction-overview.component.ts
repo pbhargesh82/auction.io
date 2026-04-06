@@ -42,6 +42,7 @@ export class AuctionOverviewComponent implements OnInit, OnDestroy {
   private readonly state: AuctionStateService;
 
   private subs = new Subscription();
+  isTransitioning = signal(false);
 
   // ── Computed stats ────────────────────────────────────────────────────────
   teamsWithPlayers = computed(() => this.state.teamsWithPlayers());
@@ -179,6 +180,27 @@ export class AuctionOverviewComponent implements OnInit, OnDestroy {
   goToTeams()    { this.router.navigate(['/auction', this.auctionId(), 'teams']); }
   goToHistory()  { this.router.navigate(['/auction', this.auctionId(), 'history']); }
   goToSettings() { this.router.navigate(['/auction', this.auctionId(), 'settings']); }
+
+  async updateAuctionStatus(status: 'active' | 'completed') {
+    if (!this.auctionId()) return;
+    this.isTransitioning.set(true);
+    try {
+      const { error } = await this.supabase.db
+        .from('auctions')
+        .update({ status })
+        .eq('id', this.auctionId());
+      if (!error) {
+        // optimistically update local state
+        this.auction.update(a => a ? { ...a, status } : a);
+        // if started, navigate to control automatically
+        if (status === 'active') {
+          this.goToControl();
+        }
+      }
+    } finally {
+      this.isTransitioning.set(false);
+    }
+  }
 
   async copyShareLink() {
     const slug = this.auction()?.public_slug;

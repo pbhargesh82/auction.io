@@ -20,6 +20,7 @@ import { AuctionService, AuctionConfig } from '../../services/auction.service';
 import { PlayersService, Player } from '../../services/players.service';
 import { TeamsService, Team } from '../../services/teams.service';
 import { AuctionStateService } from '../../services/auction-state.service';
+import { SupabaseService } from '../../services/supabase.service';
 
 @Component({
   selector: 'app-auction-control',
@@ -62,6 +63,8 @@ export class AuctionControlComponent implements OnInit {
   @ViewChild('sellDialogTemplate', { static: true }) sellDialogTemplate!: TemplateRef<any>;
 
   // Computed values
+  auctionStatus = computed(() => this.auctionStateService.auctionConfig()?.status ?? 'draft');
+
   totalPlayers = computed(() => {
     // Count all active players that can be auctioned
     return this.auctionStateService.players().filter(p => p.is_active).length;
@@ -98,6 +101,7 @@ export class AuctionControlComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private route: ActivatedRoute,
+    private supabase: SupabaseService
   ) {
     this.sellForm = this.fb.group({
       team_id: ['', [Validators.required]],
@@ -160,7 +164,7 @@ export class AuctionControlComponent implements OnInit {
 
   async loadTeams() {
     this.loading.set(true);
-    const { data, error } = await this.teamsService.getTeams();
+    const { data, error } = await this.teamsService.getTeams(this.auctionId());
     
     if (error) {
       this.error.set(error.message);
@@ -183,6 +187,29 @@ export class AuctionControlComponent implements OnInit {
   }
 
 
+
+  async updateAuctionStatus(status: 'active' | 'completed') {
+    if (!this.auctionId()) return;
+    this.loading.set(true);
+    try {
+      const { error } = await this.supabase.db
+        .from('auctions')
+        .update({ status })
+        .eq('id', this.auctionId());
+      if (!error) {
+        // Refresh full state
+        await this.auctionStateService.loadAllData(this.auctionId());
+        this.snackBar.open(`Auction marked as ${status}`, 'Close', { duration: 3000 });
+      } else {
+        throw error;
+      }
+    } catch (e: any) {
+      this.error.set(e.message);
+      this.snackBar.open(`Error updating status: ${e.message}`, 'Close', { duration: 5000 });
+    } finally {
+      this.loading.set(false);
+    }
+  }
 
   // startAuction method removed - auction status management not needed
 
