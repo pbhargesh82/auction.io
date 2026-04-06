@@ -458,11 +458,11 @@ A route resolver that:
   - [x] Active → Completed: "Complete Auction" button
   - [x] Visual status indicators (color-coded headers)
 
-- [ ] **7.3** Improve empty states
-  - [ ] No auctions → "Create your first auction" with illustration
-  - [ ] No teams in auction → "Add teams to get started"
-  - [ ] No players in auction → "Add players from your pool"
-  - [ ] No history → "Auction hasn't started yet"
+- [x] **7.3** Improve empty states
+  - [x] No auctions → "Create your first auction" with illustration
+  - [x] No teams in auction → "Add teams to get started"
+  - [x] No players in auction → "Add players from your pool"
+  - [x] No history → "Auction hasn't started yet"
 
 - [ ] **7.4** Mobile-first responsive polish
   - [ ] Bottom navigation bar on mobile for auction workspace
