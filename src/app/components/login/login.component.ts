@@ -24,6 +24,8 @@ export class LoginComponent implements OnInit {
   formTouched = signal(false);
   isSignUp = signal(false);
   formValiditySignal = signal(false);
+  
+  currentYear = new Date().getFullYear();
 
   // Reactive form with validation - only require confirmPassword in signup mode
   loginForm = this.fb.group({
