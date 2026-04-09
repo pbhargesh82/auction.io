@@ -155,16 +155,15 @@
       <div class="stat-card__body">
         <p class="stat-card__value">{{ progressPct() }}<span class="stat-card__unit">%</span></p>
         <p class="stat-card__label">Auction Progress</p>
-
-        <!-- Ring progress indicator -->
-        <svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
-          <circle class="ring__track" cx="18" cy="18" r="15.9" fill="none" stroke-width="3"/>
-          <circle class="ring__fill" cx="18" cy="18" r="15.9" fill="none" stroke-width="3"
-                  stroke-dasharray="100"
-                  [attr.stroke-dashoffset]="100 - progressPct()"
-                  transform="rotate(-90 18 18)"/>
-        </svg>
       </div>
+      <!-- Ring progress indicator -->
+      <svg class="progress-ring" viewBox="0 0 36 36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <circle class="progress-ring__track" cx="18" cy="18" r="15.9" fill="none" stroke-width="3"/>
+        <circle class="progress-ring__fill" cx="18" cy="18" r="15.9" fill="none" stroke-width="3"
+                stroke-dasharray="100"
+                [attr.stroke-dashoffset]="100 - progressPct()"
+                transform="rotate(-90 18 18)"/>
+      </svg>
     </div>
 
   </div>

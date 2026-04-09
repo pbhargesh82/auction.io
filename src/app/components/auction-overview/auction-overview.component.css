@@ -169,10 +169,10 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 18px 20px;
+  padding: 20px 22px;
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  align-items: center; /* Center vertically across all cards */
+  gap: 16px;
   cursor: default;
   transition: box-shadow var(--t), transform var(--t);
   position: relative;
@@ -208,12 +208,11 @@
 }
 .stat-card__sub  { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
 .stat-card__unit { font-size: 1.1rem; color: var(--text-muted); font-weight: 500; }
-.stat-card__label { font-size: 0.8125rem; color: var(--text-muted); margin: 2px 0 6px; }
+.stat-card__label { font-size: 0.8125rem; color: var(--text-muted); margin: 2px 0 0; }
 .stat-card__pct   { font-size: 0.75rem;  color: var(--text-muted); margin: 4px 0 0; }
 .stat-card__arrow {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: var(--text-muted);
-  align-self: center;
   flex-shrink: 0;
 }
 
@@ -236,17 +235,16 @@
 .mini-bar__fill--indigo { background: var(--brand); }
 
 /* Ring svg (progress %) */
-.ring {
-  width: 36px;
-  height: 36px;
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
+.progress-ring {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   opacity: .85;
+  margin-left: auto; /* Push to the far right */
 }
-.ring__track { stroke: var(--border); }
+.progress-ring__track { stroke: var(--border); }
 
-.ring__fill  {
+.progress-ring__fill  {
   stroke: var(--brand);
   stroke-linecap: round;
   transition: stroke-dashoffset .6s ease;

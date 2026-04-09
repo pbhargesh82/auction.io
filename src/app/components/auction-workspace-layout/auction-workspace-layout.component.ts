@@ -15,8 +15,7 @@ import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { Auction } from '../../services/auctions.service';
 import { MatIconModule } from '@angular/material/icon';
-
-
+import { SidebarFooterComponent } from '../shared/sidebar-footer/sidebar-footer.component';
 
 interface WorkspaceNavItem {
   label: string;
@@ -27,7 +26,7 @@ interface WorkspaceNavItem {
 @Component({
   selector: 'app-auction-workspace-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, SidebarFooterComponent],
 
   templateUrl: './auction-workspace-layout.component.html',
   styleUrls: ['./auction-workspace-layout.component.css'],
@@ -82,13 +81,13 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
 
   // ── Workspace Nav ────────────────────────────────────────────────────────────
   readonly navItems: WorkspaceNavItem[] = [
-    { label: 'Overview',         icon: 'bar_chart',        segment: 'overview' },
-    { label: 'Teams',            icon: 'emoji_events',     segment: 'teams' },
-    { label: 'Auction Players',  icon: 'sports_cricket',   segment: 'players' },
-    { label: 'Auction Control',  icon: 'gavel',            segment: 'control' },
-    { label: 'Team Rosters',     icon: 'groups',           segment: 'rosters' },
-    { label: 'History',          icon: 'history',          segment: 'history' },
-    { label: 'Settings',         icon: 'settings',         segment: 'settings' },
+    { label: 'Dashboard',        icon: 'bar_chart',        segment: 'overview' },
+    { label: 'Manage Teams',     icon: 'emoji_events',     segment: 'teams' },
+    { label: 'Player Pool',      icon: 'sports_cricket',   segment: 'players' },
+    { label: 'Auction Desk',     icon: 'gavel',            segment: 'control' },
+    { label: 'Current Squads',   icon: 'groups',           segment: 'rosters' },
+    { label: 'Bid History',      icon: 'history',          segment: 'history' },
+    { label: 'Auction Settings', icon: 'settings',         segment: 'settings' },
   ];
 
   private subs = new Subscription();

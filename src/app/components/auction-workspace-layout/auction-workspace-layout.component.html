@@ -214,43 +214,5 @@
 
 
   <!-- ── USER + SIGN OUT ────────────────────────────────────────────────── -->
-  <div class="sidebar__footer">
-    @if (!sidebarCollapsed() || mobile) {
-    <div class="user-card">
-      <div class="user-card__avatar">{{ userDisplayName().charAt(0).toUpperCase() }}</div>
-      <div class="user-card__info">
-        <p class="user-card__name">{{ userDisplayName() }}</p>
-        <p class="user-card__role" [class.user-card__role--admin]="isAdmin()">
-          {{ isAdmin() ? 'Super Admin' : 'User' }}
-        </p>
-      </div>
-    </div>
-
-    <button class="signout-btn" (click)="onSignOut()">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Sign Out
-    </button>
-
-    <div class="version-label">{{ appVersion() }}</div>
-    } @else {
-    <!-- Collapsed: avatar + icon sign-out -->
-    <div class="collapsed-footer">
-      <div class="user-card__avatar">{{ userDisplayName().charAt(0).toUpperCase() }}</div>
-      <button class="icon-btn signout-icon-btn" (click)="onSignOut()" title="Sign Out">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
-      <p class="version-label version-label--sm" [title]="appVersion()">{{ appVersionShort() }}</p>
-    </div>
-    }
-  </div>
+  <app-sidebar-footer [collapsed]="mobile ? false : sidebarCollapsed()"></app-sidebar-footer>
 </ng-template>
