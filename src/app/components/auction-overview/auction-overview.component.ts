@@ -151,7 +151,7 @@ export class AuctionOverviewComponent implements OnInit, OnDestroy {
       const { data, error } = await this.supabase.db
         .from('auction_history')
         .select(`
-          id, player_id, winning_team_id, sold_price, sold_at,
+          id, player_id, winning_team_id, final_price, sold_at,
           player:players(name, position, image_url),
           team:teams!auction_history_winning_team_id_fkey(name, primary_color)
         `)
@@ -163,6 +163,7 @@ export class AuctionOverviewComponent implements OnInit, OnDestroy {
         // Supabase returns relation as array or object depending on cardinality
         const entries: HistoryEntry[] = (data as any[]).map(row => ({
           ...row,
+          sold_price: row.final_price ?? 0,
           player: Array.isArray(row.player) ? row.player[0] ?? null : row.player,
           team:   Array.isArray(row.team)   ? row.team[0]   ?? null : row.team,
         }));

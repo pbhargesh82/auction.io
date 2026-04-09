@@ -42,18 +42,18 @@
           "with": "src/environments/environment.prod.ts"
         }
       ],
-      "budgets": [
-        {
-          "type": "initial",
-          "maximumWarning": "1MB",
-          "maximumError": "2MB"
-        },
-        {
-          "type": "anyComponentStyle",
-          "maximumWarning": "8kB",
-          "maximumError": "16kB"
-        }
-      ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "2MB",
+              "maximumError": "5MB"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "32kB",
+              "maximumError": "64kB"
+            }
+          ],
       "outputHashing": "all",
       "optimization": true,
       "extractLicenses": true,

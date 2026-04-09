@@ -139,7 +139,7 @@ export class AuctionPlayersComponent implements OnInit {
       const { data, error } = await this.supabase.db
         .from('auction_players')
         .select(`
-          id, auction_id, player_id, base_price, auction_status,
+          id, auction_id, player_id, base_price, status,
           player:players(*)
         `)
         .eq('auction_id', this.auctionId())
@@ -150,7 +150,7 @@ export class AuctionPlayersComponent implements OnInit {
       // Build enriched list — retrieve sold info from auction_history
       const raw = (data ?? []) as any[];
       const soldPlayerIds = raw
-        .filter(r => r.auction_status === 'SOLD')
+        .filter(r => (r.status || '').toUpperCase() === 'SOLD')
         .map(r => r.player_id);
 
       let historyMap: Record<string, { team: string; price: number }> = {};
@@ -172,7 +172,7 @@ export class AuctionPlayersComponent implements OnInit {
         auction_id:     r.auction_id,
         player_id:      r.player_id,
         base_price:     r.base_price,
-        auction_status: r.auction_status as AuctionStatus,
+        auction_status: ((r.status || 'pending') as string).toUpperCase() as AuctionStatus,
         player:         Array.isArray(r.player) ? r.player[0] : r.player,
         sold_team_name: historyMap[r.player_id]?.team,
         sold_price:     historyMap[r.player_id]?.price,
@@ -235,7 +235,7 @@ export class AuctionPlayersComponent implements OnInit {
           auction_id:     this.auctionId(),
           player_id:      playerId,
           base_price:     player.base_price,
-          auction_status: 'PENDING',
+          status:         'pending',
         };
       });
 
@@ -345,7 +345,7 @@ export class AuctionPlayersComponent implements OnInit {
       if (!resetIds.length) { this.showToast('Nothing to reset.'); return; }
       const { error } = await this.supabase.db
         .from('auction_players')
-        .update({ auction_status: 'PENDING' })
+        .update({ status: 'pending' })
         .in('id', resetIds);
       if (error) { this.showToast(error.message, 'err'); }
       else {

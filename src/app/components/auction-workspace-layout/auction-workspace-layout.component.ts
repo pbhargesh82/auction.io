@@ -14,6 +14,9 @@ import { filter } from 'rxjs/operators';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { Auction } from '../../services/auctions.service';
+import { MatIconModule } from '@angular/material/icon';
+
+
 
 interface WorkspaceNavItem {
   label: string;
@@ -24,7 +27,8 @@ interface WorkspaceNavItem {
 @Component({
   selector: 'app-auction-workspace-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
+
   templateUrl: './auction-workspace-layout.component.html',
   styleUrls: ['./auction-workspace-layout.component.css'],
 })
@@ -95,6 +99,7 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router
   ) {}
+
 
   ngOnInit(): void {
     // Track user & role

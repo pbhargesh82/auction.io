@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuctionsService } from '../../services/auctions.service';
+import { AuctionStateService } from '../../services/auction-state.service';
 import { Auction } from '../../services/auctions.service';
 
 // Angular Material
@@ -54,9 +55,11 @@ export class AuctionsComponent implements OnInit {
     // Computed
     auctions = computed(() => this.auctionsSvc.auctions());
     loading = computed(() => this.auctionsSvc.loading());
+    currentAuctionId = computed(() => this.auctionStateSvc.auctionConfig()?.id);
 
     constructor(
         private auctionsSvc: AuctionsService,
+        private auctionStateSvc: AuctionStateService,
         private fb: FormBuilder,
         private snackBar: MatSnackBar,
         private router: Router,

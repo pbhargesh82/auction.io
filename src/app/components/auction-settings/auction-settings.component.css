@@ -21,17 +21,6 @@
   --shadow:       0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
   --t:            .18s ease;
 }
-
-:host-context(.dark) {
-  --bg:           #020617; /* slate-950 */
-  --surface:      #0f172a; /* slate-900 */
-  --border:       #1e293b; /* slate-800 */
-  --border-focus: #4f46e5;
-  --text-h:       #f8fafc; /* slate-50 */
-  --text-body:    #cbd5e1; /* slate-300 */
-  --text-muted:   #64748b; /* slate-500 */
-  --shadow:       0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
-}
 /* ── Page shell ─────────────────────────────────────────────────────────── */
 .settings-page {
   padding: 28px 28px 64px;
