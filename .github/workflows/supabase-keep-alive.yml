@@ -1,6 +1,6 @@
 # Supabase Keep-Alive Workflow
-# This prevents your Supabase project from pausing due to inactivity
-# Also includes a heartbeat to prevent GitHub from disabling this schedule
+# Hits the Supabase REST API on a schedule so the project is not paused for inactivity.
+# No third-party actions — only curl + repo secrets (works under strict org action policies).
 
 name: Supabase Keep Alive
 
@@ -8,24 +8,18 @@ on:
   schedule:
     # Run at midnight UTC every day
     - cron: '0 0 * * *'
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch:
 
-permissions:
-  contents: write # Required for the keep-alive heartbeat
+permissions: {}
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
       - name: Ping Supabase RPC
         id: ping_rpc
         continue-on-error: true
         run: |
-          # Simple health check query to keep the database active
-          # Using the specialized RPC function if it exists
           curl -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/health_check" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
@@ -33,21 +27,14 @@ jobs:
             -d '{}' \
             --fail --silent --show-error
 
-      - name: Fallback Ping (Rest Root)
+      - name: Fallback ping (REST root)
         if: steps.ping_rpc.outcome == 'failure'
         run: |
-          # Fallback to hitting the REST root if the RPC fails
-          # This still counts as activity for Supabase
-          echo "⚠️ RPC health_check failed, trying REST root..."
+          echo "RPC health_check failed, using REST root fallback..."
           curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
             --fail --silent --show-error
 
       - name: Log success
-        run: echo "✅ Supabase pinged successfully at $(date)"
-
-      - name: Keep GitHub Actions Active
-        uses: gautamkrishnar/keepalive-workflow@v2
-        with:
-          use_api: true
+        run: echo "Supabase pinged successfully at $(date -u)"
