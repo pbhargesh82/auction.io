@@ -148,9 +148,10 @@ export class AuctionStateService {
   });
 
   constructor(private supabase: SupabaseService) {
-    // Set up real-time subscriptions
-    this.setupRealtimeSubscriptions();
+    // Subscriptions are now managed via loadAllData or manual calls
   }
+
+  private activeChannels: any[] = [];
 
   // Load all auction data for a specific auction or the current context
   async loadAllData(auctionId?: string) {
@@ -248,12 +249,25 @@ export class AuctionStateService {
       if (error) throw error;
       
       // Map to Player-like objects for compatibility
-      const mappedPlayers = (data || []).map(ap => ({
-        ...ap.player,
-        auction_status: ap.status.toUpperCase(), // Map 'available' to 'PENDING', etc. if needed
-        base_price: ap.base_price,
-        is_sold: ap.status === 'sold'
-      }));
+      const mappedPlayers = (data || []).map(ap => {
+        let mappedStatus = ap.status.toUpperCase();
+        if (ap.status === 'available') mappedStatus = 'PENDING';
+
+        // Defensively grab the player object (handles array wrap or alternate alias)
+        const rawPlayer = ap.player || ap.players;
+        const playerObj = Array.isArray(rawPlayer) ? rawPlayer[0] : rawPlayer;
+
+        return {
+          ...(playerObj || {}),
+          // We must override id explicitly if we are missing it or to ensure we have the correct id.
+          // Actually, we want the player.id to remain the id, not auction_players.id
+          id: playerObj?.id, 
+          auction_player_id: ap.id,
+          auction_status: mappedStatus,
+          base_price: ap.base_price,
+          is_sold: ap.status === 'sold'
+        };
+      });
       
       return { data: mappedPlayers, error: null };
     }
@@ -309,41 +323,89 @@ export class AuctionStateService {
 
   async loadCurrentPlayer() {
     const players = this._players();
+    const config = this._auctionConfig();
+    
+    // 1. Primary Source of Truth: The current_player_id in the auction config
+    if (config?.current_player_id) {
+      const currentPlayer = players.find(p => p.id === config.current_player_id);
+      if (currentPlayer) {
+        this._currentPlayer.set(currentPlayer);
+        return;
+      }
+    }
+
+    // 2. Fallback: Search for any player with CURRENT status
     const currentPlayer = players.find(p => p.auction_status === 'CURRENT');
     this._currentPlayer.set(currentPlayer || null);
   }
 
   // Update methods
   async updatePlayerAuctionStatus(playerId: string, status: 'PENDING' | 'CURRENT' | 'SOLD' | 'UNSOLD' | 'SKIPPED' | 'INACTIVE') {
-    const { data, error } = await this.supabase.db
-      .from('players')
-      .update({
-        auction_status: status,
-        // Also update is_sold for consistency with database trigger
-        is_sold: status === 'SOLD'
-      })
-      .eq('id', playerId)
-      .select()
-      .single();
+    const auctionConfig = this._auctionConfig();
+    const auctionId = auctionConfig?.id;
+    let resultData: any = null;
 
-    if (error) throw error;
+    if (auctionId) {
+      let mappedStatus = status.toLowerCase();
+      if (status === 'PENDING') mappedStatus = 'available';
 
-    // Update local state
-    this._players.update(players =>
-      players.map(p => p.id === playerId ? { ...p, auction_status: status, is_sold: status === 'SOLD' } : p)
-    );
+      // 1. If we are setting a new player to CURRENT, we must ensure exclusive status
+      if (status === 'CURRENT') {
+        // Clear status from any other player in this auction who might be 'current'
+        await this.supabase.db
+          .from('auction_players')
+          .update({ status: 'available' })
+          .eq('auction_id', auctionId)
+          .eq('status', 'current')
+          .not('player_id', 'eq', playerId);
+        
+        // Update the auction record itself to set the current_player_id
+        await this.supabase.db
+          .from('auctions')
+          .update({ current_player_id: playerId })
+          .eq('id', auctionId);
+      } 
+      
+      // 2. If the current player is being SOLD or marked UNSOLD/SKIPPED, clear the auction's current_player_id
+      if (status === 'SOLD' || status === 'UNSOLD' || status === 'SKIPPED') {
+        if (auctionConfig.current_player_id === playerId) {
+          await this.supabase.db
+            .from('auctions')
+            .update({ current_player_id: null })
+            .eq('id', auctionId);
+        }
+      }
 
-    // Update current player immediately based on the updated status
-    if (status === 'CURRENT') {
-      const updatedPlayer = this._players().find(p => p.id === playerId);
-      this._currentPlayer.set(updatedPlayer || null);
-    } else if (status === 'SOLD' || status === 'UNSOLD' || status === 'SKIPPED') {
-      // If current player was sold/unsold/skipped, find the next current player
-      const nextCurrentPlayer = this._players().find(p => p.auction_status === 'CURRENT');
-      this._currentPlayer.set(nextCurrentPlayer || null);
+      // 3. Update the specific player status
+      const { data, error } = await this.supabase.db
+        .from('auction_players')
+        .update({ status: mappedStatus })
+        .eq('auction_id', auctionId)
+        .eq('player_id', playerId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      resultData = data;
+    } else {
+      const { data, error } = await this.supabase.db
+        .from('players')
+        .update({
+          auction_status: status,
+          is_sold: status === 'SOLD'
+        })
+        .eq('id', playerId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      resultData = data;
     }
 
-    return { data, error: null };
+    // Update local state and current player
+    await this.loadAllData(auctionId);
+
+    return { data: resultData, error: null };
   }
 
   async addBidToHistory(historyData: any) {
@@ -393,13 +455,44 @@ export class AuctionStateService {
 
   // Player management methods
   async addPlayersToAuction(playerIds: string[]) {
-    const { data, error } = await this.supabase.db
-      .from('players')
-      .update({ auction_status: 'PENDING' })
-      .in('id', playerIds)
-      .select();
+    const auctionConfig = this._auctionConfig();
+    const auctionId = auctionConfig?.id;
+    let resultData: any = null;
+    
+    if (auctionId) {
+      // First get players to add their base price
+      const { data: playersToAdd, error: playersError } = await this.supabase.db
+        .from('players')
+        .select('id, base_price')
+        .in('id', playerIds);
+        
+      if (playersError) throw playersError;
+        
+      const auctionPlayersInsert = playersToAdd.map((p, idx) => ({
+        auction_id: auctionId,
+        player_id: p.id,
+        status: 'available',
+        base_price: p.base_price,
+        auction_order: idx + 1
+      }));
+      
+      const { data, error } = await this.supabase.db
+        .from('auction_players')
+        .upsert(auctionPlayersInsert, { onConflict: 'auction_id, player_id' })
+        .select();
 
-    if (error) throw error;
+      if (error) throw error;
+      resultData = data;
+    } else {
+      const { data, error } = await this.supabase.db
+        .from('players')
+        .update({ auction_status: 'PENDING' })
+        .in('id', playerIds)
+        .select();
+
+      if (error) throw error;
+      resultData = data;
+    }
 
     // Update local state
     this._players.update(players =>
@@ -408,17 +501,34 @@ export class AuctionStateService {
       )
     );
 
-    return { data, error: null };
+    return { data: resultData, error: null };
   }
 
   async removePlayersFromAuction(playerIds: string[]) {
-    const { data, error } = await this.supabase.db
-      .from('players')
-      .update({ auction_status: 'INACTIVE' })
-      .in('id', playerIds)
-      .select();
+    const auctionConfig = this._auctionConfig();
+    const auctionId = auctionConfig?.id;
+    let resultData: any = null;
+    
+    if (auctionId) {
+      const { data, error } = await this.supabase.db
+        .from('auction_players')
+        .delete()
+        .eq('auction_id', auctionId)
+        .in('player_id', playerIds)
+        .select();
 
-    if (error) throw error;
+      if (error) throw error;
+      resultData = data;
+    } else {
+      const { data, error } = await this.supabase.db
+        .from('players')
+        .update({ auction_status: 'INACTIVE' })
+        .in('id', playerIds)
+        .select();
+
+      if (error) throw error;
+      resultData = data;
+    }
 
     // Update local state
     this._players.update(players =>
@@ -427,7 +537,7 @@ export class AuctionStateService {
       )
     );
 
-    return { data, error: null };
+    return { data: resultData, error: null };
   }
 
   async getNextPlayer() {
@@ -456,21 +566,44 @@ export class AuctionStateService {
         throw new Error('No auction config found');
       }
 
-      // 1. Reset auction config
+      // 1. Reset auction status
       const { error: configError } = await this.supabase.db
-        .from('auction_config')
+        .from('auctions')
         .update({
-          status: 'DRAFT',
+          status: 'draft',
           current_player_id: null,
-          current_player_position: 0,
-          started_at: null,
-          completed_at: null
+          current_player_position: 0
         })
         .eq('id', config.id);
 
-      if (configError) throw configError;
+      // Fallback for legacy auction_config
+      if (configError && configError.code === '42P01') {
+        const { error: legacyConfigError } = await this.supabase.db
+          .from('auction_config')
+          .update({
+            status: 'DRAFT',
+            current_player_id: null,
+            current_player_position: 0
+          })
+          .eq('id', config.id);
+        if (legacyConfigError) throw legacyConfigError;
+      } else if (configError) {
+        throw configError;
+      }
 
-      // 2. Reset all players to PENDING status
+      // 2. Reset auction_players status to 'available'
+      const { error: apError } = await this.supabase.db
+        .from('auction_players')
+        .update({
+          status: 'available',
+          sold_price: null,
+          assigned_team_id: null
+        })
+        .eq('auction_id', config.id);
+        
+      if (apError && apError.code !== '42P01') throw apError;
+
+      // Reset legacy players to PENDING status
       const { error: playersError } = await this.supabase.db
         .from('players')
         .update({
@@ -519,55 +652,57 @@ export class AuctionStateService {
     }
   }
 
-  // Real-time subscriptions
-  private setupRealtimeSubscriptions() {
-    // Auction config changes
-    this.supabase.db
-      .channel('auction-config-changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'auction_config' },
-        () => this.loadAuctionConfig().then(result => this._auctionConfig.set(result.data))
-      )
-      .subscribe();
+  // Real-time subscriptions optimized for multi-tenant (Consolidated into single channel)
+  setupRealtimeSubscriptions(auctionId?: string) {
+    this.stopRealtimeSubscriptions();
 
-    // Players changes
-    this.supabase.db
-      .channel('players-changes')
+    const channel = this.supabase.db
+      .channel(`auction-scope-${auctionId || 'global'}`)
+      // 1. Auction Row updates
       .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'players' },
-        () => this.loadPlayers().then(result => {
+        { event: '*', schema: 'public', table: 'auctions', filter: auctionId ? `id=eq.${auctionId}` : undefined },
+        () => {
+          this.loadAuctionConfig(auctionId).then(result => {
+            this._auctionConfig.set(result.data);
+            // Trigger a full refresh specifically on auction config changes
+            this.loadAllData(auctionId);
+          });
+        }
+      )
+      // 2. Player Status updates (Junction table)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'auction_players', filter: auctionId ? `auction_id=eq.${auctionId}` : undefined },
+        () => this.loadPlayers(auctionId).then(result => {
           this._players.set(result.data || []);
           this.loadCurrentPlayer();
         })
       )
-      .subscribe();
-
-    // Auction history changes
-    this.supabase.db
-      .channel('auction-history-changes')
+      // 3. History updates (Recent transactions)
       .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'auction_history' },
-        () => this.loadAuctionHistory().then(result => this._auctionHistory.set(result.data || []))
+        { event: '*', schema: 'public', table: 'auction_history', filter: auctionId ? `auction_id=eq.${auctionId}` : undefined },
+        () => this.loadAuctionHistory(auctionId).then(result => this._auctionHistory.set(result.data || []))
+      )
+      // 4. Team Player assignments (Standings)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'team_players', filter: auctionId ? `auction_id=eq.${auctionId}` : undefined },
+        () => {
+          this.loadTeamPlayers(auctionId).then(result => this._teamPlayers.set(result.data || []));
+          this.loadTeams(auctionId).then(result => this._teams.set(result.data || []));
+        }
+      )
+      // 5. Team base data updates
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'teams', filter: auctionId ? `auction_id=eq.${auctionId}` : undefined },
+        () => this.loadTeams(auctionId).then(result => this._teams.set(result.data || []))
       )
       .subscribe();
 
-    // Team players changes
-    this.supabase.db
-      .channel('team-players-changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'team_players' },
-        () => this.loadTeamPlayers().then(result => this._teamPlayers.set(result.data || []))
-      )
-      .subscribe();
+    this.activeChannels.push(channel);
+  }
 
-    // Teams changes
-    this.supabase.db
-      .channel('teams-changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'teams' },
-        () => this.loadTeams().then(result => this._teams.set(result.data || []))
-      )
-      .subscribe();
+  stopRealtimeSubscriptions() {
+    this.activeChannels.forEach(channel => this.supabase.db.removeChannel(channel));
+    this.activeChannels = [];
   }
 
   // Clear error

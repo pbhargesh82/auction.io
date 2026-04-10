@@ -198,6 +198,17 @@ CREATE POLICY "Super admin full access to players" ON players
         )
     );
 
+-- Public can view players if they are in a public auction
+CREATE POLICY "Public can view players in public auctions" ON players
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM auction_players
+            JOIN auctions ON auctions.id = auction_players.auction_id
+            WHERE auction_players.player_id = players.id 
+            AND auctions.is_public = true
+        )
+    );
+
 -- TEAMS policies (auction owner-based)
 CREATE POLICY "Users can manage teams in own auctions" ON teams
     FOR ALL USING (owner_id = auth.uid());
@@ -264,6 +275,15 @@ CREATE POLICY "Super admin full access to team_players" ON team_players
         )
     );
 
+-- Public can view team_players in public auctions
+CREATE POLICY "Public can view team_players in public auctions" ON team_players
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM auctions 
+            WHERE auctions.id = team_players.auction_id AND auctions.is_public = true
+        )
+    );
+
 -- AUCTION_HISTORY policies
 CREATE POLICY "Users can view own auction history" ON auction_history
     FOR ALL USING (owner_id = auth.uid());
@@ -273,6 +293,15 @@ CREATE POLICY "Super admin full access to auction_history" ON auction_history
         EXISTS (
             SELECT 1 FROM user_roles 
             WHERE user_id = auth.uid() AND role = 'super_admin'
+        )
+    );
+
+-- Public can view auction_history in public auctions
+CREATE POLICY "Public can view auction_history in public auctions" ON auction_history
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM auctions 
+            WHERE auctions.id = auction_history.auction_id AND auctions.is_public = true
         )
     );
 

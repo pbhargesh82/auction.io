@@ -46,12 +46,13 @@ select option {
 
 /* Modal overlay */
 .fixed.inset-0 {
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(2px);
 }
 
 /* Form modal styling */
-.bg-white.rounded-lg {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+.bg-white.rounded-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* Statistics cards */
@@ -113,15 +114,28 @@ select option {
 }
 
 /* Form field improvements */
-.mat-mdc-form-field {
-  margin-bottom: 8px;
+input, select, textarea {
+  border-color: #e2e8f0 !important; /* slate-200 */
 }
 
-/* Button spacing */
-.space-x-1 > :not([hidden]) ~ :not([hidden]) {
-  margin-left: 0.25rem;
+input:focus, select:focus, textarea:focus {
+  border-color: #3b82f6 !important; /* blue-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
-.space-x-3 > :not([hidden]) ~ :not([hidden]) {
-  margin-left: 0.75rem;
+label {
+  color: #475569 !important; /* slate-600 */
+  font-weight: 600 !important;
+}
+
+.bg-gray-50 {
+  background-color: #f8fafc !important; /* slate-50 */
+}
+
+.text-gray-500 {
+  color: #64748b !important; /* slate-500 */
+}
+
+.text-gray-700 {
+  color: #334155 !important; /* slate-700 */
 } 

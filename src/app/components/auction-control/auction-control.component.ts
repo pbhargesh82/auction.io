@@ -133,6 +133,7 @@ export class AuctionControlComponent implements OnInit {
 
   async ngOnInit() {
     await this.auctionStateService.loadAllData(this.auctionId());
+    this.auctionStateService.setupRealtimeSubscriptions(this.auctionId());
 
     // Update local signals
     this.auctionConfig.set(this.auctionStateService.auctionConfig());

@@ -267,13 +267,13 @@ export class PlayersComponent implements OnInit {
     this.photoPreview.set(player.image_url || null);
     this.playerForm.patchValue({
       name: player.name,
-      category: player.category || 'Batsman',
-      specialization: player.subcategory || player.position || '',
+      category: player.position || 'Batsman',
+      specialization: player.category || '',
       base_price: player.base_price,
       image_url: player.image_url || '',
       age: player.age,
       experience_years: player.experience_years,
-      bio: (player as any).bio || ''
+      bio: player.bio || ''
     });
     this.formValid.set(this.playerForm.valid);
     this.showForm.set(true);
@@ -352,10 +352,22 @@ export class PlayersComponent implements OnInit {
     const formData = this.playerForm.value;
     const editingPlayer = this.editingPlayer();
 
+    // Map form data back to database columns
+    const dbData: any = {
+      name: formData.name,
+      position: formData.category, // Form category -> DB position
+      category: formData.specialization, // Form specialization -> DB category
+      base_price: formData.base_price,
+      image_url: formData.image_url,
+      age: formData.age,
+      experience_years: formData.experience_years,
+      bio: formData.bio
+    };
+
     try {
       if (editingPlayer) {
         // Update existing player
-        const { error } = await this.playersService.updatePlayer(editingPlayer.id, formData as UpdatePlayerData);
+        const { error } = await this.playersService.updatePlayer(editingPlayer.id, dbData as UpdatePlayerData);
         if (error) {
           this.snackBar.open(`Error updating player: ${error.message}`, 'Close', {
             duration: 5000,
@@ -369,7 +381,7 @@ export class PlayersComponent implements OnInit {
         });
       } else {
         // Create new player
-        const { error } = await this.playersService.createPlayer(formData as CreatePlayerData);
+        const { error } = await this.playersService.createPlayer(dbData as CreatePlayerData);
         if (error) {
           this.snackBar.open(`Error creating player: ${error.message}`, 'Close', {
             duration: 5000,
