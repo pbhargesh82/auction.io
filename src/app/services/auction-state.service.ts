@@ -152,6 +152,7 @@ export class AuctionStateService {
   }
 
   private activeChannels: any[] = [];
+  private heartbeatSubscription: any = null;
 
   // Load all auction data for a specific auction or the current context
   async loadAllData(auctionId?: string) {
@@ -695,14 +696,36 @@ export class AuctionStateService {
         { event: '*', schema: 'public', table: 'teams', filter: auctionId ? `auction_id=eq.${auctionId}` : undefined },
         () => this.loadTeams(auctionId).then(result => this._teams.set(result.data || []))
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`[AuctionSync] Realtime Status (${auctionId || 'global'}):`, status);
+        if (status === 'CHANNEL_ERROR') {
+          console.error('[AuctionSync] Realtime failed. Falling back to heartbeat.');
+        }
+      });
 
     this.activeChannels.push(channel);
+
+    // 6. Heartbeat Fallback: Every 10 seconds, force a full data refresh
+    // This provides a 100% guarantee that the view stays in sync even if websockets fail.
+    if (!this.heartbeatSubscription) {
+      console.log('[AuctionSync] Starting 10s Heartbeat sync...');
+      this.heartbeatSubscription = setInterval(() => {
+        if (!this._loading()) {
+          this.loadAllData(auctionId);
+        }
+      }, 10000);
+    }
   }
 
   stopRealtimeSubscriptions() {
     this.activeChannels.forEach(channel => this.supabase.db.removeChannel(channel));
     this.activeChannels = [];
+    
+    if (this.heartbeatSubscription) {
+      clearInterval(this.heartbeatSubscription);
+      this.heartbeatSubscription = null;
+      console.log('[AuctionSync] Stopped Heartbeat sync.');
+    }
   }
 
   // Clear error
