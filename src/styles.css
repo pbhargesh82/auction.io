@@ -15,6 +15,7 @@
 }
 
 @layer base {
+
   /* Reset Tailwind's aggressive resets for Material components */
   .mat-mdc-form-field *,
   .mat-mdc-button *,
@@ -27,8 +28,9 @@
   }
 }
 
-html, body { 
-  height: 100%; 
+html,
+body {
+  height: 100%;
 }
 
 body,
@@ -40,18 +42,20 @@ body {
   margin: 0;
 }
 
-.mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
+.mat-mdc-form-field-subscript-wrapper,
+.mat-mdc-form-field-bottom-align::before {
   display: none !important;
 }
 
 /* Responsive enhancements */
 @layer utilities {
+
   /* Better mobile touch targets */
   .touch-target {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Improved mobile button sizing */
   .btn-mobile {
     min-height: 48px;
@@ -68,12 +72,12 @@ body {
   .mat-mdc-table {
     font-size: 12px;
   }
-  
+
   .mat-mdc-header-cell,
   .mat-mdc-cell {
     padding: 8px 4px;
   }
-  
+
   /* Hide less important columns on mobile */
   .mat-column-created,
   .mat-column-colors {
@@ -82,6 +86,7 @@ body {
 }
 
 @media (max-width: 640px) {
+
   /* Further hide columns on very small screens */
   .mat-column-budget {
     display: none;
@@ -108,12 +113,12 @@ body {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
-  
+
   .form-actions {
     flex-direction: column !important;
     gap: 12px !important;
   }
-  
+
   .form-actions button {
     width: 100% !important;
   }
@@ -132,11 +137,11 @@ body {
   .stats-card {
     padding: 16px !important;
   }
-  
+
   .stats-card .stats-value {
     font-size: 1.5rem !important;
   }
-  
+
   .stats-card .stats-label {
     font-size: 11px !important;
   }
@@ -147,13 +152,13 @@ body {
   .table-container {
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Stack table actions vertically on mobile */
   .table-actions {
     flex-direction: column !important;
     gap: 8px !important;
   }
-  
+
   .table-actions button {
     width: 100% !important;
     min-height: 44px !important;
@@ -175,13 +180,13 @@ body {
   .animate-fade-in-up {
     animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  
+
   .animate-slide-in-right {
     animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .animate-shake {
-    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
   }
 }
 
@@ -190,6 +195,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -200,22 +206,40 @@ body {
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
 }
 
 @keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-  40%, 60% { transform: translate3d(4px, 0, 0); }
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
 }
 
 /* Fix browser autofill hiding text and borders */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-text-fill-color: #0f172a !important;
   color: #0f172a !important;

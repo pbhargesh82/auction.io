@@ -6,12 +6,12 @@ import { VersionService } from '../../../services/version.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-sidebar-footer',
+  selector: 'app-user-profile',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './sidebar-footer.component.html'
+  templateUrl: './user-profile.component.html'
 })
-export class SidebarFooterComponent implements OnInit, OnDestroy {
+export class UserProfileComponent implements OnInit, OnDestroy {
   // Input collapsed removed since this now strictly operates in headers.
 
   user = signal<any>(null);

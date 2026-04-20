@@ -27,13 +27,13 @@
     </div>
 
     <!-- Panel Body -->
-    <div class="flex flex-col flex-1 overflow-y-auto px-8 py-8 custom-scroll pb-32">
+    <div class="flex flex-col flex-1 overflow-y-auto px-8 py-6 custom-scroll">
       <ng-content select="[panel-body]"></ng-content>
     </div>
 
     <!-- Panel Footer (Sticky Bottom) -->
     <div
-      class="absolute bottom-0 left-0 right-0 px-6 py-4 border-t border-[#EEEEEE]/5 bg-[#232931] flex items-center justify-end shrink-0">
+      class="px-6 py-4 border-t border-[#EEEEEE]/5 bg-[#232931] flex shrink-0">
       <ng-content select="[panel-footer]"></ng-content>
     </div>
 

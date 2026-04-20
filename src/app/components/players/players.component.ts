@@ -1,26 +1,10 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PlayersService, Player, CreatePlayerData, UpdatePlayerData } from '../../services/players.service';
 import { TeamPlayersService } from '../../services/team-players.service';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { ImageUploadService } from '../../services/image-upload.service';
-
-// Angular Material imports
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-players',
@@ -28,19 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatCheckboxModule,
-    MatCardModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatSelectModule
+    FormsModule,
   ],
   templateUrl: './players.component.html',
   styleUrls: ['./players.component.css']
@@ -73,6 +45,10 @@ export class PlayersComponent implements OnInit {
   playerForm: FormGroup;
   formSubmitting = signal(false);
   formValid = signal(false);
+
+  // Toast notification
+  toast = signal<{ message: string; type: 'success' | 'error' } | null>(null);
+  private toastTimer: any;
 
   // Predefined options
   categories = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper'];
@@ -181,8 +157,7 @@ export class PlayersComponent implements OnInit {
     private teamPlayersService: TeamPlayersService,
     private supabaseService: SupabaseService,
     private imageUploadService: ImageUploadService,
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private fb: FormBuilder
   ) {
     // Initialize form with enhanced fields
     this.playerForm = this.fb.group({
@@ -312,12 +287,12 @@ export class PlayersComponent implements OnInit {
       if (result.success && result.url) {
         this.photoPreview.set(result.url);
         this.playerForm.patchValue({ image_url: result.url });
-        this.snackBar.open('Photo uploaded successfully', 'Close', { duration: 3000 });
+        this.notify('Photo uploaded successfully');
       } else {
-        this.snackBar.open(`Upload failed: ${result.error}`, 'Close', { duration: 5000 });
+        this.notify(`Upload failed: ${result.error}`, 'error');
       }
     } catch (err: any) {
-      this.snackBar.open(`Upload error: ${err.message}`, 'Close', { duration: 5000 });
+      this.notify(`Upload error: ${err.message}`, 'error');
     } finally {
       this.uploadingPhoto.set(false);
     }
@@ -369,40 +344,25 @@ export class PlayersComponent implements OnInit {
         // Update existing player
         const { error } = await this.playersService.updatePlayer(editingPlayer.id, dbData as UpdatePlayerData);
         if (error) {
-          this.snackBar.open(`Error updating player: ${error.message}`, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.notify(`Error updating player: ${error.message}`, 'error');
           return;
         }
-        this.snackBar.open('Player updated successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.notify('Player updated successfully!');
       } else {
         // Create new player
         const { error } = await this.playersService.createPlayer(dbData as CreatePlayerData);
         if (error) {
-          this.snackBar.open(`Error creating player: ${error.message}`, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.notify(`Error creating player: ${error.message}`, 'error');
           return;
         }
-        this.snackBar.open('Player created successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.notify('Player created successfully!');
       }
 
       this.closeForm();
       // Restore scroll position after successful submission
       this.restoreScrollPosition();
     } catch (error: any) {
-      this.snackBar.open(`Error: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify(`Error: ${error.message}`, 'error');
     } finally {
       this.formSubmitting.set(false);
     }
@@ -416,30 +376,18 @@ export class PlayersComponent implements OnInit {
 
     const { error } = await this.playersService.deletePlayer(player.id);
     if (error) {
-      this.snackBar.open(`Error deleting player: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify(`Error deleting player: ${error.message}`, 'error');
     } else {
-      this.snackBar.open('Player deleted successfully!', 'Close', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
+      this.notify('Player deleted successfully!');
     }
   }
 
   async togglePlayerStatus(player: Player) {
     const { error } = await this.playersService.togglePlayerStatus(player.id);
     if (error) {
-      this.snackBar.open(`Error toggling player status: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify(`Error toggling player status: ${error.message}`, 'error');
     } else {
-      this.snackBar.open(`Player ${player.is_active ? 'deactivated' : 'activated'} successfully!`, 'Close', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
+      this.notify(`Player ${player.is_active ? 'deactivated' : 'activated'} successfully!`);
     }
   }
 
@@ -480,10 +428,7 @@ export class PlayersComponent implements OnInit {
     }
 
     this.selectedPlayers.set(new Set());
-    this.snackBar.open(`${selectedIds.length} players deleted successfully!`, 'Close', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
+    this.notify(`${selectedIds.length} players deleted successfully!`);
   }
 
   // Sorting and filtering
@@ -560,4 +505,10 @@ export class PlayersComponent implements OnInit {
   clearError() {
     this.playersService.clearError();
   }
-} 
+
+  notify(message: string, type: 'success' | 'error' = 'success') {
+    clearTimeout(this.toastTimer);
+    this.toast.set({ message, type });
+    this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
+  }
+}

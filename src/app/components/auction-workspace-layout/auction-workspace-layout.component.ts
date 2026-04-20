@@ -15,7 +15,7 @@ import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { Auction } from '../../services/auctions.service';
 import { MatIconModule } from '@angular/material/icon';
-import { SidebarFooterComponent } from '../shared/sidebar-footer/sidebar-footer.component';
+import { UserProfileComponent } from '../shared/user-profile/user-profile.component';
 
 interface WorkspaceNavItem {
   label: string;
@@ -26,7 +26,7 @@ interface WorkspaceNavItem {
 @Component({
   selector: 'app-auction-workspace-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, SidebarFooterComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, UserProfileComponent],
 
   templateUrl: './auction-workspace-layout.component.html',
   styleUrls: ['./auction-workspace-layout.component.css'],

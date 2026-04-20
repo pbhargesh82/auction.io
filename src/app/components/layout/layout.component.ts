@@ -1,11 +1,11 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, NavigationEnd, RouterModule } from '@angular/router';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs/operators';
-import { SidebarFooterComponent } from '../shared/sidebar-footer/sidebar-footer.component';
+import { UserProfileComponent } from '../shared/user-profile/user-profile.component';
 
 interface MenuItem {
   label: string;
@@ -18,7 +18,12 @@ interface MenuItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, MatIconModule, SidebarFooterComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatIconModule,
+    UserProfileComponent
+  ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
 })
