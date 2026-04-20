@@ -119,8 +119,9 @@ export class LoginComponent implements OnInit {
 
 
 
-  toggleSignUpMode(): void {
-    this.isSignUp.update(mode => !mode);
+  setMode(isSignUp: boolean): void {
+    if (this.isSignUp() === isSignUp) return;
+    this.isSignUp.set(isSignUp);
     this.loginError.set(null);
     this.loginForm.reset();
     
@@ -131,6 +132,17 @@ export class LoginComponent implements OnInit {
       this.loginForm.get('confirmPassword')?.clearValidators();
     }
     this.loginForm.get('confirmPassword')?.updateValueAndValidity();
+  }
+
+  // Interactive background values
+  mouseX = signal(50);
+  mouseY = signal(50);
+
+  onMouseMove(event: MouseEvent): void {
+    const x = (event.clientX / window.innerWidth) * 100;
+    const y = (event.clientY / window.innerHeight) * 100;
+    this.mouseX.set(x);
+    this.mouseY.set(y);
   }
 
   async onSubmit(): Promise<void> {
