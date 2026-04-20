@@ -4,11 +4,12 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuctionsService } from '../../services/auctions.service';
 import { Auction } from '../../services/auctions.service';
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, SidePanelComponent],
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnInit {
@@ -126,13 +127,6 @@ export class HomeComponent implements OnInit {
     this.showModal.set(false);
     this.editingAuction.set(null);
     this.duplicating.set(false);
-  }
-
-  onOverlayClick(event: MouseEvent) {
-    // Only close if clicking directly on the backdrop, not on the modal card
-    if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
-      this.closeModal();
-    }
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────────
