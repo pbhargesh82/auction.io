@@ -85,14 +85,15 @@
         <span class="breadcrumb-current">{{ currentSegmentLabel() }}</span>
       </div>
 
-      <!-- Status badge (topbar) -->
-      <div class="topbar__right">
+      <!-- Status badge & User Menu (topbar) -->
+      <div class="topbar__right flex items-center space-x-4">
         @if (auction()) {
         <span class="status-pill status-pill--{{ auctionStatus() }}">
           <span class="status-dot"></span>
           {{ statusLabel() }}
         </span>
         }
+        <app-sidebar-footer></app-sidebar-footer>
       </div>
     </header>
 
@@ -213,6 +214,4 @@
 
 
 
-  <!-- ── USER + SIGN OUT ────────────────────────────────────────────────── -->
-  <app-sidebar-footer [collapsed]="mobile ? false : sidebarCollapsed()"></app-sidebar-footer>
 </ng-template>

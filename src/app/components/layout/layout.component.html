@@ -1,8 +1,9 @@
-<div class="h-dvh max-h-dvh bg-gray-50  flex">
+<div class="h-dvh max-h-dvh bg-[#232931] flex font-sans text-[#EEEEEE]">
 
   <!-- Mobile Menu Overlay -->
   @if (mobileMenuOpen()) {
-  <div class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" (click)="onOverlayClick()">
+  <div class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+    (click)="onOverlayClick()">
   </div>
   }
 
@@ -10,45 +11,45 @@
   <div class="relative">
     <!-- Desktop Sidebar -->
     <div [class]="'hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 transition-all duration-300 z-30 ' + 
-                  (sidebarCollapsed() ? 'lg:w-20' : 'lg:w-72')">
+                  (sidebarCollapsed() ? 'lg:w-[88px]' : 'lg:w-72')">
 
       <!-- Sidebar Background -->
-      <div class="flex flex-col flex-1 bg-white  border-r border-gray-200  shadow-sm">
+      <div class="flex flex-col flex-1 bg-[#232931] border-r border-[#EEEEEE]/10 relative z-40">
+        <div class="absolute inset-0 pointer-events-none"></div>
 
         <!-- Logo and Brand -->
-        <div class="flex items-center justify-between p-3 border-b border-gray-200 ">
+        <div
+          class="flex items-center justify-between px-6 h-[76px] border-b border-[#EEEEEE]/10 relative z-10 shrink-0">
           @if (!sidebarCollapsed()) {
           <div class="flex items-center space-x-3">
-            <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
             <div>
-              <h1 class="text-lg font-bold text-gray-900 ">Auction.io</h1>
-              <p class="text-xs text-gray-500 ">Admin Panel</p>
+              <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide leading-none">Auction.io</h1>
+              <p class="text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest mt-1">Workspace</p>
             </div>
           </div>
           } @else {
-          <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl mx-auto">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div class="flex items-center justify-center mx-auto shrink-0">
+            <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide leading-none">A.</h1>
           </div>
           }
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto custom-scroll relative z-10">
           @for (item of filteredMenuItems(); track item.route) {
-          <a [routerLink]="item.route" routerLinkActive="bg-indigo-50  border-indigo-500 text-indigo-700 "
-            [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
-            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700  hover:bg-gray-50 :bg-slate-800  hover:text-gray-900  transition-colors duration-200">
+          <a [routerLink]="item.route"
+            class="group relative flex items-center px-4 py-3 mx-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 outline-none focus:outline-none"
+            [ngClass]="currentRoute() === item.route ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]/50 hover:text-[#EEEEEE]'">
+
+            <!-- Active Left Bar Indicator -->
+            <div
+              class="absolute left-[-2px] inset-y-0 w-[3px] bg-[#4ECCA3] rounded-full opacity-0 transition-all duration-300 shadow-[0_0_8px_#4ECCA3] scale-y-0 origin-center"
+              [class.scale-y-100]="currentRoute() === item.route" [class.opacity-100]="currentRoute() === item.route">
+            </div>
 
             <!-- Icon -->
-            <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
+            <mat-icon fontSize="24" class="mr-4 text-2xl leading-none flex-shrink-0 transition-colors"
+              [class.text-[#4ECCA3]]="currentRoute() === item.route">{{ item.icon }}</mat-icon>
 
             <!-- Label and Badge -->
             @if (!sidebarCollapsed()) {
@@ -56,14 +57,14 @@
               <span>{{ item.label }}</span>
               @if (item.badge) {
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100  text-gray-800 ">
+                class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-black bg-[#4ECCA3] text-[#232931] shadow-[0_0_10px_#4ECCA3]">
                 {{ item.badge }}
               </span>
               }
             </div>
             } @else if (item.badge) {
             <span
-              class="absolute -right-1 -top-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-xs font-medium bg-indigo-600 text-white border-2 border-white">
+              class="absolute right-3 top-3 inline-flex items-center justify-center min-w-[20px] h-[20px] px-1 rounded-full text-[10px] font-black bg-[#4ECCA3] text-[#232931] shadow-[0_0_5px_#4ECCA3]">
               {{ item.badge }}
             </span>
             }
@@ -71,53 +72,64 @@
           }
         </nav>
 
-        <!-- User Profile and Sign Out -->
-        <app-sidebar-footer [collapsed]="sidebarCollapsed()"></app-sidebar-footer>
+        <!-- Version Footer -->
+        <div class="mt-auto px-4 py-6 border-t border-[#EEEEEE]/10 flex justify-center bg-[#232931] relative z-10">
+          @if (!sidebarCollapsed()) {
+          <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/30">{{ appVersion() }}</p>
+          } @else {
+          <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/30" [title]="appVersion()">{{
+            appVersionShort() }}</p>
+          }
+        </div>
       </div>
     </div>
 
     <!-- Mobile Sidebar -->
-    <div [class]="'lg:hidden fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out ' + 
+    <div [class]="'lg:hidden fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ' + 
                   (mobileMenuOpen() ? 'translate-x-0' : '-translate-x-full')" (click)="onSidebarClick($event)">
 
-      <div class="flex flex-col flex-1 h-full bg-white  border-r border-gray-200  shadow-lg">
+      <div class="flex flex-col flex-1 h-full bg-[#232931] border-r border-[#EEEEEE]/10 relative z-40">
+        <div class="absolute inset-0 pointer-events-none"></div>
 
-        <!-- Mobile Logo and Close Button -->
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 ">
+        <!-- Mobile Header (Logo & Close Button) -->
+        <div
+          class="flex items-center justify-between px-6 h-[76px] border-b border-[#EEEEEE]/10 relative z-10 shrink-0">
           <div class="flex items-center space-x-3">
-            <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
             <div>
-              <h1 class="text-lg font-bold text-gray-900 ">Auction.io</h1>
-              <p class="text-xs text-gray-500 ">Admin Panel</p>
+              <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide leading-none">Auction.io</h1>
+              <p class="text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest mt-1">Workspace</p>
             </div>
           </div>
           <button (click)="closeMobileMenu()"
-            class="p-2 text-gray-400  hover:text-gray-600  hover:bg-gray-100 :bg-slate-700  rounded-lg transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            class="p-2 text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 rounded-xl transition-all outline-none focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         <!-- Mobile Navigation Menu -->
-        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto custom-scroll relative z-10">
           @for (item of filteredMenuItems(); track item.route) {
-          <a [routerLink]="item.route" routerLinkActive="bg-indigo-50  border-indigo-500 text-indigo-700 "
-            [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}" (click)="closeMobileMenu()"
-            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-transparent text-gray-700  hover:bg-gray-50 :bg-slate-800  hover:text-gray-900  transition-colors duration-200">
+          <a [routerLink]="item.route" (click)="closeMobileMenu()"
+            class="group relative flex items-center px-4 py-3 mx-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 outline-none focus:outline-none"
+            [ngClass]="currentRoute() === item.route ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]/50 hover:text-[#EEEEEE]'">
 
-            <mat-icon fontSize="24" class="mr-3 text-2xl leading-none flex-shrink-0">{{ item.icon }}</mat-icon>
+            <!-- Active Left Bar Indicator -->
+            <div
+              class="absolute left-[-2px] inset-y-0 w-[3px] bg-[#4ECCA3] rounded-full opacity-0 transition-all duration-300 shadow-[0_0_8px_#4ECCA3] scale-y-0 origin-center"
+              [class.scale-y-100]="currentRoute() === item.route" [class.opacity-100]="currentRoute() === item.route">
+            </div>
+
+            <mat-icon fontSize="24" class="mr-4 text-2xl leading-none flex-shrink-0 transition-colors"
+              [class.text-[#4ECCA3]]="currentRoute() === item.route">{{ item.icon }}</mat-icon>
 
             <div class="flex items-center justify-between w-full">
               <span>{{ item.label }}</span>
               @if (item.badge) {
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100  text-gray-800 ">
+                class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-black bg-[#4ECCA3] text-[#232931] shadow-[0_0_10px_#4ECCA3]">
                 {{ item.badge }}
               </span>
               }
@@ -126,56 +138,70 @@
           }
         </nav>
 
-        <!-- Mobile User Profile and Sign Out -->
-        <app-sidebar-footer [collapsed]="false"></app-sidebar-footer>
+        <!-- Version Footer -->
+        <div class="mt-auto px-4 py-6 border-t border-[#EEEEEE]/10 flex justify-center bg-[#232931] relative z-10">
+          <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/30">{{ appVersion() }}</p>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Main Content Area -->
   <div [class]="'flex-1 flex flex-col transition-all duration-300 ' + 
-                (sidebarCollapsed() ? 'lg:ml-20' : 'lg:ml-72')">
+                (sidebarCollapsed() ? 'lg:ml-[88px]' : 'lg:ml-72')">
 
     <!-- Top Navigation Bar -->
-    <header class="bg-white  border-b border-gray-200  shadow-sm">
-      <div class="flex items-center justify-between p-4">
+    <header
+      class="bg-[#232931] border-b border-[#EEEEEE]/10 z-20 sticky top-0 flex flex-col justify-center h-[76px] shrink-0">
+      <div class="flex items-center justify-between px-6 w-full">
 
         <!-- Mobile Menu Button and Desktop Collapse Button -->
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 md:space-x-4">
           <!-- Mobile Menu Button -->
           <button (click)="toggleMobileMenu()"
-            class="lg:hidden p-2 text-gray-400  hover:text-gray-600  hover:bg-gray-100 :bg-slate-700  rounded-lg transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            class="lg:hidden p-2 text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 rounded-xl transition-all outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
           <!-- Desktop Sidebar Toggle -->
           <button (click)="toggleSidebar()"
-            class="hidden lg:block p-2 text-gray-400  hover:text-gray-600  hover:bg-gray-100 :bg-slate-700  rounded-lg transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="hidden lg:flex items-center justify-center p-2 text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 rounded-xl transition-all outline-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
               @if (sidebarCollapsed()) {
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              <path d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               } @else {
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
+              <path d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
               }
             </svg>
           </button>
-        </div>
 
-        <!-- Page Title -->
-        <div class="flex-1 px-4">
-          <h1 class="text-lg font-semibold text-gray-900 ">
+          <!-- Page Title -->
+          <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide ml-2 lg:ml-2">
             {{ currentPageTitle() }}
           </h1>
         </div>
+
+        <!-- Right Side: User Controls -->
+        <div class="flex items-center space-x-4">
+          <app-sidebar-footer></app-sidebar-footer>
+        </div>
+
       </div>
     </header>
 
     <!-- Page Content -->
-    <main class="flex-1 overflow-y-auto">
-      <router-outlet></router-outlet>
+    <main class="flex-1 overflow-y-auto bg-[#232931] custom-scroll relative">
+      <!-- Glow effect for background -->
+      <div
+        class="fixed top-20 right-0 w-[40%] h-[40%] bg-[#4ECCA3] opacity-[0.02] blur-[120px] pointer-events-none z-0">
+      </div>
+      <div class="relative z-10 h-full">
+        <router-outlet></router-outlet>
+      </div>
     </main>
   </div>
 </div>

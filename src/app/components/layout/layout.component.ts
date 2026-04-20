@@ -1,6 +1,6 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, NavigationEnd } from '@angular/router';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,7 +18,7 @@ interface MenuItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, SidebarFooterComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, MatIconModule, SidebarFooterComponent],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
 })

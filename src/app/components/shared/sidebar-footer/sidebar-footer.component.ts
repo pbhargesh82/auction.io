@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, computed, signal, OnDestroy } from '@angular/core';
+import { Component, OnInit, computed, signal, OnDestroy, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../../services/supabase.service';
@@ -12,13 +12,14 @@ import { Subscription } from 'rxjs';
   templateUrl: './sidebar-footer.component.html'
 })
 export class SidebarFooterComponent implements OnInit, OnDestroy {
-  @Input() collapsed = false;
+  // Input collapsed removed since this now strictly operates in headers.
 
   user = signal<any>(null);
   userRole = signal<string>('user');
+  menuOpen = signal<boolean>(false);
   
-  appVersion = computed(() => this.versionService.getVersionWithPrefix());
-  appVersionShort = computed(() => this.versionService.getShortVersionWithPrefix());
+  // Versions no longer render inside this component (moved directly to sidebar bottoms)
+  // but kept logic in case it's needed elsewhere.
   
   userDisplayName = computed(() => {
     const u = this.user();
@@ -32,7 +33,8 @@ export class SidebarFooterComponent implements OnInit, OnDestroy {
   constructor(
     private supabaseService: SupabaseService,
     private versionService: VersionService,
-    private router: Router
+    private router: Router,
+    private eRef: ElementRef
   ) {}
 
   ngOnInit() {
@@ -42,6 +44,18 @@ export class SidebarFooterComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subs.unsubscribe();
+  }
+
+  toggleMenu() {
+    this.menuOpen.set(!this.menuOpen());
+  }
+
+  // Close dropdown if click occurs outside the component
+  @HostListener('document:click', ['$event'])
+  clickout(event: Event) {
+    if(!this.eRef.nativeElement.contains(event.target)) {
+      this.menuOpen.set(false);
+    }
   }
 
   async onSignOut() {

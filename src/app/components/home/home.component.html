@@ -5,46 +5,51 @@
 
   <!-- ── Unified Premium Action Bar ──────────────────────────────────────────────── -->
   @if (allAuctions().length > 0 || searchQuery() || statusFilter() !== 'all') {
-  <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-8 bg-[#393E46] p-2 rounded-2xl border border-[#EEEEEE]/10 shadow-lg">
-    
+  <div
+    class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-8 bg-[#393E46] p-2 rounded-2xl border border-[#EEEEEE]/10 shadow-lg">
+
     <!-- Search -->
     <div class="relative w-full xl:w-96 group">
-      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors">
-        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      <div
+        class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors">
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
       </div>
       <input type="text"
-             class="w-full pl-12 pr-4 py-3 rounded-xl outline-none transition-all duration-200 text-sm font-semibold bg-[#232931] border border-transparent text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3]"
-             placeholder="Search auctions…"
-             [value]="searchQuery()"
-             (input)="searchQuery.set($any($event.target).value)"
-             id="auction-search" />
+        class="w-full pl-12 pr-4 py-3 rounded-xl outline-none transition-all duration-200 text-sm font-semibold bg-[#232931] border border-transparent text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3]"
+        placeholder="Search auctions…" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
+        id="auction-search" />
     </div>
 
     <div class="flex flex-col sm:flex-row w-full xl:w-auto items-start sm:items-center gap-4">
       <!-- Status Pills -->
-      <div class="flex items-center space-x-1 p-1 bg-[#232931] rounded-xl border border-[#EEEEEE]/5 shadow-inner overflow-x-auto w-full sm:w-auto hidescrollbar">
+      <div
+        class="flex items-center space-x-1 p-1 bg-[#232931] rounded-xl border border-[#EEEEEE]/5 shadow-inner overflow-x-auto w-full sm:w-auto hidescrollbar">
         @for (opt of statusOptions; track opt.value) {
-          <button type="button"
-                  (click)="setStatusFilter(opt.value)"
-                  class="px-4 py-2 text-xs font-bold tracking-wider uppercase transition-colors duration-300 rounded-lg whitespace-nowrap focus:outline-none"
-                  [ngClass]="{
+        <button type="button" (click)="setStatusFilter(opt.value)"
+          class="px-4 py-2 text-xs font-bold tracking-wider uppercase transition-colors duration-300 rounded-lg whitespace-nowrap focus:outline-none"
+          [ngClass]="{
                     'bg-[#393E46] text-[#4ECCA3] shadow-md': statusFilter() === opt.value,
                     'text-[#EEEEEE] opacity-60 hover:opacity-100': statusFilter() !== opt.value
                   }">
-            {{ opt.label }}
-          </button>
+          {{ opt.label }}
+        </button>
         }
       </div>
 
       <!-- Create Button -->
-      <button class="w-full sm:w-auto shrink-0 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 text-[#232931] font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm shadow-[0_0_15px_rgba(78,204,163,0.15)] hover:shadow-[0_0_25px_rgba(78,204,163,0.3)] focus:outline-none uppercase tracking-wider" 
-              (click)="openCreate()">
-        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      <button
+        class="w-full sm:w-auto shrink-0 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 text-[#232931] font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm shadow-[0_0_15px_rgba(78,204,163,0.15)] hover:shadow-[0_0_25px_rgba(78,204,163,0.3)] focus:outline-none uppercase tracking-wider"
+        (click)="openCreate()">
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
-        <span>Create Workspace</span>
+        <span>New Auction Worksapce</span>
       </button>
     </div>
   </div>
@@ -54,19 +59,20 @@
   @if (loading()) {
   <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
     @for (n of [1,2,3,4,5,6]; track n) {
-    <div class="bg-[#393E46] rounded-3xl p-6 border border-[#EEEEEE]/5 animate-pulse min-h-[240px] flex flex-col justify-between">
-       <div class="flex justify-between items-start">
-         <div class="h-6 w-1/2 bg-[#EEEEEE]/10 rounded-full"></div>
-         <div class="h-5 w-16 bg-[#EEEEEE]/10 rounded-full"></div>
-       </div>
-       <div class="space-y-3 mt-8">
-         <div class="h-3 w-3/4 bg-[#EEEEEE]/5 rounded-full"></div>
-         <div class="h-3 w-1/2 bg-[#EEEEEE]/5 rounded-full"></div>
-       </div>
-       <div class="flex space-x-6 mt-6 pt-4 border-t border-[#EEEEEE]/5">
-         <div class="h-8 w-16 bg-[#EEEEEE]/5 rounded-md"></div>
-         <div class="h-8 w-16 bg-[#EEEEEE]/5 rounded-md"></div>
-       </div>
+    <div
+      class="bg-[#393E46] rounded-3xl p-6 border border-[#EEEEEE]/5 animate-pulse min-h-[240px] flex flex-col justify-between">
+      <div class="flex justify-between items-start">
+        <div class="h-6 w-1/2 bg-[#EEEEEE]/10 rounded-full"></div>
+        <div class="h-5 w-16 bg-[#EEEEEE]/10 rounded-full"></div>
+      </div>
+      <div class="space-y-3 mt-8">
+        <div class="h-3 w-3/4 bg-[#EEEEEE]/5 rounded-full"></div>
+        <div class="h-3 w-1/2 bg-[#EEEEEE]/5 rounded-full"></div>
+      </div>
+      <div class="flex space-x-6 mt-6 pt-4 border-t border-[#EEEEEE]/5">
+        <div class="h-8 w-16 bg-[#EEEEEE]/5 rounded-md"></div>
+        <div class="h-8 w-16 bg-[#EEEEEE]/5 rounded-md"></div>
+      </div>
     </div>
     }
   </div>
@@ -77,17 +83,24 @@
     <!-- Empty State Glowing Orb -->
     <div class="relative w-24 h-24 mb-8 flex items-center justify-center">
       <div class="absolute inset-0 bg-[#4ECCA3] rounded-full blur-[40px] opacity-20 animate-pulse"></div>
-      <div class="relative w-16 h-16 rounded-full bg-[#393E46] flex items-center justify-center text-[#4ECCA3] border border-[#EEEEEE]/10 shadow-2xl">
-        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      <div
+        class="relative w-16 h-16 rounded-full bg-[#393E46] flex items-center justify-center text-[#4ECCA3] border border-[#EEEEEE]/10 shadow-2xl">
+        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
         </svg>
       </div>
     </div>
     <h2 class="text-3xl font-bold text-[#EEEEEE] mb-3 tracking-tight">No workspaces yet</h2>
-    <p class="text-[#EEEEEE]/50 max-w-md mx-auto mb-10 text-sm leading-relaxed font-medium">Your hub for managing dynamic live auctions. Prepare your inventory, manage participants, and launch real-time events.</p>
-    <button class="bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 text-[#232931] font-bold py-3.5 px-8 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 shadow-[0_0_20px_rgba(78,204,163,0.2)] hover:shadow-[0_0_30px_rgba(78,204,163,0.4)] uppercase tracking-wider" (click)="openCreate()">
-      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    <p class="text-[#EEEEEE]/50 max-w-md mx-auto mb-10 text-sm leading-relaxed font-medium">Your hub for managing
+      dynamic live auctions. Prepare your inventory, manage participants, and launch real-time events.</p>
+    <button
+      class="bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 text-[#232931] font-bold py-3.5 px-8 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 shadow-[0_0_20px_rgba(78,204,163,0.2)] hover:shadow-[0_0_30px_rgba(78,204,163,0.4)] uppercase tracking-wider"
+      (click)="openCreate()">
+      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
       <span>Initialize Workspace</span>
     </button>
@@ -97,13 +110,17 @@
   } @else if (filteredAuctions().length === 0) {
   <div class="flex-1 flex flex-col items-center justify-center py-20 text-center">
     <div class="w-16 h-16 mb-4 rounded-full bg-[#393E46] flex items-center justify-center text-[#EEEEEE]/30">
-      <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
     </div>
-    <p class="text-lg font-bold text-[#EEEEEE]/70">No auctions match <span class="text-[#4ECCA3]">"{{ searchQuery() }}"</span></p>
-    <button class="mt-6 text-sm font-bold text-[#4ECCA3] opacity-80 hover:opacity-100 uppercase tracking-widest transition-opacity" 
-            (click)="searchQuery.set(''); setStatusFilter('all')">
+    <p class="text-lg font-bold text-[#EEEEEE]/70">No auctions match <span class="text-[#4ECCA3]">"{{ searchQuery()
+        }}"</span></p>
+    <button
+      class="mt-6 text-sm font-bold text-[#4ECCA3] opacity-80 hover:opacity-100 uppercase tracking-widest transition-opacity"
+      (click)="searchQuery.set(''); setStatusFilter('all')">
       Clear Filters
     </button>
   </div>
@@ -114,14 +131,13 @@
 
     @for (auction of filteredAuctions(); track auction.id) {
     <!-- ── Auction Card ─────────────────────────────────────────────────── -->
-    <article class="group relative bg-[#393E46] rounded-3xl p-6 lg:p-7 border border-[#EEEEEE]/5 hover:border-[#4ECCA3]/40 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex flex-col cursor-pointer overflow-hidden animate-fade-in-up hover:-translate-y-1"
-             (click)="enterAuction(auction)" role="button" tabindex="0"
-             (keydown.enter)="enterAuction(auction)"
-             [attr.aria-label]="'Open ' + auction.name">
-             
+    <article
+      class="group relative bg-[#393E46] rounded-3xl p-6 lg:p-7 border border-[#EEEEEE]/5 hover:border-[#4ECCA3]/40 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex flex-col cursor-pointer overflow-hidden animate-fade-in-up hover:-translate-y-1"
+      (click)="enterAuction(auction)" role="button" tabindex="0" (keydown.enter)="enterAuction(auction)"
+      [attr.aria-label]="'Open ' + auction.name">
+
       <!-- Status Top Accent Strip -->
-      <div class="absolute top-0 left-0 right-0 h-1 transition-colors duration-300"
-           [ngClass]="{
+      <div class="absolute top-0 left-0 right-0 h-1 transition-colors duration-300" [ngClass]="{
              'bg-[#4ECCA3] shadow-[0_0_15px_#4ECCA3]': auction.status === 'active',
              'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.3)]': auction.status === 'draft',
              'bg-red-400': auction.status === 'paused',
@@ -132,18 +148,21 @@
       <!-- Header Row -->
       <div class="flex justify-between items-start mb-3 pt-2">
         <div class="pr-3">
-          <h2 class="text-[1.15rem] font-bold text-[#EEEEEE] group-hover:text-[#4ECCA3] transition-colors line-clamp-1 leading-tight tracking-wide">{{ auction.name }}</h2>
-          <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-1.5">{{ formatDate(auction.created_at) }}</p>
+          <h2
+            class="text-[1.15rem] font-bold text-[#EEEEEE] group-hover:text-[#4ECCA3] transition-colors line-clamp-1 leading-tight tracking-wide">
+            {{ auction.name }}</h2>
+          <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-1.5">{{
+            formatDate(auction.created_at) }}</p>
         </div>
-        
+
         <!-- Status Badge -->
-        <div class="flex-shrink-0 inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest uppercase transition-colors"
-              [class]="auction.status === 'active' ? 'bg-[#4ECCA3]/10 text-[#4ECCA3] border border-[#4ECCA3]/20' : 
+        <div
+          class="flex-shrink-0 inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest uppercase transition-colors"
+          [class]="auction.status === 'active' ? 'bg-[#4ECCA3]/10 text-[#4ECCA3] border border-[#4ECCA3]/20' : 
                        auction.status === 'draft' ? 'bg-amber-400/10 text-amber-500 border border-amber-400/20' :
                        auction.status === 'paused' ? 'bg-red-400/10 text-red-400 border border-red-400/20' :
                        'bg-[#232931]/50 text-[#EEEEEE]/50 border border-[#EEEEEE]/5'">
-          <span class="w-1.5 h-1.5 rounded-full mr-2"
-                [class]="auction.status === 'active' ? 'bg-[#4ECCA3] animate-pulse' : 
+          <span class="w-1.5 h-1.5 rounded-full mr-2" [class]="auction.status === 'active' ? 'bg-[#4ECCA3] animate-pulse' : 
                          auction.status === 'draft' ? 'bg-amber-400' :
                          auction.status === 'paused' ? 'bg-red-400' :
                          'bg-[#EEEEEE]/30'"></span>
@@ -161,14 +180,20 @@
         <div class="flex items-center space-x-8">
           <div>
             <p class="text-[9px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mb-1.5 flex items-center">
-              <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               Budget
             </p>
             <p class="text-sm font-bold text-[#EEEEEE] tracking-wide">{{ formatCurrency(auction.budget_per_team) }}</p>
           </div>
           <div>
             <p class="text-[9px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mb-1.5 flex items-center">
-              <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+              <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
               Players
             </p>
             <p class="text-sm font-bold text-[#EEEEEE] tracking-wide">{{ auction.max_players_per_team }}</p>
@@ -177,59 +202,103 @@
 
         <div class="flex flex-col items-end">
           @if (auction.is_public) {
-            <span class="inline-flex items-center text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest bg-[#4ECCA3]/10 px-2 py-1 rounded-md">
-              <svg class="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-              Public
-            </span>
+          <span
+            class="inline-flex items-center text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest bg-[#4ECCA3]/10 px-2 py-1 rounded-md">
+            <svg class="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+            </svg>
+            Public
+          </span>
           } @else {
-            <span class="inline-flex items-center text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest bg-[#232931] px-2 py-1 rounded-md">
-              <svg class="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Private
-            </span>
+          <span
+            class="inline-flex items-center text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest bg-[#232931] px-2 py-1 rounded-md">
+            <svg class="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0110 0v4" />
+            </svg>
+            Private
+          </span>
           }
         </div>
       </div>
 
       <!-- Always Visible Actions -->
       <div class="flex flex-col gap-3 mt-auto pt-4 border-t border-[#EEEEEE]/5" (click)="$event.stopPropagation()">
-        
+
         <!-- Primary Action -->
-        <button class="w-full bg-[#4ECCA3]/10 hover:bg-[#4ECCA3] active:bg-[#4ECCA3]/80 text-[#4ECCA3] hover:text-[#232931] border border-[#4ECCA3]/50 hover:border-transparent font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-xs uppercase tracking-widest focus:outline-none"
-                (click)="enterAuction(auction); $event.stopPropagation()">
+        <button
+          class="w-full bg-[#4ECCA3]/10 hover:bg-[#4ECCA3] active:bg-[#4ECCA3]/80 text-[#4ECCA3] hover:text-[#232931] border border-[#4ECCA3]/50 hover:border-transparent font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-xs uppercase tracking-widest focus:outline-none"
+          (click)="enterAuction(auction); $event.stopPropagation()">
           <span>Enter Workspace</span>
-          <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </button>
 
         <!-- Utility Icons Row -->
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-1">
             @if (auction.is_public) {
-              <button class="p-2 text-[#4ECCA3] hover:bg-[#4ECCA3]/10 hover:text-[#4ECCA3] rounded-lg transition-colors relative focus:outline-none" 
-                      (click)="copyShareLink(auction, $event)" title="Copy Share Link">
-                @if (copiedId() === auction.id) {
-                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                } @else {
-                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                }
-              </button>
-            }
-            <button class="p-2 text-[#EEEEEE]/50 hover:text-[#EEEEEE] hover:bg-[#232931] rounded-lg transition-colors focus:outline-none" 
-                    (click)="openDuplicate(auction); $event.stopPropagation()" title="Duplicate">
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            <button
+              class="p-2 text-[#4ECCA3] hover:bg-[#4ECCA3]/10 hover:text-[#4ECCA3] rounded-lg transition-colors relative focus:outline-none"
+              (click)="copyShareLink(auction, $event)" title="Copy Share Link">
+              @if (copiedId() === auction.id) {
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              } @else {
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+              }
             </button>
-            <button class="p-2 text-[#EEEEEE]/50 hover:text-[#EEEEEE] hover:bg-[#232931] rounded-lg transition-colors focus:outline-none" 
-                    (click)="openEdit(auction); $event.stopPropagation()" title="Settings">
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            }
+            <button
+              class="p-2 text-[#EEEEEE]/50 hover:text-[#EEEEEE] hover:bg-[#232931] rounded-lg transition-colors focus:outline-none"
+              (click)="openDuplicate(auction); $event.stopPropagation()" title="Duplicate">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+              </svg>
+            </button>
+            <button
+              class="p-2 text-[#EEEEEE]/50 hover:text-[#EEEEEE] hover:bg-[#232931] rounded-lg transition-colors focus:outline-none"
+              (click)="openEdit(auction); $event.stopPropagation()" title="Settings">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
             </button>
           </div>
-          
-          <button class="p-2 text-[#EEEEEE]/30 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors focus:outline-none" 
-                  [class.opacity-50]="deletingId() === auction.id"
-                  (click)="deleteAuction(auction, $event)" title="Delete workspace">
+
+          <button
+            class="p-2 text-[#EEEEEE]/30 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors focus:outline-none"
+            [class.opacity-50]="deletingId() === auction.id" (click)="deleteAuction(auction, $event)"
+            title="Delete workspace">
             @if (deletingId() === auction.id) {
-              <svg class="animate-spin w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+            <svg class="animate-spin w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 12a9 9 0 11-6.219-8.56" />
+            </svg>
             } @else {
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+              <path d="M10 11v6" />
+              <path d="M14 11v6" />
+              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+            </svg>
             }
           </button>
         </div>
@@ -245,91 +314,119 @@
      CREATE / EDIT / DUPLICATE MODAL (Refined Dark Theme)
 ══════════════════════════════════════════════════════════════════════════ -->
 @if (showModal()) {
-<div class="fixed inset-0 z-[100] flex items-center justify-center bg-[#232931]/90 backdrop-blur-md animate-fade-in-up" 
-     (click)="onOverlayClick($event)" role="dialog" aria-modal="true">
-  
-  <div class="bg-[#393E46] border border-[#EEEEEE]/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] m-4 flex flex-col">
-    
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-[#232931]/90 backdrop-blur-md animate-fade-in-up"
+  (click)="onOverlayClick($event)" role="dialog" aria-modal="true">
+
+  <div
+    class="bg-[#393E46] border border-[#EEEEEE]/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] m-4 flex flex-col">
+
     <!-- Modal Header -->
     <div class="flex items-center justify-between px-6 py-5 border-b border-[#EEEEEE]/5 bg-[#232931]/50">
       <h2 class="text-lg font-bold text-[#EEEEEE] tracking-wide">{{ modalTitle() }}</h2>
-      <button class="p-2 rounded-xl text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#393E46] transition-colors focus:outline-none" 
-              (click)="closeModal()" aria-label="Close">
-        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <button
+        class="p-2 rounded-xl text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#393E46] transition-colors focus:outline-none"
+        (click)="closeModal()" aria-label="Close">
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
     </div>
 
     <!-- Modal Form -->
-    <form [formGroup]="auctionForm" (ngSubmit)="submitForm()" class="flex flex-col flex-1 max-h-[80vh] overflow-y-auto px-6 py-6 space-y-5 custom-scroll">
+    <form [formGroup]="auctionForm" (ngSubmit)="submitForm()"
+      class="flex flex-col flex-1 max-h-[80vh] overflow-y-auto px-6 py-6 space-y-5 custom-scroll">
 
       <!-- Name -->
       <div class="group">
-        <label for="f-name" class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Workspace Name <span class="text-[#4ECCA3]">*</span></label>
+        <label for="f-name"
+          class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Workspace
+          Name <span class="text-[#4ECCA3]">*</span></label>
         <input id="f-name" type="text" formControlName="name" placeholder="e.g. IPL 2026 Mega Auction"
-               class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-semibold">
+          class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-semibold">
         @if (auctionForm.get('name')?.hasError('required') && auctionForm.get('name')?.touched) {
-          <p class="text-xs text-red-400 mt-1.5 font-bold">Name is required.</p>
+        <p class="text-xs text-red-400 mt-1.5 font-bold">Name is required.</p>
         }
         @if (auctionForm.get('name')?.hasError('minlength') && auctionForm.get('name')?.touched) {
-          <p class="text-xs text-red-400 mt-1.5 font-bold">Name must be at least 3 characters.</p>
+        <p class="text-xs text-red-400 mt-1.5 font-bold">Name must be at least 3 characters.</p>
         }
       </div>
 
       <!-- Description -->
       <div class="group">
-        <label for="f-desc" class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Description</label>
-        <textarea id="f-desc" formControlName="description" rows="3" placeholder="Optional context about this workspace..."
-                  class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-medium resize-none"></textarea>
+        <label for="f-desc"
+          class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Description</label>
+        <textarea id="f-desc" formControlName="description" rows="3"
+          placeholder="Optional context about this workspace..."
+          class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-medium resize-none"></textarea>
       </div>
 
       <!-- Budget & Limits Row -->
       <div class="grid grid-cols-2 gap-5">
         <div class="group">
-          <label for="f-budget" class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Budget / Team <span class="text-[#4ECCA3]">*</span></label>
+          <label for="f-budget"
+            class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Budget
+            / Team <span class="text-[#4ECCA3]">*</span></label>
           <div class="relative">
             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#EEEEEE]/40 font-bold">₹</span>
             <input id="f-budget" type="number" formControlName="budget_per_team" placeholder="10000000"
-                   class="w-full pl-8 pr-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-bold">
+              class="w-full pl-8 pr-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-bold">
           </div>
         </div>
 
         <div class="group">
-          <label for="f-max" class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Max Players <span class="text-[#4ECCA3]">*</span></label>
+          <label for="f-max"
+            class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Max
+            Players <span class="text-[#4ECCA3]">*</span></label>
           <input id="f-max" type="number" formControlName="max_players_per_team" min="1"
-                 class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-bold text-center">
+            class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-bold text-center">
         </div>
       </div>
 
       <!-- Advanced settings (Min Players hidden or kept minimal) -->
       <div class="group">
-        <label for="f-min" class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Min Players Required / Team <span class="text-[#4ECCA3]">*</span></label>
+        <label for="f-min"
+          class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-1.5 group-focus-within:text-[#4ECCA3] transition-colors">Min
+          Players Required / Team <span class="text-[#4ECCA3]">*</span></label>
         <input id="f-min" type="number" formControlName="min_players_per_team" min="1"
-               class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-bold">
+          class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-bold">
       </div>
 
       <!-- Public Workspace Toggle -->
-      <label class="flex items-start bg-[#232931] p-4 rounded-xl border border-[#EEEEEE]/5 cursor-pointer group hover:bg-[#232931]/80 transition-colors mt-2">
+      <label
+        class="flex items-start bg-[#232931] p-4 rounded-xl border border-[#EEEEEE]/5 cursor-pointer group hover:bg-[#232931]/80 transition-colors mt-2">
         <div class="flex items-center h-5">
-           <input type="checkbox" formControlName="is_public" class="w-5 h-5 accent-[#4ECCA3] bg-[#393E46] border-[#EEEEEE]/20 rounded text-[#232931] focus:ring-[#4ECCA3]">
+          <input type="checkbox" formControlName="is_public"
+            class="w-5 h-5 accent-[#4ECCA3] bg-[#393E46] border-[#EEEEEE]/20 rounded text-[#232931] focus:ring-[#4ECCA3]">
         </div>
         <div class="ml-3 text-sm">
           <span class="font-bold text-[#EEEEEE] block uppercase tracking-wide text-xs">Public Access</span>
-          <p class="text-[#EEEEEE]/50 text-xs mt-1 leading-relaxed">Anyone with the link can view real-time auction results.</p>
+          <p class="text-[#EEEEEE]/50 text-xs mt-1 leading-relaxed">Anyone with the link can view real-time auction
+            results.</p>
         </div>
       </label>
 
       <!-- Footer Actions -->
       <div class="flex items-center justify-end space-x-3 pt-6 border-t border-[#EEEEEE]/5 mt-4">
-        <button type="button" class="px-5 py-2.5 rounded-lg text-sm font-bold text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-colors tracking-wide uppercase" (click)="closeModal()">
+        <button type="button"
+          class="px-5 py-2.5 rounded-lg text-sm font-bold text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-colors tracking-wide uppercase"
+          (click)="closeModal()">
           Cancel
         </button>
         <button type="submit" [disabled]="auctionForm.invalid || submitting()"
-                class="bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:opacity-50 disabled:cursor-not-allowed text-[#232931] font-bold py-2.5 px-6 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(78,204,163,0.2)] flex items-center tracking-wide uppercase text-sm">
+          class="bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:opacity-50 disabled:cursor-not-allowed text-[#232931] font-bold py-2.5 px-6 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(78,204,163,0.2)] flex items-center tracking-wide uppercase text-sm">
           @if (submitting()) {
-            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-[#232931]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            Processing…
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-[#232931]" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          Processing…
           } @else {
-            {{ isEditing() ? 'Save Changes' : (duplicating() ? 'Duplicate Workspace' : 'Create Workspace') }}
+          {{ isEditing() ? 'Save Changes' : (duplicating() ? 'Duplicate Workspace' : 'Create Workspace') }}
           }
         </button>
       </div>
@@ -343,16 +440,25 @@
      GLOBAL TOAST (Refined Dark Theme)
 ══════════════════════════════════════════════════════════════════════════ -->
 @if (toastMessage()) {
-<div class="fixed bottom-6 right-6 z-[200] max-w-sm w-full bg-[#393E46] border border-[#EEEEEE]/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-4 flex items-center gap-3 animate-fade-in-up" 
-     [ngClass]="{'border-red-500/50': toastType() === 'error'}" role="alert">
+<div
+  class="fixed bottom-6 right-6 z-[200] max-w-sm w-full bg-[#393E46] border border-[#EEEEEE]/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-4 flex items-center gap-3 animate-fade-in-up"
+  [ngClass]="{'border-red-500/50': toastType() === 'error'}" role="alert">
   @if (toastType() === 'success') {
-    <div class="flex-shrink-0 w-8 h-8 bg-[#4ECCA3]/20 rounded-full flex items-center justify-center text-[#4ECCA3]">
-      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
+  <div class="flex-shrink-0 w-8 h-8 bg-[#4ECCA3]/20 rounded-full flex items-center justify-center text-[#4ECCA3]">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  </div>
   } @else {
-    <div class="flex-shrink-0 w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center text-red-500">
-      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    </div>
+  <div class="flex-shrink-0 w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center text-red-500">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+  </div>
   }
   <p class="text-sm font-semibold text-[#EEEEEE]">{{ toastMessage() }}</p>
 </div>

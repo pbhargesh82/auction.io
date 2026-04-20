@@ -1,62 +1,55 @@
-<div class="border-t border-gray-200 mt-auto p-3 bg-white w-full box-border">
-  @if (!collapsed) {
-  <!-- Expanded User Profile -->
-  <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
-    <div class="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full flex-shrink-0">
-      <span class="text-sm font-medium text-white">
+<div class="relative">
+  <!-- Profile Button / Pill -->
+  <button (click)="toggleMenu()"
+          class="flex items-center space-x-2 md:space-x-3 p-1.5 md:pr-4 rounded-full bg-[#393E46] border border-[#EEEEEE]/5 hover:border-[#4ECCA3]/40 transition-all duration-300 focus:outline-none"
+          [class.ring-2]="menuOpen()" [class.ring-[#4ECCA3]]="menuOpen()">
+    <div class="flex items-center justify-center w-8 h-8 bg-[#4ECCA3] rounded-full flex-shrink-0 shadow-[0_0_10px_rgba(78,204,163,0.3)]">
+      <span class="text-sm font-black text-[#232931]">
         {{ userDisplayName().charAt(0).toUpperCase() }}
       </span>
     </div>
-    <div class="flex-1 min-w-0 flex flex-col justify-center">
-      <p class="text-sm font-medium text-gray-900 truncate m-0 leading-tight">
+    <div class="hidden md:flex flex-col items-start justify-center">
+      <p class="text-xs font-bold text-[#EEEEEE] truncate leading-tight w-24 text-left">
         {{ userDisplayName() }}
       </p>
-      <p class="text-xs text-gray-500 truncate m-0 mt-0.5 leading-tight">
-        {{ user()?.email }}
-      </p>
-      <p class="text-[10px] font-bold uppercase tracking-wide m-0 mt-1"
-        [class]="isAdmin() ? 'text-indigo-600' : 'text-gray-500'">
+      <p class="text-[9px] font-black uppercase tracking-widest leading-tight mt-0.5"
+         [class]="isAdmin() ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]/40'">
         {{ isAdmin() ? 'Super Admin' : 'User' }}
       </p>
     </div>
-  </div>
-
-  <!-- Sign Out Button -->
-  <button (click)="onSignOut()"
-    class="mt-3 w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200 border-0 cursor-pointer">
-    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+    <svg class="hidden md:block w-4 h-4 text-[#EEEEEE]/40 transition-transform duration-300"
+         [class.rotate-180]="menuOpen()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    Sign Out
   </button>
 
-  <!-- Version Display -->
-  <div class="mt-3 pt-3 border-t border-gray-200">
-    <p class="text-xs text-center text-gray-400 m-0">{{ appVersion() }}</p>
-  </div>
-
-  } @else {
-  <!-- Collapsed User Profile -->
-  <div class="flex flex-col items-center space-y-2">
-    <div class="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full flex-shrink-0">
-      <span class="text-sm font-medium text-white">
-        {{ userDisplayName().charAt(0).toUpperCase() }}
-      </span>
+  <!-- Animated Dropdown Menu -->
+  @if (menuOpen()) {
+  <div class="absolute right-0 mt-3 w-56 rounded-2xl bg-[#393E46] border border-[#EEEEEE]/10 shadow-[0_15px_40px_rgba(0,0,0,0.6)] animate-fade-in-up z-50 overflow-hidden">
+    <!-- Header info snippet for mobile contexts mostly -->
+    <div class="md:hidden px-4 py-3 border-b border-[#EEEEEE]/5 bg-[#232931]/30">
+      <p class="text-sm font-bold text-[#EEEEEE] truncate">{{ userDisplayName() }}</p>
+      <p class="text-[10px] text-[#EEEEEE]/40 truncate">{{ user()?.email }}</p>
     </div>
-    <button (click)="onSignOut()"
-      class="flex items-center justify-center w-8 h-8 text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200 border-0 cursor-pointer p-0"
-      title="Sign Out">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-      </svg>
-    </button>
-  </div>
+    
+    <div class="px-3 py-3 space-y-1">
+      <p class="px-2 text-[9px] font-black text-[#EEEEEE]/40 uppercase tracking-widest mb-2 hidden md:block select-none">{{ user()?.email }}</p>
 
-  <!-- Version Display (Collapsed) -->
-  <div class="mt-3 pt-3 border-t border-gray-200 w-full">
-    <p class="text-xs text-center text-gray-400 m-0" [title]="appVersion()">{{ appVersionShort() }}</p>
+      <button class="w-full flex items-center px-4 py-2.5 text-sm font-semibold text-[#EEEEEE]/70 hover:text-[#EEEEEE] hover:bg-[#232931] rounded-xl transition-colors duration-200">
+        <svg class="w-4 h-4 mr-3 text-[#EEEEEE]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Preferences
+      </button>
+      
+      <button (click)="onSignOut()"
+              class="w-full flex items-center px-4 py-2.5 text-sm font-bold text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-xl transition-colors duration-200">
+        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sign Out
+      </button>
+    </div>
   </div>
   }
 </div>
