@@ -5,25 +5,22 @@
      
   <!-- Interactive Immersive Background -->
   <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-    <!-- Ambient glowing blob 1 - Accent color -->
-    <div class="absolute top-[20%] left-[10%] w-[50vw] h-[50vw] max-w-[800px] max-h-[800px] rounded-full blur-[120px] mix-blend-screen opacity-10 animate-pulse"
-         style="background-color: #4ECCA3; animation-duration: 8s;"></div>
-         
-    <!-- Ambient glowing blob 2 - Surface/Accent mixed -->
-    <div class="absolute bottom-[10%] right-[10%] w-[60vw] h-[60vw] max-w-[900px] max-h-[900px] rounded-full blur-[150px] mix-blend-screen opacity-20 animate-pulse"
-         style="background-color: #393E46; animation-duration: 12s; animation-delay: 2s;"></div>
+    
+    <!-- Deep large architectural base using Surface Color to break up the flat Canvas #232931 -->
+    <div class="absolute top-[-20%] right-[-20%] w-[150vw] h-[150vw] sm:w-[80vw] sm:h-[80vw] min-w-[600px] min-h-[600px] bg-[#393E46] opacity-40 rounded-full blur-[80px] sm:blur-[120px] animate-pulse"
+         style="animation-duration: 20s;"></div>
 
-    <!-- Interactive Mouse Follower Blob -->
-    <div class="absolute w-[40vw] h-[40vw] max-w-[600px] max-h-[600px] rounded-full blur-[100px] mix-blend-screen opacity-20 transition-transform duration-700 ease-out"
-         style="background-color: #4ECCA3; transform: translate(calc(var(--mouse-x) * 1vw - 50%), calc(var(--mouse-y) * 1vh - 50%)); left: 0; top: 0;"></div>
+    <!-- Expressive Accent Blob (Top Left) -->
+    <div class="absolute top-[-10%] left-[-20vw] w-[120vw] h-[120vw] sm:w-[50vw] sm:h-[50vw] min-w-[400px] min-h-[400px] rounded-full blur-[80px] sm:blur-[100px] mix-blend-screen animate-pulse"
+         style="background: radial-gradient(circle, rgba(78,204,163,0.35) 0%, rgba(78,204,163,0) 70%); animation-duration: 15s;"></div>
          
-    <!-- Subtle Grid overlay -->
-    <div class="absolute inset-0" style="
-        background-image: 
-          linear-gradient(to right, rgba(238,238,238,0.03) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(238,238,238,0.03) 1px, transparent 1px);
-        background-size: 32px 32px;
-      "></div>
+    <!-- Expressive Accent Blob (Bottom Right) -->
+    <div class="absolute bottom-[-10%] right-[-10vw] w-[140vw] h-[140vw] sm:w-[60vw] sm:h-[60vw] min-w-[450px] min-h-[450px] rounded-full blur-[90px] sm:blur-[120px] mix-blend-screen animate-pulse"
+         style="background: radial-gradient(circle, rgba(78,204,163,0.3) 0%, rgba(78,204,163,0) 70%); animation-duration: 12s; animation-delay: 3s;"></div>
+
+    <!-- Mouse Follower Blob - Enhanced visibility -->
+    <div class="absolute w-[100vw] h-[100vw] sm:w-[50vw] sm:h-[50vw] min-w-[300px] min-h-[300px] rounded-full blur-[60px] sm:blur-[100px] mix-blend-screen transition-transform duration-1000 ease-out"
+         style="background: radial-gradient(circle, rgba(78,204,163,0.25) 0%, rgba(78,204,163,0) 70%); transform: translate(calc(var(--mouse-x) * 1vw - 50%), calc(var(--mouse-y) * 1vh - 50%)); left: 0; top: 0;"></div>
   </div>
 
   <div class="w-full max-w-sm sm:max-w-md relative z-10 animate-fade-in-up">
