@@ -10,7 +10,6 @@ import { Auction } from '../../services/auctions.service';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
   // ── State ────────────────────────────────────────────────────────────────────
