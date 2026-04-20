@@ -1,6 +1,19 @@
 /* Keep Tailwind import but override in layers */
 @import "tailwindcss";
 
+/* Design tokens — palette & usage: docs/design-redesign.md */
+:root {
+  --color-canvas: #232931;
+  --color-surface: #393e46;
+  --color-accent: #4ecca3;
+  --color-text: #eeeeee;
+  --color-text-muted: rgba(238, 238, 238, 0.7);
+  --color-text-disabled: rgba(238, 238, 238, 0.4);
+  --color-text-on-accent: #232931;
+  /* Typography — see docs/design-redesign.md */
+  --font-family-ui: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
 @layer base {
   /* Reset Tailwind's aggressive resets for Material components */
   .mat-mdc-form-field *,
@@ -18,9 +31,13 @@ html, body {
   height: 100%; 
 }
 
-body { 
-  margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
+body,
+.mat-typography {
+  font-family: var(--font-family-ui);
+}
+
+body {
+  margin: 0;
 }
 
 .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
