@@ -9,7 +9,8 @@ import { Subscription } from 'rxjs';
   selector: 'app-user-profile',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './user-profile.component.html'
+    templateUrl: './user-profile.component.html',
+    styleUrls: ['./user-profile.component.css']
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
   // Input collapsed removed since this now strictly operates in headers.

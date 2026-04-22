@@ -1,11 +1,11 @@
 <!-- ══════════════════════════════════════════════════════════════════════════
-     USER MANAGEMENT — Admin Control Center (Premium Dark Redesign)
+     USER MANAGEMENT — Admin Control Center (Responsive Redesign)
      Unified with Home & Player Pool Dashboard Design
      Locked Palette: #232931 (Canvas), #393E46 (Surface), #4ECCA3 (Accent)
-     Contrast: /70 (Labels), /50 (Sub-text), /20 (Borders)
+     Desktop: High-density Table | Mobile: Premium Card Grid
 ══════════════════════════════════════════════════════════════════════════ -->
 
-<div class="min-h-full bg-[#232931] text-[#EEEEEE] p-4 sm:p-5 lg:p-8 flex flex-col w-full">
+<div class="h-full bg-[#232931] text-[#EEEEEE] p-4 sm:p-5 lg:p-8 flex flex-col w-full overflow-hidden">
 
   <!-- ── Action Bar ─────────────────────────────────────────────────────── -->
   <div
@@ -26,19 +26,19 @@
         placeholder="Search users by email, role or method…" />
     </div>
 
-    <!-- Actions -->
+    <!-- Actions Group -->
     <div class="flex flex-col sm:flex-row w-full xl:w-auto items-start sm:items-center gap-3 lg:gap-4">
 
       <!-- Refresh Button -->
       <button (click)="loadUsers()" [disabled]="loading()"
-        class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-all outline-none border border-transparent flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-30">
-        <svg class="w-4 h-4" [class.animate-spin]="loading()" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        class="w-full sm:w-auto px-5 py-3.5 rounded-xl text-xs font-bold text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-all outline-none border border-transparent flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-30">
+        <svg class="w-4 h-4 shrink-0" [class.animate-spin]="loading()" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2.5">
           <path d="M23 4v6h-6" />
           <path d="M1 20v-6h6" />
           <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
         </svg>
-        Refresh
+        <span class="truncate">Refresh</span>
       </button>
 
       <!-- Invite User Button -->
@@ -57,288 +57,300 @@
     </div>
   </div>
 
-  <!-- ── Error State ────────────────────────────────────────────────────── -->
-  @if (error()) {
-  <div class="mb-6 bg-red-400/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-4 animate-fade-in text-red-500">
-    <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
+  <!-- ── Loading State ────────────────────────────────────────────────── -->
+  @if (loading()) {
+  <div class="flex-1 flex flex-col items-center justify-center py-20 lg:py-40">
+    <div class="relative w-16 h-16">
+      <div class="absolute inset-0 border-4 border-[#4ECCA3]/10 rounded-full"></div>
+      <div class="absolute inset-0 border-4 border-[#4ECCA3] border-t-transparent rounded-full animate-spin"></div>
     </div>
-    <div class="flex-1 min-w-0">
-      <h3 class="text-sm font-bold uppercase tracking-widest">Error Loading Users</h3>
-      <p class="text-xs opacity-80 mt-1">{{ error() }}</p>
-    </div>
-    <button (click)="clearError()" class="p-2 hover:bg-white/5 rounded-lg transition-colors text-[#EEEEEE]/40">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M18 6L6 18M6 6l12 12" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-    </button>
+    <p class="mt-4 text-xs font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em] animate-pulse">Syncing Database…</p>
   </div>
-  }
-
-  <!-- ── Users Table ────────────────────────────────────────────────────── -->
-  <div
-    class="flex-1 bg-[#393E46] rounded-3xl border border-[#EEEEEE]/10 shadow-2xl overflow-hidden flex flex-col min-h-0 min-w-0">
-
-    @if (loading()) {
-    <div class="flex-1 flex flex-col items-center justify-center p-12">
-      <div class="relative w-16 h-16">
-        <div class="absolute inset-0 border-4 border-[#4ECCA3]/10 rounded-full"></div>
-        <div class="absolute inset-0 border-4 border-[#4ECCA3] border-t-transparent rounded-full animate-spin"></div>
-      </div>
-      <p class="mt-4 text-xs font-bold text-[#EEEEEE]/40 uppercase tracking-[0.2em] animate-pulse">Fetching Users…</p>
+  } @else if (filteredUsers().length === 0) {
+  <div class="flex-1 flex flex-col items-center justify-center py-20 text-center animate-fade-in">
+    <div class="w-20 h-20 rounded-3xl bg-[#393E46] flex items-center justify-center mb-6 border border-[#EEEEEE]/5 shadow-xl">
+      <svg class="w-10 h-10 text-[#EEEEEE]/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-width="2" />
+        <circle cx="9" cy="7" r="4" stroke-width="2" />
+        <circle cx="17.5" cy="17.5" r="4.5" stroke-width="2" />
+        <path d="M21 21l-1.5-1.5" stroke-width="2" stroke-linecap="round" />
+      </svg>
     </div>
-    } @else if (filteredUsers().length === 0) {
-    <div class="flex-1 flex flex-col items-center justify-center p-12 text-center">
-      <div class="w-20 h-20 rounded-3xl bg-[#232931] flex items-center justify-center mb-6 border border-[#EEEEEE]/5">
-        <svg class="w-10 h-10 text-[#EEEEEE]/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-width="2" />
-          <circle cx="9" cy="7" r="4" stroke-width="2" />
-          <circle cx="17.5" cy="17.5" r="4.5" stroke-width="2" />
-          <path d="M21 21l-1.5-1.5" stroke-width="2" stroke-linecap="round" />
-        </svg>
-      </div>
-      <h3 class="text-lg font-bold text-[#EEEEEE]">No users found</h3>
-      <p class="text-sm text-[#EEEEEE]/40 mt-2 max-w-xs mx-auto">
-        {{ searchTerm() ? 'No users match your current search criteria. Try adjusting your filters.' : 'Your team is
-        currently empty. Start inviting users to build your workspace.' }}
-      </p>
-    </div>
-    } @else {
-    <div class="flex-1 overflow-x-auto min-h-0">
-      <table class="w-full text-left border-collapse min-w-[900px]">
-        <thead class="sticky top-0 z-10 bg-[#393E46] border-b border-[#EEEEEE]/10">
-          <tr>
-            <th class="pl-8 pr-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">User</th>
-            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Role Mapping</th>
-            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Auth Method</th>
-            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Current Status</th>
-            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Last Activity</th>
-            <th class="pl-4 pr-8 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em] text-right">
-              Control</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-[#EEEEEE]/5">
-          @for (user of filteredUsers(); track user.user_id) {
-          <tr class="group/row hover:bg-[#232931]/40 transition-colors" [class.opacity-50]="user.is_banned">
+    <h3 class="text-xl font-black text-[#EEEEEE] tracking-tight">No match found</h3>
+    <p class="text-sm text-[#EEEEEE]/40 mt-2 max-w-xs mx-auto font-medium">
+      {{ searchTerm() ? 'No members match your current search criteria. Try a different e-mail or role mapping.' : 'Your team directory is currently empty. Invite members to get started.' }}
+    </p>
+  </div>
+  } @else {
 
-            <!-- User Info -->
-            <td class="pl-8 pr-4 py-5">
-              <div class="flex items-center gap-4">
-                <div
-                  class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4ECCA3]/20 to-[#393E46] border border-[#4ECCA3]/20 flex items-center justify-center text-[#4ECCA3] font-black text-sm shadow-inner shrink-0 cursor-default">
-                  {{ user.email.charAt(0).toUpperCase() }}
+    <!-- ── Desktop Table View (>= md) ─────────────────────────────────── -->
+    <div
+      class="hidden md:flex flex-col flex-1 min-h-0 bg-[#393E46] rounded-3xl border border-[#EEEEEE]/10 shadow-2xl overflow-hidden">
+      <div class="flex-1 overflow-auto custom-scroll">
+        <table class="w-full text-left border-collapse min-w-[900px]">
+          <thead class="sticky top-0 z-10 bg-[#393E46] border-b border-[#EEEEEE]/10 backdrop-blur-md bg-[#393E46]/95">
+            <tr>
+              <th class="pl-8 pr-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Member</th>
+              <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Role Mapping</th>
+              <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Auth Provider</th>
+              <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Status</th>
+              <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Recent Access</th>
+              <th class="pl-4 pr-8 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em] text-right">Settings</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#EEEEEE]/5">
+            @for (user of filteredUsers(); track user.user_id) {
+            <tr class="group/row hover:bg-[#232931]/40 transition-all duration-200" [class.opacity-50]="user.is_banned">
+              <td class="pl-8 pr-4 py-5">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4ECCA3]/20 to-[#393E46] border border-[#4ECCA3]/20 flex items-center justify-center text-[#4ECCA3] font-black text-sm shadow-inner shrink-0 transition-transform group-hover/row:scale-105">
+                    {{ user.email.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-bold text-[#EEEEEE] truncate block max-w-[180px] lg:max-w-[240px]">{{ user.email }}</span>
+                      @if (isCurrentUser(user.user_id)) {
+                      <span class="px-1.5 py-0.5 rounded-md bg-[#4ECCA3]/10 text-[#4ECCA3] text-[9px] font-black uppercase tracking-widest border border-[#4ECCA3]/20">ME</span>
+                      }
+                    </div>
+
+                  </div>
                 </div>
-                <div class="min-w-0">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm font-bold text-[#EEEEEE] truncate block max-w-[200px]">
-                      {{ user.email }}
-                    </span>
-                    @if (isCurrentUser(user.user_id)) {
-                    <span
-                      class="px-1.5 py-0.5 rounded-md bg-[#4ECCA3]/10 text-[#4ECCA3] text-[9px] font-black uppercase tracking-widest border border-[#4ECCA3]/20">YOU</span>
+              </td>
+              <td class="px-4 py-5 focus-within:z-20">
+                @if (updatingUserId() === user.user_id) {
+                <div class="flex items-center gap-2 text-[#4ECCA3] animate-pulse">
+                  <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-[#4ECCA3]"></div>
+                  <span class="text-[9px] font-black uppercase tracking-widest">Updating…</span>
+                </div>
+                } @else {
+                <div class="relative w-40">
+                  <select [value]="user.role" (change)="onRoleChange(user, $any($event.target).value)"
+                    [disabled]="isCurrentUser(user.user_id) && user.role === 'super_admin' || user.is_banned"
+                    class="w-full appearance-none bg-[#232931] border border-[#EEEEEE]/10 rounded-xl px-4 py-2.5 text-[#EEEEEE] font-bold text-xs uppercase tracking-wider outline-none focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] shadow-inner transition-all hover:bg-[#232931]/80 disabled:opacity-30 disabled:cursor-not-allowed">
+                    @for (role of availableRoles; track role.value) {
+                    <option [value]="role.value">{{ role.label }}</option>
+                    }
+                  </select>
+                  <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-[#EEEEEE]/40">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+                }
+              </td>
+              <td class="px-4 py-5">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-[#232931] border border-[#EEEEEE]/10 flex items-center justify-center text-[#EEEEEE]/40 group-hover/row:border-[#4ECCA3]/20 transition-colors">
+                    @if (user.provider === 'google') {
+                    <svg class="w-4 h-4 text-red-400/80" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z"/>
+                    </svg>
+                    } @else if (user.provider === 'github') {
+                    <svg class="w-4 h-4 text-[#EEEEEE]/90" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                    </svg>
+                    } @else {
+                    <svg class="w-4 h-4 text-[#4ECCA3]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="2" /><polyline points="22,6 12,13 2,6" stroke-width="2" /></svg>
                     }
                   </div>
-                  <span class="text-[10px] font-medium text-[#EEEEEE]/30 font-mono tracking-tighter">ID: {{
-                    user.user_id.substring(0, 12) }}...</span>
+                  <span class="text-[11px] font-bold text-[#EEEEEE]/50 uppercase tracking-wider">{{ getProviderLabel(user.provider) }}</span>
                 </div>
-              </div>
-            </td>
-
-            <!-- Role Selector -->
-            <td class="px-4 py-5">
-              @if (updatingUserId() === user.user_id) {
-              <div class="flex items-center gap-2 text-[#4ECCA3]">
-                <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-[#4ECCA3]"></div>
-                <span class="text-[10px] font-black uppercase tracking-widest">Syncing…</span>
-              </div>
-              } @else {
-              <div class="relative w-40">
-                <select [value]="user.role" (change)="onRoleChange(user, $any($event.target).value)"
-                  [disabled]="isCurrentUser(user.user_id) && user.role === 'super_admin' || user.is_banned"
-                  class="w-full appearance-none bg-[#232931] border border-[#EEEEEE]/10 rounded-xl px-4 py-2.5 text-[#EEEEEE] font-bold text-xs uppercase tracking-wider outline-none focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] shadow-inner transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-                  @for (role of availableRoles; track role.value) {
-                  <option [value]="role.value">{{ role.label }}</option>
-                  }
-                </select>
-                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-[#EEEEEE]/50">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </div>
-              </div>
-              }
-            </td>
-
-            <!-- Auth Method -->
-            <td class="px-4 py-5">
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-[#232931] border border-[#EEEEEE]/10 flex items-center justify-center text-[#EEEEEE]/40">
-                  @if (user.provider === 'google') {
-                  <svg class="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z"/>
-                  </svg>
-                  } @else if (user.provider === 'github') {
-                  <svg class="w-4 h-4 text-[#EEEEEE]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-                  </svg>
-                  } @else {
-                  <svg class="w-4 h-4 text-[#4ECCA3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="2" />
-                    <polyline points="22,6 12,13 2,6" stroke-width="2" />
-                  </svg>
-                  }
-                </div>
-                <span class="text-xs font-bold text-[#EEEEEE]/70">{{ getProviderLabel(user.provider) }}</span>
-              </div>
-            </td>
-
-            <!-- Status Badge -->
-            <td class="px-4 py-5">
-              @if (user.is_banned) {
-              <span
-                class="inline-flex items-center px-2.5 py-1 rounded-md bg-red-400/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20">
-                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-width="2.5" />
-                  <path d="M7 11V7a5 5 0 0110 0v4" stroke-width="2.5" />
-                </svg>
-                Restricted
-              </span>
-              } @else if (user.email_confirmed) {
-              <span
-                class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#4ECCA3]/10 text-[#4ECCA3] text-[10px] font-black uppercase tracking-widest border border-[#4ECCA3]/20">
-                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                Active
-              </span>
-              } @else {
-              <span
-                class="inline-flex items-center px-2.5 py-1 rounded-md bg-amber-400/10 text-amber-500 text-[10px] font-black uppercase tracking-widest border border-amber-400/20">
-                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-                Pending
-              </span>
-              }
-            </td>
-
-            <!-- Last Sign In -->
-            <td class="px-4 py-5">
-              <span class="text-xs font-bold text-[#EEEEEE]/50">{{ formatDate(user.last_sign_in_at) }}</span>
-            </td>
-
-            <!-- Row Actions -->
-            <td class="pl-4 pr-8 py-5">
-              <div class="flex items-center justify-end gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
-                @if (!isCurrentUser(user.user_id)) {
-                <!-- Ban/Unban -->
-                <button (click)="toggleUserBan(user)"
-                  class="p-2 rounded-lg transition-all focus:outline-none"
-                  [class]="user.is_banned ? 'text-[#4ECCA3]/60 hover:text-[#4ECCA3] hover:bg-[#4ECCA3]/10' : 'text-amber-500/60 hover:text-amber-500 hover:bg-amber-400/10'"
-                  [title]="user.is_banned ? 'Restore Access' : 'Restrict Access'">
-                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                    @if (user.is_banned) {
-                    <path d="M12 11V7a5 5 0 0110 0v4M8 11v-1a4 4 0 018 0v1M3 21h18M3 11h18v10H3V11z" />
-                    } @else {
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" />
-                    }
-                  </svg>
-                </button>
-
-                <!-- Delete -->
-                <button (click)="deleteUser(user)"
-                  class="p-2 rounded-lg text-red-500/60 hover:text-red-500 hover:bg-red-500/10 transition-all focus:outline-none"
-                  title="Purge User">
-                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
-                  </svg>
-                </button>
+              </td>
+              <td class="px-4 py-5">
+                @if (user.is_banned) {
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20">BANNED</span>
+                } @else if (user.email_confirmed) {
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-[#4ECCA3]/10 text-[#4ECCA3] text-[10px] font-black uppercase tracking-widest border border-[#4ECCA3]/20">ACTIVE</span>
                 } @else {
-                <span class="text-[10px] font-black text-[#EEEEEE]/10 uppercase tracking-widest px-2 cursor-default">Protected</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-400/10 text-amber-400 text-[10px] font-black uppercase tracking-widest border border-amber-400/20">PENDING</span>
                 }
-              </div>
-            </td>
-
-          </tr>
-          }
-        </tbody>
-      </table>
+              </td>
+              <td class="px-4 py-5 text-xs font-bold text-[#EEEEEE]/40">{{ formatDate(user.last_sign_in_at) }}</td>
+              <td class="pl-4 pr-8 py-5 text-right">
+                <div class="flex items-center justify-end gap-1">
+                  @if (!isCurrentUser(user.user_id)) {
+                  <button (click)="toggleUserBan(user)" class="p-2 rounded-lg transition-all" [class]="user.is_banned ? 'text-[#4ECCA3]/60 hover:bg-[#4ECCA3]/10' : 'text-amber-500/60 hover:bg-amber-400/10'">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                      @if (user.is_banned) { <path d="M12 11V7a5 5 0 0110 0v4M8 11v-1a4 4 0 018 0v1M3 21h18M3 11h18v10H3V11z" /> } @else { <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" /> }
+                    </svg>
+                  </button>
+                  <button (click)="deleteUser(user)" class="p-2 rounded-lg text-red-500/60 hover:bg-red-500/10 transition-all">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" /></svg>
+                  </button>
+                  } @else {
+                  <span class="text-[9px] font-black text-[#EEEEEE]/20 uppercase tracking-widest block px-2">LOCKED</span>
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
-    }
 
-  </div>
+    <!-- ── Mobile Card Grid (< md) ────────────────────────────────────── -->
+    <div class="md:hidden flex-1 overflow-y-auto custom-scroll flex flex-col gap-4">
+      @for (user of filteredUsers(); track user.user_id) {
+      <div class="bg-[#393E46] rounded-2xl p-5 border border-[#EEEEEE]/5 shadow-lg flex flex-col gap-5 relative overflow-hidden" [class.opacity-60]="user.is_banned">
+        <!-- Status indicator line -->
+        <div class="absolute top-0 left-0 bottom-0 w-1" [class]="user.is_banned ? 'bg-red-500' : (user.email_confirmed ? 'bg-[#4ECCA3]' : 'bg-amber-400')"></div>
+        
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#4ECCA3]/20 to-[#393E46] border border-[#EEEEEE]/10 flex items-center justify-center text-[#4ECCA3] font-black shadow-inner shrink-0">
+              {{ user.email.charAt(0).toUpperCase() }}
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-[#EEEEEE] truncate block">{{ user.email }}</p>
+              <div class="flex items-center gap-2 mt-1">
+                @if (isCurrentUser(user.user_id)) {
+                <span class="px-1.5 py-0.5 rounded bg-[#4ECCA3]/10 text-[#4ECCA3] text-[9px] font-black uppercase tracking-widest border border-[#4ECCA3]/20">MY ACCOUNT</span>
+                }
+
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Status Indicator -->
+          <div class="text-right shrink-0">
+            @if (user.is_banned) {
+            <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Restricted</span>
+            } @else {
+            <div class="flex items-center gap-1.5 justify-end">
+              <span class="w-1.5 h-1.5 rounded-full" [class]="user.email_confirmed ? 'bg-[#4ECCA3]' : 'bg-amber-400'"></span>
+              <span class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest">{{ user.email_confirmed ? 'Verified' : 'Pending' }}</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 border-t border-[#EEEEEE]/5 pt-5">
+          <!-- Role selector in card -->
+          <div class="col-span-2">
+            <label class="block text-[9px] font-black text-[#EEEEEE]/30 uppercase tracking-[0.2em] mb-2 px-1">Role Permissions</label>
+            @if (updatingUserId() === user.user_id) {
+            <div class="bg-[#232931]/50 rounded-xl px-4 py-3 flex items-center gap-3">
+              <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-[#4ECCA3]"></div>
+              <span class="text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest">Syncing…</span>
+            </div>
+            } @else {
+            <div class="relative">
+              <select [value]="user.role" (change)="onRoleChange(user, $any($event.target).value)"
+                [disabled]="isCurrentUser(user.user_id) && user.role === 'super_admin' || user.is_banned"
+                class="w-full appearance-none bg-[#232931] border border-[#EEEEEE]/5 rounded-xl px-4 py-3 text-[#EEEEEE] font-bold text-xs uppercase tracking-widest outline-none focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] shadow-inner transition-all disabled:opacity-30">
+                @for (role of availableRoles; track role.value) {
+                <option [value]="role.value">{{ role.label }}</option>
+                }
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-[#EEEEEE]/40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+            }
+          </div>
+
+          <!-- Auth Provider & Last Seen -->
+          <div class="col-span-1">
+             <label class="block text-[9px] font-black text-[#EEEEEE]/30 uppercase tracking-[0.2em] mb-1.5 px-1">Provider</label>
+             <div class="flex items-center gap-2 px-1">
+                <span class="text-xs font-bold text-[#EEEEEE]/60">{{ getProviderLabel(user.provider) }}</span>
+             </div>
+          </div>
+          <div class="col-span-1 text-right">
+             <label class="block text-[9px] font-black text-[#EEEEEE]/30 uppercase tracking-[0.2em] mb-1.5 px-1">Last Access</label>
+             <p class="text-[11px] font-bold text-[#EEEEEE]/50 px-1">{{ formatDate(user.last_sign_in_at) }}</p>
+          </div>
+        </div>
+
+        <!-- Mobile Actions -->
+        @if (!isCurrentUser(user.user_id)) {
+        <div class="flex items-center gap-3 mt-1 pt-4 border-t border-[#EEEEEE]/5">
+          <button (click)="toggleUserBan(user)"
+            class="flex-1 py-3.5 rounded-xl flex items-center justify-center gap-2.5 font-black text-[10px] uppercase tracking-[0.15em] transition-all"
+            [class]="user.is_banned ? 'bg-[#4ECCA3]/10 text-[#4ECCA3] border border-[#4ECCA3]/20 shadow-sm' : 'bg-amber-400/10 text-amber-500 border border-amber-400/20 shadow-sm'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+              @if (user.is_banned) { <path d="M12 11V7a5 5 0 0110 0v4M8 11v-1a4 4 0 018 0v1M3 21h18M3 11h18v10H3V11z" /> } @else { <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" /> }
+            </svg>
+            {{ user.is_banned ? 'Activate Access' : 'Restrict Access' }}
+          </button>
+          <button (click)="deleteUser(user)"
+            class="w-14 h-14 shrink-0 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 flex items-center justify-center shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" /></svg>
+          </button>
+        </div>
+        } @else {
+        <div class="mt-1 pt-4 border-t border-[#EEEEEE]/5 text-center">
+          <span class="text-[10px] font-black text-[#EEEEEE]/20 uppercase tracking-[0.2em] italic">— Administrative Shield Active —</span>
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+  }
 </div>
 
 <!-- ── Invite User Panel ──────────────────────────────────────────────── -->
 <form (ngSubmit)="submitInvite()">
-  <app-side-panel [isOpen]="showInviteForm()" title="Invite Team Member" subtitle="Access Management"
+  <app-side-panel [isOpen]="showInviteForm()" title="Invite Member" subtitle="Workspace Control"
     (closePanel)="closeInviteForm()">
 
     <!-- Body -->
-    <div panel-body class="space-y-6">
+    <div panel-body class="space-y-6 px-1 sm:px-2">
       <!-- Email -->
       <div class="group">
         <label for="i-email"
-          class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-2 group-focus-within:text-[#4ECCA3] transition-colors">
-          Email Address <span class="text-[#4ECCA3]">*</span>
+          class="block text-[10px] font-black text-[#EEEEEE]/50 uppercase tracking-[0.22em] mb-2.5 group-focus-within:text-[#4ECCA3] transition-colors">
+          Email Identity <span class="text-[#4ECCA3] ml-0.5">*</span>
         </label>
         <input id="i-email" type="email" [value]="inviteEmail()" (input)="inviteEmail.set($any($event.target).value)"
-          placeholder="teammate@example.com"
-          class="w-full px-4 py-3 bg-[#393E46] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all text-sm font-semibold shadow-inner">
+          placeholder="colleague@yourteam.com"
+          class="w-full px-5 py-4 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/20 focus:border-[#4ECCA3] focus:ring-2 focus:ring-[#4ECCA3]/20 outline-none transition-all text-sm font-bold shadow-inner">
       </div>
 
       <!-- Role Selection -->
       <div class="group">
         <label for="i-role"
-          class="block text-[10px] font-bold text-[#EEEEEE]/60 uppercase tracking-widest mb-2 group-focus-within:text-[#4ECCA3] transition-colors">
-          Assign Role Mapping
+          class="block text-[10px] font-black text-[#EEEEEE]/50 uppercase tracking-[0.22em] mb-2.5 group-focus-within:text-[#4ECCA3] transition-colors">
+          Permission Mapping
         </label>
         <div class="relative">
           <select id="i-role" [value]="inviteRole()" (change)="inviteRole.set($any($event.target).value)"
-            class="w-full appearance-none bg-[#393E46] border border-[#EEEEEE]/10 rounded-xl px-4 py-3 text-sm text-[#EEEEEE] font-bold uppercase tracking-wider outline-none focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] shadow-inner transition-colors">
+            class="w-full appearance-none bg-[#232931] border border-[#EEEEEE]/10 rounded-xl px-5 py-4 text-xs text-[#EEEEEE] font-black uppercase tracking-[0.1em] outline-none focus:border-[#4ECCA3] focus:ring-2 focus:ring-[#4ECCA3]/20 shadow-inner transition-colors">
             @for (role of availableRoles; track role.value) {
             <option [value]="role.value">{{ role.label }}</option>
             }
           </select>
-          <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-[#EEEEEE]/50">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
-            </svg>
+          <div class="absolute inset-y-0 right-0 flex items-center px-5 pointer-events-none text-[#EEEEEE]/40">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
           </div>
         </div>
-        <p class="mt-4 p-4 rounded-xl bg-[#232931]/50 border border-[#EEEEEE]/5 text-[11px] text-[#EEEEEE]/40 leading-relaxed italic">
-          New members will receive an e-mail invitation with a secure link to activate their account and set their authentication credentials.
-        </p>
+        <div class="mt-6 p-5 rounded-2xl bg-[#393E46]/30 border border-[#EEEEEE]/5 animate-fade-in">
+          <p class="text-[11px] text-[#EEEEEE]/40 leading-relaxed font-bold tracking-tight">
+            Security Notice: A cryptographically secure invitation will be dispatched via outbound transmission. 
+            The recipient must finalize verification within 24 hours to secure their membership.
+          </p>
+        </div>
       </div>
     </div>
 
     <!-- Footer -->
-    <div panel-footer class="flex flex-col-reverse sm:flex-row items-center w-full justify-end gap-3 sm:gap-4">
+    <div panel-footer class="flex flex-col sm:flex-row items-center w-full justify-end gap-3 sm:gap-4 px-1 sm:px-2">
       <button type="button" (click)="closeInviteForm()"
-        class="w-full sm:w-auto px-5 py-3 rounded-xl text-sm font-bold text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-colors tracking-wide uppercase focus:outline-none">
-        Cancel
+        class="w-full sm:w-auto order-2 sm:order-1 px-8 py-4 rounded-xl text-xs font-black text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-white/5 transition-all tracking-[0.15em] uppercase focus:outline-none">
+        CANCEL
       </button>
       <button type="submit" [disabled]="inviteLoading() || !inviteEmail()"
-        class="w-full sm:w-auto mb-3 sm:mb-0 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:opacity-40 disabled:cursor-not-allowed text-[#232931] font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(78,204,163,0.2)] flex items-center justify-center tracking-wide uppercase text-sm focus:outline-none">
+        class="w-full sm:w-auto order-1 sm:order-2 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:opacity-30 disabled:cursor-not-allowed text-[#232931] font-black py-4.5 px-10 rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(78,204,163,0.3)] flex items-center justify-center tracking-[0.1em] uppercase text-xs focus:outline-none group/btn">
         @if (inviteLoading()) {
-        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-[#232931]" xmlns="http://www.w3.org/2000/svg" fill="none"
-          viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-          </path>
-        </svg>
-        Sending…
+        <div class="animate-spin h-4 w-4 border-b-2 border-[#232931] mr-3"></div>
+        TRANSMITTING…
         } @else {
-        Send Invitation
+        <svg class="w-4 h-4 mr-2.5 transition-transform group-hover/btn:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        DISPATCH INVITE
         }
       </button>
     </div>
@@ -346,28 +358,20 @@
   </app-side-panel>
 </form>
 
-<!-- ── Global Toast ────────────────────────────────────────────────────── -->
+<!-- ── Global Notifications ────────────────────────────────────────────── -->
 @if (toast()) {
 <div
-  class="fixed bottom-6 right-6 z-[200] max-w-sm w-full bg-[#393E46] border border-[#EEEEEE]/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-4 flex items-center gap-3 animate-fade-in-up"
+  class="fixed bottom-6 left-6 right-6 sm:left-auto sm:right-8 z-[200] max-w-sm ml-auto bg-[#393E46] border border-[#EEEEEE]/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-5 flex items-center gap-4 animate-fade-in-up"
   role="alert">
-  @if (toast()?.type === 'success') {
-  <div class="flex-shrink-0 w-8 h-8 bg-[#4ECCA3]/20 rounded-full flex items-center justify-center text-[#4ECCA3]">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="20 6 9 17 4 12" />
+  <div class="flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center shadow-inner"
+       [class]="toast()?.type === 'success' ? 'bg-[#4ECCA3]/20 text-[#4ECCA3]' : 'bg-red-500/20 text-red-500'">
+    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      @if (toast()?.type === 'success') { <polyline points="20 6 9 17 4 12" /> } @else { <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /> }
     </svg>
   </div>
-  } @else {
-  <div class="flex-shrink-0 w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center text-red-500">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
-    </svg>
-  </div>
-  }
-  <p class="text-sm font-semibold text-[#EEEEEE]">{{ toast()?.message }}</p>
+  <p class="text-sm font-bold text-[#EEEEEE] tracking-tight leading-snug">{{ toast()?.message }}</p>
+  <button (click)="toast.set(null)" class="ml-auto text-[#EEEEEE]/20 hover:text-[#EEEEEE] transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
 </div>
 }

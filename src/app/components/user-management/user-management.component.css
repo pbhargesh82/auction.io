@@ -2,40 +2,108 @@
 
 /* User Management Component Styles */
 
-/* Table focus states for dark mode */
+/* ── Typography & Consistency ────────────────────────────────────────── */
 .group:focus-within label {
   color: #4ECCA3 !important;
 }
 
-/* Custom scroll for table */
-.overflow-x-auto {
+/* ── Responsive Container Utilities ───────────────────────────────────── */
+/* Custom scroll for table and side panels */
+.custom-scroll {
   scrollbar-width: thin;
   scrollbar-color: rgba(238, 238, 238, 0.1) transparent;
 }
 
-.overflow-x-auto::-webkit-scrollbar {
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
   height: 6px;
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
+.custom-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb {
+.custom-scroll::-webkit-scrollbar-thumb {
   background: rgba(238, 238, 238, 0.1);
   border-radius: 10px;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+.custom-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(238, 238, 238, 0.2);
 }
 
-/* Table row animation */
+/* ── Table & Interactive States ──────────────────────────────────────── */
 tr {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Modal and Overlay blur */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
+/* Select element resetting for mobile touch */
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Animations ──────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Mobile Layout Refinements ────────────────────────────────────────── */
+/* Ensure cards stack nicely and don't feel too cramped */
+@media (max-width: 767px) {
+  .min-h-full {
+    padding-bottom: 5rem; /* Space for notifications or floating actions if added later */
+  }
+  
+  /* Optimize inputs for mobile touch height */
+  input, select, button {
+    min-height: 44px;
+  }
+}
+
+/* ── Premium Effects ─────────────────────────────────────────────────── */
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.shadow-inner {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Row hover highlight for table */
+.group\/row:hover {
+  box-shadow: inset 2px 0 0 0 #4ECCA3;
 }

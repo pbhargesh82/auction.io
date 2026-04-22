@@ -1,54 +1,114 @@
+<!-- ══════════════════════════════════════════════════════════════════════════
+     USER PROFILE — Premium Dropdown Redesign
+     Unified with User Management Design System
+══════════════════════════════════════════════════════════════════════════ -->
+
 <div class="relative">
-  <!-- Profile Button / Pill -->
+  <!-- ── Profile Pill Button ────────────────────────────────────────── -->
   <button (click)="toggleMenu()"
-          class="flex items-center space-x-2 md:space-x-3 p-1.5 md:pr-4 rounded-full bg-[#393E46] border border-[#EEEEEE]/5 hover:border-[#4ECCA3]/40 transition-all duration-300 focus:outline-none"
-          [class.ring-2]="menuOpen()" [class.ring-[#4ECCA3]]="menuOpen()">
-    <div class="flex items-center justify-center w-8 h-8 bg-[#4ECCA3] rounded-full flex-shrink-0 shadow-[0_0_10px_rgba(78,204,163,0.3)]">
-      <span class="text-sm font-black text-[#232931]">
+    class="profile-pill flex items-center space-x-2 sm:space-x-4 p-1.5 sm:pr-5 rounded-full bg-[#393E46] border border-[#EEEEEE]/10 hover:border-[#4ECCA3]/40 transition-all duration-300 focus:outline-none ring-offset-[#232931]"
+    [class.ring-2]="menuOpen()" [class.ring-[#4ECCA3]]="menuOpen()" [class.ring-glow]="menuOpen()">
+    
+    <!-- Premium Gradient Avatar -->
+    <div class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#4ECCA3]/20 to-[#393E46] border border-[#4ECCA3]/30 text-[#4ECCA3] font-black shadow-inner-sm shrink-0">
+      <span class="text-xs sm:text-sm">
         {{ userDisplayName().charAt(0).toUpperCase() }}
       </span>
     </div>
-    <div class="hidden md:flex flex-col items-start justify-center">
-      <p class="text-xs font-bold text-[#EEEEEE] truncate leading-tight w-24 text-left">
+
+    <!-- Identity Labels (Hidden on very small mobile) -->
+    <div class="hidden xs:flex flex-col items-start justify-center min-w-0 pr-1">
+      <p class="text-xs font-bold text-[#EEEEEE] truncate leading-tight w-20 sm:w-28 text-left">
         {{ userDisplayName() }}
       </p>
-      <p class="text-[9px] font-black uppercase tracking-widest leading-tight mt-0.5"
-         [class]="isAdmin() ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]/40'">
-        {{ isAdmin() ? 'Super Admin' : 'User' }}
-      </p>
+      <div class="flex items-center gap-1.5 mt-0.5">
+        <span class="w-1 h-1 rounded-full bg-[#4ECCA3]"></span>
+        <p class="text-[9px] font-black uppercase tracking-[0.1em] leading-tight"
+          [class]="isAdmin() ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]/40'">
+          {{ isAdmin() ? 'Super Admin' : 'Member' }}
+        </p>
+      </div>
     </div>
-    <svg class="hidden md:block w-4 h-4 text-[#EEEEEE]/40 transition-transform duration-300"
-         [class.rotate-180]="menuOpen()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Chevron Indicator -->
+    <svg class="hidden sm:block w-4 h-4 text-[#EEEEEE]/30 transition-transform duration-300"
+      [class.rotate-180]="menuOpen()" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+      <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </button>
 
-  <!-- Animated Dropdown Menu -->
+  <!-- ── Redesigned Dropdown Menu ──────────────────────────────────────── -->
   @if (menuOpen()) {
-  <div class="absolute right-0 mt-3 w-56 rounded-2xl bg-[#393E46] border border-[#EEEEEE]/10 shadow-[0_15px_40px_rgba(0,0,0,0.6)] animate-fade-in-up z-50 overflow-hidden">
-    <!-- Header info snippet for mobile contexts mostly -->
-    <div class="md:hidden px-4 py-3 border-b border-[#EEEEEE]/5 bg-[#232931]/30">
-      <p class="text-sm font-bold text-[#EEEEEE] truncate">{{ userDisplayName() }}</p>
-      <p class="text-[10px] text-[#EEEEEE]/40 truncate">{{ user()?.email }}</p>
+  <div class="absolute right-0 mt-4 w-72 rounded-3xl overflow-hidden border border-[#EEEEEE]/10 shadow-[0_25px_60px_rgba(0,0,0,0.7)] animate-fade-in-up z-50 dropdown-surface">
+    
+    <!-- User Card Header (Matches User Management Card Style) -->
+    <div class="px-5 py-6 bg-[#232931]/40 border-b border-[#EEEEEE]/5">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#4ECCA3]/20 to-[#393E46] border border-[#EEEEEE]/10 flex items-center justify-center text-[#4ECCA3] font-black shadow-inner shrink-0">
+          {{ userDisplayName().charAt(0).toUpperCase() }}
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-[#EEEEEE] truncate block">{{ user()?.email }}</p>
+          <div class="flex items-center gap-2 mt-1">
+            @if (isAdmin()) {
+            <span class="px-1.5 py-0.5 rounded bg-[#4ECCA3]/10 text-[#4ECCA3] text-[9px] font-black uppercase tracking-widest border border-[#4ECCA3]/20">ADMIN ACCESS</span>
+            } @else {
+            <span class="px-1.5 py-0.5 rounded bg-[#EEEEEE]/5 text-[#EEEEEE]/40 text-[9px] font-black uppercase tracking-widest border border-[#EEEEEE]/10">MEMBER</span>
+            }
+          </div>
+        </div>
+      </div>
     </div>
     
-    <div class="px-3 py-3 space-y-1">
-      <p class="px-2 text-[9px] font-black text-[#EEEEEE]/40 uppercase tracking-widest mb-2 hidden md:block select-none">{{ user()?.email }}</p>
+    <!-- Action List -->
+    <div class="p-3 space-y-1">
+      
+      <!-- Account Info / Preferences -->
+      <button class="profile-action-btn w-full group flex items-center px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-[#232931]/60 focus:outline-none">
+        <div class="icon-bg w-9 h-9 rounded-xl flex items-center justify-center bg-[#232931]/40 border border-[#EEEEEE]/5 mr-4 text-[#EEEEEE]/40 group-hover:text-[#4ECCA3] transition-all">
+          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </div>
+        <div class="text-left">
+          <p class="text-sm font-bold text-[#EEEEEE] group-hover:text-[#EEEEEE]">Account Settings</p>
+          <p class="text-[10px] font-bold text-[#EEEEEE]/30 uppercase tracking-widest mt-0.5">Profile & Security</p>
+        </div>
+      </button>
 
-      <button class="w-full flex items-center px-4 py-2.5 text-sm font-semibold text-[#EEEEEE]/70 hover:text-[#EEEEEE] hover:bg-[#232931] rounded-xl transition-colors duration-200">
-        <svg class="w-4 h-4 mr-3 text-[#EEEEEE]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-        Preferences
+      <!-- Preferences -->
+      <button class="profile-action-btn w-full group flex items-center px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-[#232931]/60 focus:outline-none">
+        <div class="icon-bg w-9 h-9 rounded-xl flex items-center justify-center bg-[#232931]/40 border border-[#EEEEEE]/5 mr-4 text-[#EEEEEE]/40 group-hover:text-[#4ECCA3] transition-all">
+          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <div class="text-left">
+          <p class="text-sm font-bold text-[#EEEEEE] group-hover:text-[#EEEEEE]">Preferences</p>
+          <p class="text-[10px] font-bold text-[#EEEEEE]/30 uppercase tracking-widest mt-0.5">Themes & Appearance</p>
+        </div>
       </button>
       
-      <button (click)="onSignOut()"
-              class="w-full flex items-center px-4 py-2.5 text-sm font-bold text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-xl transition-colors duration-200">
-        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      <!-- Logout -->
+      <div class="pt-2 mt-2 border-t border-[#EEEEEE]/5">
+        <button (click)="onSignOut()"
+                class="w-full flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-black text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-all duration-200 outline-none uppercase tracking-widest group">
+          <span>Finalize Session</span>
+          <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Security Badge Footer -->
+    <div class="px-5 py-3 bg-[#232931]/60 flex items-center justify-center">
+      <div class="flex items-center gap-2">
+        <svg class="w-3 h-3 text-[#4ECCA3]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+          <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
         </svg>
-        Sign Out
-      </button>
+        <span class="text-[9px] font-black text-[#EEEEEE]/20 uppercase tracking-[0.2em]">Secure Session Active</span>
+      </div>
     </div>
   </div>
   }

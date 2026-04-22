@@ -22,7 +22,7 @@
 </div>
 }
 
-<div class="min-h-full bg-[#232931] text-[#EEEEEE] p-4 sm:p-5 lg:p-8 flex flex-col w-full">
+<div class="h-full bg-[#232931] text-[#EEEEEE] p-4 sm:p-5 lg:p-8 flex flex-col w-full overflow-hidden">
 
 
   <!-- ── Action Bar ─────────────────────────────────────────────────────── -->
@@ -131,10 +131,10 @@
 
   <!-- ── Table ─────────────────────────────────────────────────────────── -->
   } @else {
-  <div class="bg-[#393E46] rounded-2xl border border-[#EEEEEE]/5 overflow-hidden">
+  <div class="flex-1 min-h-0 bg-[#393E46] rounded-2xl border border-[#EEEEEE]/5 overflow-hidden flex flex-col">
 
     <!-- Desktop Table -->
-    <div class="hidden sm:block overflow-x-auto">
+    <div class="hidden sm:block flex-1 overflow-auto custom-scroll">
       <table class="w-full min-w-[640px]">
         <!-- Column Headers -->
         <thead>
@@ -219,7 +219,7 @@
             <!-- Row Actions -->
             @if (isAdmin()) {
             <td class="px-6 py-4">
-              <div class="flex items-center justify-end gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
+              <div class="flex items-center justify-end gap-1">
                 <!-- Toggle Active -->
                 <button (click)="togglePlayerStatus(player); $event.stopPropagation()"
                   class="p-2 rounded-lg transition-colors focus:outline-none"
@@ -253,7 +253,7 @@
     </div>
 
     <!-- Mobile Card List (< sm) -->
-    <div class="sm:hidden divide-y divide-[#EEEEEE]/5">
+    <div class="sm:hidden flex-1 overflow-y-auto custom-scroll divide-y divide-[#EEEEEE]/5">
       @for (player of filteredPlayers(); track player.id) {
       <div class="px-4 py-4 flex items-start gap-3">
         <!-- Avatar -->

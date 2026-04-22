@@ -11,7 +11,7 @@ import { AuctionWorkspaceLayoutComponent } from './components/auction-workspace-
 
 // ── Global pages ──────────────────────────────────────────────────────────────
 import { HomeComponent } from './components/home/home.component';
-import { PlayerPoolComponent } from './components/player-pool/player-pool.component';
+import { PlayersComponent } from './components/players/players.component';
 import { UserManagementComponent } from './components/user-management/user-management.component';
 
 // ── Auction Workspace pages ───────────────────────────────────────────────────
@@ -43,7 +43,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'home',            component: HomeComponent },
-      { path: 'player-pool',     component: PlayerPoolComponent },
+      { path: 'player-pool',     component: PlayersComponent },
       { path: 'user-management', component: UserManagementComponent, canActivate: [adminGuard] },
       { path: 'settings',        redirectTo: '/home', pathMatch: 'full' }, // Phase 7
 
