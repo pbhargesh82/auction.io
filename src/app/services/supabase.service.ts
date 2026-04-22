@@ -37,7 +37,7 @@ export class SupabaseService {
     // Get the current session on initialization
     const { data: { session } } = await this.supabase.auth.getSession();
     this._currentUser.next(session?.user ?? null);
-    this.updateUserRole(session?.user ?? null);
+    await this.updateUserRole(session?.user ?? null);
     this._initialized = true;
 
     // Listen to auth changes
