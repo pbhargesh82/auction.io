@@ -197,6 +197,14 @@
 
         <!-- Right Side: Status Badge & User Controls -->
         <div class="flex items-center space-x-4 shrink-0">
+          @if (auction()?.is_public) {
+          <button (click)="copyShareLink()"
+            class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#393E46] hover:bg-[#393E46]/80 text-[#EEEEEE] text-[10px] font-black uppercase tracking-wider rounded-xl border border-[#EEEEEE]/10 transition-all active:scale-95">
+            <mat-icon class="text-sm scale-75">{{ linkCopied() ? 'check' : 'share' }}</mat-icon>
+            {{ linkCopied() ? 'Copied' : 'Share' }}
+          </button>
+          }
+          
           @if (auction()) {
           <div
             class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors"

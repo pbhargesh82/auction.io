@@ -43,6 +43,7 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
   user = signal<any>(null);
   userRole = signal<UserRole>('user');
   currentRoute = signal<string>('');
+  linkCopied = signal(false);
 
   // ── Computed ──────────────────────────────────────────────────────────────────
   appVersion = computed(() => this.versionService.getVersionWithPrefix());
@@ -214,6 +215,8 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
     const url = `${window.location.origin}/view/${slug}`;
     try {
       await navigator.clipboard.writeText(url);
+      this.linkCopied.set(true);
+      setTimeout(() => this.linkCopied.set(false), 2000);
     } catch {
       // fallback: do nothing
     }
