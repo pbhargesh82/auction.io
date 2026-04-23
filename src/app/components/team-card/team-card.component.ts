@@ -81,25 +81,21 @@ export class TeamCardComponent {
 
   budgetColor = computed(() => {
     const percentage = this.budgetPercentage();
-    if (percentage > 80) return 'bg-red-500';
-    if (percentage > 50) return 'bg-yellow-500';
-    return 'bg-green-500';
+    if (percentage > 90) return 'bg-red-500';
+    if (percentage > 70) return 'bg-amber-400';
+    return 'bg-[#4ECCA3]';
   });
 
   playerColor = computed(() => {
     const percentage = this.playerPercentage();
     if (percentage >= 100) return 'bg-red-500';
-    if (percentage > 80) return 'bg-yellow-500';
-    return 'bg-green-500';
+    if (percentage > 80) return 'bg-amber-400';
+    return 'bg-[#4ECCA3]';
   });
 
   statusColor = computed(() => {
-    if (!this.team?.is_active) return 'bg-red-100 text-red-800';
-    
-    const budgetUsed = this.budgetPercentage();
-    if (budgetUsed > 80) return 'bg-yellow-100 text-yellow-800';
-    if (budgetUsed > 50) return 'bg-blue-100 text-blue-800';
-    return 'bg-green-100 text-green-800';
+    if (!this.team?.is_active) return 'bg-red-400/10 text-red-400 border border-red-400/20';
+    return 'bg-[#4ECCA3]/10 text-[#4ECCA3] border border-[#4ECCA3]/20';
   });
 
   // Utility methods
