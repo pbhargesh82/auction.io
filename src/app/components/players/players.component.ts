@@ -6,6 +6,8 @@ import { TeamPlayersService } from '../../services/team-players.service';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { ImageUploadService } from '../../services/image-upload.service';
 
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-players',
   standalone: true,
@@ -13,6 +15,7 @@ import { ImageUploadService } from '../../services/image-upload.service';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
+    MatIconModule
   ],
   templateUrl: './players.component.html',
   styleUrls: ['./players.component.css']

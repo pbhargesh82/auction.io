@@ -169,13 +169,18 @@
               <td class="pl-4 pr-8 py-5 text-right">
                 <div class="flex items-center justify-end gap-1">
                   @if (!isCurrentUser(user.user_id)) {
-                  <button (click)="toggleUserBan(user)" class="p-2 rounded-lg transition-all" [class]="user.is_banned ? 'text-[#4ECCA3]/60 hover:bg-[#4ECCA3]/10' : 'text-amber-500/60 hover:bg-amber-400/10'">
-                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                      @if (user.is_banned) { <path d="M12 11V7a5 5 0 0110 0v4M8 11v-1a4 4 0 018 0v1M3 21h18M3 11h18v10H3V11z" /> } @else { <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" /> }
-                    </svg>
+                  <!-- Toggle Ban -->
+                  <button (click)="toggleUserBan(user)" 
+                          class="p-2 rounded-lg transition-all" 
+                          [class]="user.is_banned ? 'text-[#4ECCA3]/60 hover:text-[#4ECCA3] hover:bg-[#4ECCA3]/10' : 'text-amber-500/60 hover:text-amber-500 hover:bg-amber-500/10'"
+                          [title]="user.is_banned ? 'Unban User' : 'Ban User'">
+                    <mat-icon class="scale-75 !flex !items-center !justify-center">{{ user.is_banned ? 'lock_open' : 'lock_person' }}</mat-icon>
                   </button>
-                  <button (click)="deleteUser(user)" class="p-2 rounded-lg text-red-500/60 hover:bg-red-500/10 transition-all">
-                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" /></svg>
+                  <!-- Delete -->
+                  <button (click)="deleteUser(user)" 
+                          class="p-2 rounded-lg text-red-400/40 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                          title="Delete User">
+                    <mat-icon class="scale-75 !flex !items-center !justify-center">delete</mat-icon>
                   </button>
                   } @else {
                   <span class="text-[9px] font-black text-[#EEEEEE]/20 uppercase tracking-widest block px-2">LOCKED</span>

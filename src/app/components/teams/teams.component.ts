@@ -21,7 +21,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TeamCardComponent } from '../team-card/team-card.component';
 
 @Component({
   selector: 'app-teams',
@@ -40,8 +39,7 @@ import { TeamCardComponent } from '../team-card/team-card.component';
     MatCardModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatTooltipModule,
-    TeamCardComponent
+    MatTooltipModule
   ],
   templateUrl: './teams.component.html',
   styleUrls: ['./teams.component.css']
@@ -51,6 +49,7 @@ export class TeamsComponent implements OnInit {
   teams = signal<(Team | TeamWithPlayers)[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
+  toast = signal<{ message: string; type: 'success' | 'error' } | null>(null);
   showForm = signal(false);
   editingTeam = signal<Team | TeamWithPlayers | null>(null);
   searchTerm = signal('');
@@ -240,33 +239,18 @@ export class TeamsComponent implements OnInit {
       if (editingTeam) {
         // Update existing team
         const { error } = await this.teamsService.updateTeam(editingTeam.id, formData as UpdateTeamData);
-        if (error) {
-          this.snackBar.open(`Error updating team: ${error.message}`, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-          return;
-        }
-        this.snackBar.open('Team updated successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.toast.set({ message: 'Team updated successfully!', type: 'success' });
       } else {
         // Create new team — pass explicit auctionId from route
         const { error } = await this.teamsService.createTeam(formData as CreateTeamData, this.auctionId());
         if (error) {
-          this.snackBar.open(`Error creating team: ${error.message}`, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.toast.set({ message: `Error creating team: ${error.message}`, type: 'error' });
           return;
         }
-        this.snackBar.open('Team created successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.toast.set({ message: 'Team created successfully!', type: 'success' });
       }
 
+      setTimeout(() => this.toast.set(null), 3000);
       this.closeForm();
     } catch (error: any) {
       this.snackBar.open(`Error: ${error.message}`, 'Close', {
@@ -335,8 +319,13 @@ export class TeamsComponent implements OnInit {
 
   // Handle search input
   onSearch(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.searchTerm.set(input.value);
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+  }
+
+  // Clear all filters
+  clearFilters() {
+    this.searchTerm.set('');
   }
 
   // Handle primary color input

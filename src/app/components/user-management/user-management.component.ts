@@ -5,13 +5,16 @@ import { UsersService, UserWithRole } from '../../services/users.service';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
     selector: 'app-user-management',
     standalone: true,
     imports: [
         CommonModule,
         FormsModule,
-        SidePanelComponent
+        SidePanelComponent,
+        MatIconModule
     ],
     templateUrl: './user-management.component.html',
     styleUrls: ['./user-management.component.css']

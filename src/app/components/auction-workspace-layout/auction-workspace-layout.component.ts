@@ -4,7 +4,6 @@ import {
   Router,
   RouterOutlet,
   RouterLink,
-  RouterLinkActive,
   ActivatedRoute,
   NavigationEnd,
 } from '@angular/router';
@@ -26,7 +25,7 @@ interface WorkspaceNavItem {
 @Component({
   selector: 'app-auction-workspace-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, UserProfileComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, MatIconModule, UserProfileComponent],
 
   templateUrl: './auction-workspace-layout.component.html',
   styleUrls: ['./auction-workspace-layout.component.css'],
