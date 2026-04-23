@@ -1,219 +1,244 @@
-<div class="workspace-shell">
+<div class="h-dvh max-h-dvh bg-[#232931] flex font-sans text-[#EEEEEE]">
 
-  <!-- ── Bottom Nav (Mobile) ──────────────────────────────────────────────── -->
-  <nav class="bottom-nav mobile-only">
-    <!-- Top 4 Items -->
-    @for (item of navItems.slice(0, 4); track item.segment) {
-      <a [routerLink]="navRoute(item.segment)" routerLinkActive="active" class="bottom-nav-item">
-        <span class="bottom-nav-item__icon material-symbols-outlined">{{ item.icon }}</span>
-        <span class="bottom-nav-label">{{ item.label.replace('Auction ', '') }}</span>
-      </a>
-    }
-    <!-- More Button -->
-    <button class="bottom-nav-item" (click)="toggleMobileMenu()">
-      <span class="bottom-nav-item__icon material-symbols-outlined">menu</span>
-      <span class="bottom-nav-label">More</span>
-    </button>
-  </nav>
-
-  <!-- ── Mobile overlay ───────────────────────────────────────────────────── -->
+  <!-- Mobile Menu Overlay -->
   @if (mobileMenuOpen()) {
-  <div class="mobile-overlay" (click)="onOverlayClick()"></div>
+  <div class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+    (click)="onOverlayClick()">
+  </div>
   }
 
-  <!-- ══════════════════════════════════════════════════════════════════════
-       SIDEBAR
-  ═══════════════════════════════════════════════════════════════════════════ -->
-  <aside class="sidebar-wrap" [class.collapsed]="sidebarCollapsed()">
+  <!-- Sidebar -->
+  <div class="relative">
+    <!-- Desktop Sidebar -->
+    <div [class]="'hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 transition-all duration-300 z-30 ' + 
+                  (sidebarCollapsed() ? 'lg:w-[88px]' : 'lg:w-72')">
 
-    <!-- ── Desktop Sidebar ──────────────────────────────────────────────── -->
-    <div class="sidebar desktop-sidebar"
-         [class.sidebar--collapsed]="sidebarCollapsed()"
-         (click)="onSidebarClick($event)">
-      <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: false }"></ng-container>
-    </div>
+      <!-- Sidebar Background -->
+      <div class="flex flex-col flex-1 bg-[#232931] border-r border-[#EEEEEE]/10 relative z-40">
+        <div class="absolute inset-0 pointer-events-none"></div>
 
-    <!-- ── Mobile Sidebar ───────────────────────────────────────────────── -->
-    <div class="sidebar mobile-sidebar"
-         [class.mobile-sidebar--open]="mobileMenuOpen()"
-         (click)="onSidebarClick($event)">
-      <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: true }"></ng-container>
-    </div>
-  </aside>
-
-  <!-- ══════════════════════════════════════════════════════════════════════
-       MAIN CONTENT
-  ═══════════════════════════════════════════════════════════════════════════ -->
-  <div class="main-wrap" [class.main-wrap--collapsed]="sidebarCollapsed()">
-
-    <!-- ── Top bar ─────────────────────────────────────────────────────── -->
-    <header class="topbar">
-      <div class="topbar__left">
-        <!-- Mobile hamburger -->
-        <button class="icon-btn mobile-only" (click)="toggleMobileMenu()" aria-label="Open menu">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6"  x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-        <!-- Desktop collapse -->
-        <button class="icon-btn desktop-only" (click)="toggleSidebar()" aria-label="Toggle sidebar">
-          @if (sidebarCollapsed()) {
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="13 17 18 12 13 7"/>
-            <polyline points="6 17 11 12 6 7"/>
-          </svg>
+        <!-- Logo and Brand -->
+        <div
+          class="flex items-center justify-between px-6 h-[76px] border-b border-[#EEEEEE]/10 relative z-10 shrink-0">
+          @if (!sidebarCollapsed()) {
+          <div class="flex items-center space-x-3">
+            <div>
+              <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide leading-none">Auction.io</h1>
+              <p class="text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest mt-1">Workspace</p>
+            </div>
+          </div>
           } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="11 17 6 12 11 7"/>
-            <polyline points="18 17 13 12 18 7"/>
-          </svg>
+          <div class="flex items-center justify-center mx-auto shrink-0">
+            <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide leading-none">A.</h1>
+          </div>
           }
-        </button>
-      </div>
+        </div>
 
-      <!-- Breadcrumb -->
-      <div class="topbar__breadcrumb">
-        <a routerLink="/home" class="breadcrumb-link">My Auctions</a>
-        <span class="breadcrumb-sep">/</span>
-        <a [routerLink]="['/auction', auctionId(), 'overview']" class="breadcrumb-link">{{ auctionName() }}</a>
-        <span class="breadcrumb-sep">/</span>
-        <span class="breadcrumb-current">{{ currentSegmentLabel() }}</span>
-      </div>
+        <!-- Navigation Menu -->
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto custom-scroll relative z-10">
+          
+          <!-- Back to Global -->
+          <a routerLink="/home"
+            class="group relative flex items-center px-4 py-3 mx-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 outline-none focus:outline-none text-[#EEEEEE]/50 hover:text-[#EEEEEE]">
+            <mat-icon fontSize="24" class="mr-4 text-2xl leading-none flex-shrink-0 transition-colors">arrow_back</mat-icon>
+            @if (!sidebarCollapsed()) {
+            <div class="flex items-center justify-between w-full">
+              <span>My Auctions</span>
+            </div>
+            }
+          </a>
 
-      <!-- Status badge & User Menu (topbar) -->
-      <div class="topbar__right flex items-center space-x-4">
-        @if (auction()) {
-        <span class="status-pill status-pill--{{ auctionStatus() }}">
-          <span class="status-dot"></span>
-          {{ statusLabel() }}
-        </span>
-        }
-        <div class="flex items-center space-x-2 md:space-x-4 pr-1 sm:pr-0 shrink-0">
+          <div class="my-4 mx-4 border-t border-[#EEEEEE]/10"></div>
+
+          @for (item of navItems; track item.segment) {
+          <a [routerLink]="navRoute(item.segment)"
+            class="group relative flex items-center px-4 py-3 mx-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 outline-none focus:outline-none"
+            [ngClass]="isActiveSegment(item.segment) ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]/50 hover:text-[#EEEEEE]'">
+
+            <!-- Active Left Bar Indicator -->
+            <div
+              class="absolute left-[-2px] inset-y-0 w-[3px] bg-[#4ECCA3] rounded-full opacity-0 transition-all duration-300 shadow-[0_0_8px_#4ECCA3] scale-y-0 origin-center"
+              [class.scale-y-100]="isActiveSegment(item.segment)" [class.opacity-100]="isActiveSegment(item.segment)">
+            </div>
+
+            <!-- Icon -->
+            <mat-icon fontSize="24" class="mr-4 text-2xl leading-none flex-shrink-0 transition-colors"
+              [class.text-[#4ECCA3]]="isActiveSegment(item.segment)">{{ item.icon }}</mat-icon>
+
+            <!-- Label -->
+            @if (!sidebarCollapsed()) {
+            <div class="flex items-center justify-between w-full">
+              <span>{{ item.label }}</span>
+            </div>
+            }
+          </a>
+          }
+        </nav>
+
+        <!-- Version Footer -->
+        <div class="mt-auto px-4 py-6 border-t border-[#EEEEEE]/10 flex justify-center bg-[#232931] relative z-10">
+          @if (!sidebarCollapsed()) {
+          <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/30">{{ appVersion() }}</p>
+          } @else {
+          <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/30" [title]="appVersion()">{{ appVersionShort() }}</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Sidebar -->
+    <div [class]="'lg:hidden fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ' + 
+                  (mobileMenuOpen() ? 'translate-x-0' : '-translate-x-full')" (click)="onSidebarClick($event)">
+
+      <div class="flex flex-col flex-1 h-full bg-[#232931] border-r border-[#EEEEEE]/10 relative z-40">
+        <div class="absolute inset-0 pointer-events-none"></div>
+
+        <!-- Mobile Header (Logo & Close Button) -->
+        <div
+          class="flex items-center justify-between px-6 h-[76px] border-b border-[#EEEEEE]/10 relative z-10 shrink-0">
+          <div class="flex items-center space-x-3">
+            <div>
+              <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide leading-none">Auction.io</h1>
+              <p class="text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest mt-1">Workspace</p>
+            </div>
+          </div>
+          <button (click)="closeMobileMenu()"
+            class="p-2 text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 rounded-xl transition-all outline-none focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto custom-scroll relative z-10">
+          <a routerLink="/home" (click)="closeMobileMenu()"
+            class="group relative flex items-center px-4 py-3 mx-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 outline-none focus:outline-none text-[#EEEEEE]/50 hover:text-[#EEEEEE]">
+            <mat-icon fontSize="24" class="mr-4 text-2xl leading-none flex-shrink-0 transition-colors">arrow_back</mat-icon>
+            <div class="flex items-center justify-between w-full">
+              <span>My Auctions</span>
+            </div>
+          </a>
+
+          <div class="my-4 mx-4 border-t border-[#EEEEEE]/10"></div>
+
+          @for (item of navItems; track item.segment) {
+          <a [routerLink]="navRoute(item.segment)" (click)="closeMobileMenu()"
+            class="group relative flex items-center px-4 py-3 mx-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 outline-none focus:outline-none"
+            [ngClass]="isActiveSegment(item.segment) ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]/50 hover:text-[#EEEEEE]'">
+
+            <!-- Active Left Bar Indicator -->
+            <div
+              class="absolute left-[-2px] inset-y-0 w-[3px] bg-[#4ECCA3] rounded-full opacity-0 transition-all duration-300 shadow-[0_0_8px_#4ECCA3] scale-y-0 origin-center"
+              [class.scale-y-100]="isActiveSegment(item.segment)" [class.opacity-100]="isActiveSegment(item.segment)">
+            </div>
+
+            <mat-icon fontSize="24" class="mr-4 text-2xl leading-none flex-shrink-0 transition-colors"
+              [class.text-[#4ECCA3]]="isActiveSegment(item.segment)">{{ item.icon }}</mat-icon>
+
+            <div class="flex items-center justify-between w-full">
+              <span>{{ item.label }}</span>
+            </div>
+          </a>
+          }
+        </nav>
+
+        <!-- Version Footer -->
+        <div class="mt-auto px-4 py-6 border-t border-[#EEEEEE]/10 flex justify-center bg-[#232931] relative z-10">
+          <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/30">{{ appVersion() }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div [class]="'flex-1 flex flex-col transition-all duration-300 ' + 
+                (sidebarCollapsed() ? 'lg:ml-[88px]' : 'lg:ml-72')">
+
+    <!-- Top Navigation Bar -->
+    <header
+      class="bg-[#232931] border-b border-[#EEEEEE]/10 z-20 sticky top-0 flex flex-col justify-center h-[76px] shrink-0">
+      <div class="flex items-center justify-between px-6 w-full">
+
+        <!-- Mobile Menu Button and Desktop Collapse Button -->
+        <div class="flex items-center space-x-2 md:space-x-4 min-w-0">
+          <!-- Mobile Menu Button -->
+          <button (click)="toggleMobileMenu()"
+            class="lg:hidden p-2 text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 rounded-xl transition-all outline-none shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <!-- Desktop Sidebar Toggle -->
+          <button (click)="toggleSidebar()"
+            class="hidden lg:flex items-center justify-center p-2 text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 rounded-xl transition-all outline-none shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              @if (sidebarCollapsed()) {
+              <path d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              } @else {
+              <path d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
+              }
+            </svg>
+          </button>
+
+          <!-- Breadcrumb / Title -->
+          <div class="flex items-center space-x-2 truncate ml-2 lg:ml-2">
+            <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide truncate">
+              {{ auctionName() }}
+            </h1>
+            <span class="text-[#EEEEEE]/30 hidden sm:inline">/</span>
+            <span class="text-[#4ECCA3] font-bold text-sm hidden sm:inline tracking-wide">{{ currentSegmentLabel() }}</span>
+          </div>
+        </div>
+
+        <!-- Right Side: Status Badge & User Controls -->
+        <div class="flex items-center space-x-4 shrink-0">
+          @if (auction()) {
+          <div
+            class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors"
+            [class]="auctionStatus() === 'active' ? 'bg-[#4ECCA3]/10 text-[#4ECCA3] border border-[#4ECCA3]/20' : 
+                         auctionStatus() === 'draft' ? 'bg-amber-400/10 text-amber-500 border border-amber-400/20' :
+                         auctionStatus() === 'paused' ? 'bg-red-400/10 text-red-400 border border-red-400/20' :
+                         'bg-[#232931]/50 text-[#EEEEEE]/50 border border-[#EEEEEE]/5'">
+            <span class="w-1.5 h-1.5 rounded-full mr-2" [class]="auctionStatus() === 'active' ? 'bg-[#4ECCA3] animate-pulse' : 
+                           auctionStatus() === 'draft' ? 'bg-amber-400' :
+                           auctionStatus() === 'paused' ? 'bg-red-400' :
+                           'bg-[#EEEEEE]/30'"></span>
+            {{ statusLabel() }}
+          </div>
+          }
           <app-user-profile></app-user-profile>
         </div>
+
       </div>
     </header>
 
-    <!-- ── Page content ────────────────────────────────────────────────── -->
-    <main class="page-content">
-      @if (loading()) {
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Loading auction…</p>
+    <!-- Page Content -->
+    <main class="flex-1 overflow-hidden bg-[#232931] relative">
+      <!-- Glow effect for background -->
+      <div
+        class="fixed top-20 right-0 w-[40%] h-[40%] bg-[#4ECCA3] opacity-[0.02] blur-[120px] pointer-events-none z-0">
       </div>
-      } @else {
-      <router-outlet></router-outlet>
-      }
+      <div class="relative z-10 h-full overflow-y-auto">
+        @if (loading()) {
+        <div class="flex flex-col items-center justify-center h-full space-y-4">
+          <svg class="animate-spin h-8 w-8 text-[#4ECCA3]" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          <p class="text-[#EEEEEE]/50 font-bold text-sm tracking-wide">Loading workspace…</p>
+        </div>
+        } @else {
+        <router-outlet></router-outlet>
+        }
+      </div>
     </main>
   </div>
 </div>
-
-
-<!-- ══════════════════════════════════════════════════════════════════════════
-     SIDEBAR CONTENT TEMPLATE (shared between desktop and mobile)
-═════════════════════════════════════════════════════════════════════════════ -->
-<ng-template #sidebarContent let-mobile="mobile">
-
-  <!-- ── TOP: Brand + close (mobile) / collapse info (desktop) ────────── -->
-  <div class="sidebar__header">
-    <!-- Brand mark -->
-    <div class="brand">
-      <div class="brand__icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5"/>
-          <path d="M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-      @if (!sidebarCollapsed() || mobile) {
-      <span class="brand__name">Auction.io</span>
-      }
-    </div>
-
-    <!-- Mobile close button -->
-    @if (mobile) {
-    <button class="icon-btn close-btn" (click)="closeMobileMenu()" aria-label="Close menu">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    }
-  </div>
-
-  <!-- ── BACK BUTTON ────────────────────────────────────────────────────── -->
-  <div class="sidebar__back">
-    <a routerLink="/home" class="back-link" (click)="mobile && closeMobileMenu()">
-      <span class="back-link__icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </span>
-      @if (!sidebarCollapsed() || mobile) {
-      <span class="back-link__label">My Auctions</span>
-      }
-    </a>
-  </div>
-
-  <!-- ── AUCTION IDENTITY ───────────────────────────────────────────────── -->
-  @if (!sidebarCollapsed() || mobile) {
-  <div class="sidebar__auction-card">
-    @if (loading()) {
-    <div class="auction-card__skeleton"></div>
-    } @else {
-    <div class="auction-card">
-      <div class="auction-card__info">
-        <p class="auction-card__name">{{ auctionName() }}</p>
-        <span class="status-pill status-pill--{{ auctionStatus() }}">
-          <span class="status-dot"></span>
-          {{ statusLabel() }}
-        </span>
-      </div>
-      <!-- Share link button -->
-      @if (auction()?.public_slug) {
-      <button class="auction-card__share" (click)="copyShareLink()" title="Copy public link">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="18" cy="5" r="3"/>
-          <circle cx="6"  cy="12" r="3"/>
-          <circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-        </svg>
-      </button>
-      }
-    </div>
-    }
-  </div>
-  }
-
-  <!-- ── NAV ITEMS ──────────────────────────────────────────────────────── -->
-  <nav class="sidebar__nav">
-    <p class="nav-group-label" [class.sr-only]="sidebarCollapsed() && !mobile">Workspace</p>
-
-    @for (item of navItems; track item.segment) {
-    <a [routerLink]="navRoute(item.segment)"
-       routerLinkActive="nav-item--active"
-       class="nav-item"
-       [title]="sidebarCollapsed() && !mobile ? item.label : ''"
-       (click)="mobile && closeMobileMenu()">
-      <!-- Icon (Material Symbols via ligature, matching global layout) -->
-      <span class="nav-item__icon material-symbols-outlined">{{ item.icon }}</span>
-      @if (!sidebarCollapsed() || mobile) {
-      <span class="nav-item__label">{{ item.label }}</span>
-      }
-    </a>
-    }
-  </nav>
-
-
-
-</ng-template>

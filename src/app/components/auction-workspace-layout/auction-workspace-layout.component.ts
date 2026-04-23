@@ -174,6 +174,10 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
     return `${this.baseRoute()}/${segment}`;
   }
 
+  isActiveSegment(segment: string): boolean {
+    return this.currentRoute().includes(`/auction/${this.auctionId()}/${segment}`);
+  }
+
   toggleSidebar(): void {
     this.sidebarCollapsed.update(c => !c);
   }
