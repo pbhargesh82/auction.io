@@ -1,316 +1,393 @@
-<div class="p-4 lg:p-6 bg-gray-50  min-h-screen">
-    <!-- Error State -->
+<!-- ══════════════════════════════════════════════════════════════════════════
+     AUCTION DESK / CONTROL — Premium Dark Redesign
+══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Toast Notification -->
+@if (toast()) {
+<div class="fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border animate-fade-in-up"
+  [class]="toast()!.type === 'error'
+    ? 'bg-red-500/10 border-red-500/30 text-red-400'
+    : 'bg-[#4ECCA3]/10 border-[#4ECCA3]/30 text-[#4ECCA3]'">
+  <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+    @if (toast()!.type === 'error') {
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    } @else {
+    <polyline points="20 6 9 17 4 12"/>
+    }
+  </svg>
+  <p class="text-sm font-bold">{{ toast()!.message }}</p>
+  <button (click)="toast.set(null)" class="ml-1 opacity-60 hover:opacity-100 transition-opacity focus:outline-none">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
+}
+
+<div class="h-full bg-[#232931] text-[#EEEEEE] p-4 sm:p-5 lg:p-8 flex flex-col w-full overflow-y-auto custom-scroll">
+
+  <!-- ── Global Loading State ──────────────────────────────────────────────── -->
+  @if (loading() && !auctionConfig()) {
+  <div class="flex-1 flex items-center justify-center py-20 text-center animate-fade-in">
+    <div class="w-20 h-20 rounded-3xl bg-[#393E46] flex items-center justify-center mb-6 shadow-xl border border-[#EEEEEE]/5 mx-auto">
+      <div class="animate-spin h-8 w-8 border-b-4 border-[#4ECCA3] rounded-full"></div>
+    </div>
+    <h3 class="text-xl font-black text-[#EEEEEE] tracking-wide">Loading Auction Desk...</h3>
+  </div>
+  } @else {
+
+    <!-- ── Error Global ──────────────────────────────────────────────────────── -->
     @if (error()) {
-      <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-        <div class="flex items-center">
-          <mat-icon class="text-red-400 mr-3">error</mat-icon>
-          <div class="flex-1">
-            <h3 class="text-sm font-medium text-red-800">Error</h3>
-            <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
-          </div>
-          <button mat-icon-button (click)="clearError()" class="text-red-500 hover:text-red-700">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-      </div>
+    <div class="mb-6 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-5 py-4 flex items-center gap-3 animate-fade-in-up">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p class="flex-1 text-sm font-medium">{{ error() }}</p>
+      <button (click)="clearError()" class="p-1 hover:text-red-300 transition-colors focus:outline-none">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
     }
 
-    <!-- Loading State -->
-    @if (loading()) {
-      <div class="flex items-center justify-center py-12">
-        <div class="text-center">
-          <mat-spinner class="mx-auto mb-4"></mat-spinner>
-          <p class="text-gray-600 ">Loading auction control...</p>
-        </div>
-      </div>
-    } @else {
-      <!-- Auction Status and Controls -->
-      @if (auctionConfig()) {
-        <div class="bg-white  rounded-xl shadow-sm border border-gray-200  overflow-hidden">
-          <!-- Status Header -->
-          <div class="px-6 py-4 border-b border-gray-200  flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-semibold text-gray-900 ">Auction Status</h2>
-              <p class="text-sm text-gray-600  mt-1">Control the auction flow</p>
+    @if (auctionConfig()) {
+
+      <!-- ── Action Bar / Dashboard ────────────────────────────────────────── -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 mb-6">
+        
+        <!-- Status & Main Controls -->
+        <div class="xl:col-span-6 bg-[#393E46] rounded-2xl border border-[#EEEEEE]/10 shadow-lg p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-black text-[#EEEEEE] tracking-wide">Auction Desk</h2>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-xs font-bold text-[#EEEEEE]/40 uppercase tracking-widest">Status:</span>
+              @if (auctionStatus() === 'draft') {
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <span class="w-2 h-2 rounded-full bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.5)]"></span> DRAFT
+                </span>
+              } @else if (auctionStatus() === 'active') {
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#4ECCA3]">
+                  <span class="w-2 h-2 rounded-full bg-[#4ECCA3] animate-pulse shadow-[0_0_8px_rgba(78,204,163,0.8)]"></span> LIVE
+                </span>
+              } @else if (auctionStatus() === 'completed') {
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-purple-400">
+                  <span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span> COMPLETED
+                </span>
+              }
             </div>
+          </div>
+
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            @if (remainingPlayers() === 0 && totalPlayers() > 0 && auctionStatus() !== 'completed') {
+              <button (click)="initializeAuction()" [disabled]="loading()"
+                class="flex-1 sm:flex-none bg-[#EEEEEE]/10 hover:bg-[#EEEEEE]/15 active:bg-[#EEEEEE]/5 text-[#EEEEEE] disabled:opacity-50 font-black py-3 px-6 rounded-xl transition-all shadow-inner text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path><path d="M9 12h6"></path><path d="M12 9v6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                INIT
+              </button>
+            }
+
             @if (auctionStatus() === 'draft') {
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider bg-slate-100 text-slate-500">
-                <span class="w-2 h-2 rounded-full bg-slate-400"></span> Draft
-              </span>
+              <button (click)="updateAuctionStatus('active')" [disabled]="loading() || (remainingPlayers() === 0 && totalPlayers() === 0)"
+                class="flex-1 sm:flex-none bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:opacity-30 disabled:cursor-not-allowed text-[#232931] font-black py-3 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(78,204,163,0.3)] text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                START
+              </button>
             } @else if (auctionStatus() === 'active') {
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider bg-green-100 text-green-700">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live
-              </span>
-            } @else if (auctionStatus() === 'completed') {
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider bg-purple-100 text-purple-700">
-                <span class="w-2 h-2 rounded-full bg-purple-500"></span> Completed
-              </span>
+              <button (click)="updateAuctionStatus('completed')" [disabled]="loading() || remainingPlayers() > 0 || currentPlayer() !== null"
+                class="flex-1 sm:flex-none bg-purple-500 hover:bg-purple-400 active:bg-purple-600 disabled:opacity-30 disabled:cursor-not-allowed text-white font-black py-3 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                COMPLETE
+              </button>
             }
           </div>
+        </div>
 
-          <!-- Status Content -->
-          <div class="p-6">
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div class="bg-blue-50 p-4 rounded-lg">
-                <div class="text-2xl font-bold text-blue-600">{{ totalPlayers() }}</div>
-                <div class="text-sm text-blue-600">Total Players</div>
+        <!-- Metrics Grid -->
+        <div class="xl:col-span-6 grid grid-cols-3 gap-4">
+          <!-- Total -->
+          <div class="bg-[#393E46]/50 rounded-2xl border border-[#EEEEEE]/5 p-5 relative overflow-hidden group flex flex-col justify-center">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40 mb-1 z-10 relative">Total Players</p>
+            <p class="text-2xl lg:text-3xl font-black text-blue-400 z-10 relative">{{ totalPlayers() }}</p>
+          </div>
+          <!-- Sold -->
+          <div class="bg-[#393E46]/50 rounded-2xl border border-[#EEEEEE]/5 p-5 relative overflow-hidden group flex flex-col justify-center">
+            <div class="absolute inset-0 bg-gradient-to-br from-[#4ECCA3]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40 mb-1 z-10 relative">Sold</p>
+            <p class="text-2xl lg:text-3xl font-black text-[#4ECCA3] z-10 relative">{{ soldPlayers() }}</p>
+          </div>
+          <!-- Remaining -->
+          <div class="bg-[#393E46]/50 rounded-2xl border border-[#EEEEEE]/5 p-5 relative overflow-hidden group flex flex-col justify-center">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40 mb-1 z-10 relative">Remaining</p>
+            <p class="text-2xl lg:text-3xl font-black text-amber-400 z-10 relative">{{ remainingPlayers() }}</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── The Live Desk ─────────────────────────────────────────────────── -->
+      @if (currentPlayer()) {
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 relative" [class.animate-pulse]="loading()">
+          
+          <!-- Current Player Spotlight (Left Col) -->
+          <div class="lg:col-span-7 xl:col-span-8 flex flex-col bg-[#393E46] rounded-3xl border-2 border-[#EEEEEE]/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden relative">
+            
+            <!-- Neon Highlight based on state -->
+            <div class="absolute top-0 left-0 w-full h-1" [class.bg-[#4ECCA3]]="auctionStatus() === 'active'" [class.bg-slate-500]="auctionStatus() !== 'active'"></div>
+
+            <div class="flex-1 p-6 sm:p-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+              
+              <!-- Avatar Spotlight -->
+              <div class="shrink-0 relative">
+                <div class="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-4 border-[#232931] shadow-2xl flex items-center justify-center bg-gradient-to-br from-[#4ECCA3]/20 to-[#232931] overflow-hidden text-[#4ECCA3] font-black text-5xl">
+                  @if (currentPlayer()!.image_url) {
+                    <img [src]="currentPlayer()!.image_url" class="w-full h-full object-cover" />
+                  } @else {
+                    {{ currentPlayer()!.name.charAt(0).toUpperCase() }}
+                  }
+                </div>
+                <!-- Status Badge -->
+                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl shadow-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#4ECCA3]">
+                  ON THE BLOCK
+                </div>
               </div>
-              <div class="bg-green-50 p-4 rounded-lg">
-                <div class="text-2xl font-bold text-green-600">{{ soldPlayers() }}</div>
-                <div class="text-sm text-green-600">Sold</div>
-              </div>
-              <div class="bg-yellow-50 p-4 rounded-lg">
-                <div class="text-2xl font-bold text-yellow-600">{{ remainingPlayers() }}</div>
-                <div class="text-sm text-yellow-600">Remaining</div>
+
+              <!-- Info Spotlight -->
+              <div class="flex-1 min-w-0 text-center md:text-left pt-2 w-full">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-[#EEEEEE] truncate mb-2">{{ currentPlayer()!.name }}</h1>
+                
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-6">
+                  <span class="px-3 py-1 bg-[#EEEEEE]/5 border border-[#EEEEEE]/10 rounded-lg text-xs font-bold uppercase tracking-widest text-[#EEEEEE]/60">
+                    {{ currentPlayer()!.position || 'N/A' }}
+                  </span>
+                  <span class="px-3 py-1 bg-[#EEEEEE]/5 border border-[#EEEEEE]/10 rounded-lg text-xs font-bold uppercase tracking-widest text-[#EEEEEE]/60">
+                    {{ currentPlayer()!.category || 'Uncategorized' }}
+                  </span>
+                  @if (currentPlayer()!.nationality) {
+                    <span class="px-3 py-1 bg-[#EEEEEE]/5 border border-[#EEEEEE]/10 rounded-lg text-xs font-bold uppercase tracking-widest text-[#EEEEEE]/60">
+                      {{ currentPlayer()!.nationality }}
+                    </span>
+                  }
+                </div>
+
+                <div class="bg-[#232931] rounded-2xl p-5 border border-[#EEEEEE]/5 inline-block min-w-[200px] w-full sm:w-auto shadow-inner text-center md:text-left">
+                  <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40 mb-1">Base Price</p>
+                  <p class="text-4xl lg:text-5xl font-black text-[#4ECCA3] tracking-tight">
+                    <span class="text-2xl text-[#4ECCA3]/50 mr-1">₹</span>{{ formatNumber(currentPlayer()!.base_price) }}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <!-- Control Buttons -->
-            <div class="flex flex-wrap gap-3">
-              @if (remainingPlayers() === 0 && totalPlayers() > 0) {
-                <button 
-                  mat-raised-button 
-                  color="primary"
-                  (click)="initializeAuction()"
-                  [disabled]="loading()"
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                  <mat-icon class="mr-2">add_circle</mat-icon>
-                  Initialize Auction
-                </button>
-              }
+            <!-- Massive Actions Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#EEEEEE]/10 border-t border-[#EEEEEE]/10">
+              <button (click)="markUnsold()" [disabled]="loading()"
+                class="bg-[#393E46] hover:bg-red-500/10 active:bg-red-500/20 text-red-400 disabled:opacity-50 transition-colors p-6 sm:p-8 flex items-center justify-center gap-3 font-black tracking-widest uppercase focus:outline-none">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                MARK UNSOLD
+              </button>
+              <button (click)="openSellDialog()" [disabled]="loading()"
+                class="bg-[#4ECCA3]/10 hover:bg-[#4ECCA3]/20 active:bg-[#4ECCA3]/30 text-[#4ECCA3] disabled:opacity-50 transition-colors p-6 sm:p-8 flex items-center justify-center gap-3 font-black tracking-widest uppercase focus:outline-none">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                SELL PLAYER
+              </button>
+            </div>
+          </div>
 
-              <!-- Status transitions -->
-              @if (auctionStatus() === 'draft') {
-                <button 
-                  (click)="updateAuctionStatus('active')"
-                  [disabled]="loading() || (remainingPlayers() === 0 && totalPlayers() === 0)"
-                  class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
-                  <mat-icon class="mr-2">play_arrow</mat-icon>
-                  Start Auction
-                </button>
-              } @else if (auctionStatus() === 'active') {
-                <button 
-                  (click)="updateAuctionStatus('completed')"
-                  [disabled]="loading() || remainingPlayers() > 0 || currentPlayer() !== null"
-                  class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
-                  <mat-icon class="mr-2">check_circle</mat-icon>
-                  Complete Auction
-                </button>
-              } @else if (auctionStatus() === 'completed') {
-                 <div class="px-6 py-3 bg-purple-100 text-purple-800 rounded-lg flex items-center font-semibold shadow-inner">
-                   <mat-icon class="mr-2">verified</mat-icon>
-                   Auction Completed
-                 </div>
+          <!-- Available Teams (Right Col) -->
+          <div class="lg:col-span-5 xl:col-span-4 bg-[#393E46] rounded-3xl border border-[#EEEEEE]/10 shadow-lg flex flex-col overflow-hidden">
+            <div class="px-6 py-5 border-b border-[#EEEEEE]/5 bg-[#232931]/50 backdrop-blur-md">
+              <h3 class="text-sm font-black text-[#EEEEEE] tracking-wide uppercase">Available Teams</h3>
+              <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-1">Select to sell instantly</p>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scroll p-4 space-y-3">
+              @for (team of teams(); track team.id) {
+                <div class="group relative bg-[#232931] rounded-2xl border border-[#EEEEEE]/5 p-4 flex items-center justify-between gap-4 transition-all hover:border-[#EEEEEE]/20 hover:shadow-md"
+                     [ngClass]="{'opacity-50 grayscale': (team.budget_remaining || 0) < (currentPlayer()?.base_price || 0) || (team.players_count || 0) >= (team.max_players || 0)}">
+                  
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-4 h-4 rounded-full shrink-0 shadow-inner border border-white/10" [style.background-color]="team.primary_color"></div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-bold text-[#EEEEEE] truncate">{{ team.name }}</p>
+                      <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5 truncate">
+                        ₹{{ formatNumber(team.budget_remaining) }} · {{ team.players_count || 0 }}/{{ team.max_players || 0 }} Slots
+                      </p>
+                    </div>
+                  </div>
+
+                  <button (click)="openSellDialog(team)" 
+                          [disabled]="(team.budget_remaining || 0) < (currentPlayer()?.base_price || 0) || (team.players_count || 0) >= (team.max_players || 0)"
+                          class="shrink-0 w-10 h-10 rounded-xl bg-[#393E46] border border-[#EEEEEE]/10 flex items-center justify-center text-[#4ECCA3] hover:bg-[#4ECCA3] hover:border-[#4ECCA3] hover:text-[#232931] hover:shadow-[0_0_15px_rgba(78,204,163,0.3)] transition-all disabled:opacity-30 disabled:hover:bg-[#393E46] disabled:hover:text-[#4ECCA3] disabled:hover:border-[#EEEEEE]/10 focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+
+                </div>
               }
             </div>
           </div>
         </div>
-
-        <!-- Current Player Section -->
-        @if (currentPlayer()) {
-          <div class="mt-8 bg-white  rounded-xl shadow-sm border border-gray-200  overflow-hidden" [class.success-pop]="playerJustSold()">
-            <!-- Player Header -->
-            <div class="px-6 py-4 border-b border-gray-200 ">
-              <h2 class="text-lg font-semibold text-gray-900 ">Current Player</h2>
-              <p class="text-sm text-gray-600  mt-1">Player {{ currentPlayer()!.position }} of {{ totalPlayers() }}</p>
-            </div>
-
-            <!-- Player Content -->
-            <div class="p-6">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Player Info -->
-                <div class="space-y-4">
-                  <div class="bg-gray-50  p-4 rounded-lg">
-                    <h3 class="text-xl font-semibold mb-3">{{ currentPlayer()!.name }}</h3>
-                    <div class="grid grid-cols-2 gap-3 text-sm">
-                      <div><strong>Position:</strong> {{ currentPlayer()!.position }}</div>
-                      <div><strong>Category:</strong> {{ currentPlayer()!.category }}</div>
-                      <div><strong>Base Price:</strong> ₹{{ formatNumber(currentPlayer()!.base_price) }}</div>
-                      <div><strong>Nationality:</strong> {{ currentPlayer()!.nationality || 'N/A' }}</div>
-                    </div>
-                  </div>
-
-                  <!-- Action Buttons -->
-                  <div class="flex flex-col sm:flex-row gap-3">
-                    <button 
-                      mat-raised-button 
-                      color="primary"
-                      (click)="openSellDialog()"
-                      [disabled]="loading()"
-                      class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white min-h-[48px] px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                      <mat-icon class="mr-2">gavel</mat-icon>
-                      Sell Player
-                    </button>
-                    <button 
-                      mat-stroked-button 
-                      color="warn"
-                      (click)="markUnsold()"
-                      [disabled]="loading()"
-                      class="w-full sm:w-auto border-red-600 text-red-600 hover:bg-red-50 min-h-[48px] px-4 rounded-lg transition-all duration-200">
-                      <mat-icon class="mr-2">cancel</mat-icon>
-                      Mark Unsold
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Team Selection -->
-                <div class="space-y-4">
-                  <h3 class="text-lg font-semibold text-gray-900 ">Available Teams</h3>
-                  <div class="space-y-3">
-                    @for (team of teams(); track team.id) {
-                      <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200  rounded-lg hover:bg-gray-50 :bg-slate-800  transition-colors gap-3">
-                        <div class="flex items-center gap-3">
-                          <div 
-                            class="w-4 h-4 rounded-full flex-shrink-0" 
-                            [style.background-color]="team.primary_color">
-                          </div>
-                          <div>
-                            <div class="font-medium text-gray-900 ">{{ team.name }}</div>
-                            <div class="text-sm text-gray-600 ">
-                              Budget: ₹{{ formatNumber(team.budget_remaining) }} / {{ team.players_count || 0 }}/{{ team.max_players || 0 }} players
-                            </div>
-                          </div>
-                        </div>
-                        <button 
-                          mat-stroked-button 
-                          (click)="openSellDialog(team)"
-                          [disabled]="(team.budget_remaining || 0) < (currentPlayer()?.base_price || 0) || (team.players_count || 0) >= (team.max_players || 0)"
-                          class="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 py-2 sm:py-1 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                          Sell to Team
-                        </button>
-                      </div>
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        } @else {
-          <!-- No Current Player -->
-          <div class="mt-8 bg-white  rounded-xl shadow-sm border border-gray-200  overflow-hidden">
-            <div class="p-8 text-center">
-              <mat-icon class="text-6xl text-gray-400  mb-4">person_off</mat-icon>
-              <h3 class="text-xl font-semibold text-gray-600  mb-2">No Current Player</h3>
-                             <p class="text-gray-500  mb-4">
-                 @if (remainingPlayers() > 0) {
-                   Search and select a player to start their auction manually
-                 } @else if (totalPlayers() > 0) {
-                   All players have been processed. Use "Initialize Auction" to add players back to the auction.
-                 } @else {
-                   No players available. Please add players first.
-                 }
-               </p>
-              @if (remainingPlayers() > 0) {
-                <div class="max-w-md mx-auto space-y-4">
-                  <!-- Player Search -->
-                  <mat-form-field class="w-full">
-                    <mat-label>Search Players</mat-label>
-                    <input 
-                      matInput 
-                      type="text" 
-                      placeholder="Type player name to search..."
-                      (input)="onPlayerSearch($event)">
-                    <mat-icon matSuffix>search</mat-icon>
-                  </mat-form-field>
-
-                  <!-- Search Results -->
-                  @if (filteredPlayers().length > 0) {
-                    <div class="bg-white  border border-gray-200  rounded-lg max-h-60 overflow-y-auto">
-                      @for (player of filteredPlayers(); track player.id) {
-                        <div 
-                          class="p-3 border-b border-gray-100  hover:bg-gray-50 :bg-slate-800  cursor-pointer transition-colors"
-                          (click)="selectPlayer(player)">
-                          <div class="font-medium text-gray-900 ">{{ player.name }}</div>
-                          <div class="text-sm text-gray-600 ">
-                            {{ player.position }} • {{ player.category }} • ₹{{ formatNumber(player.base_price) }}
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  } @else if (playerSearch().length > 0) {
-                    <div class="text-center text-gray-500  py-4">
-                      No players found matching "{{ playerSearch() }}"
-                    </div>
-                  }
-
-                  
-                </div>
-              }
-            </div>
-          </div>
-        }
-
 
       } @else {
-        <!-- No Auction Configuration -->
-        <div class="bg-white  rounded-xl shadow-sm border border-gray-200  overflow-hidden">
-          <div class="p-8 text-center">
-            <mat-icon class="text-6xl text-gray-400  mb-4">settings</mat-icon>
-            <h3 class="text-xl font-semibold text-gray-600  mb-2">No Auction Configuration</h3>
-            <p class="text-gray-500  mb-4">Please configure the auction settings first</p>
-            <button 
-              mat-raised-button 
-              color="primary"
-              routerLink="/auction-config"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-              <mat-icon class="mr-2">settings</mat-icon>
-              Configure Auction
-            </button>
+        <!-- ── Waiting Area / Search ─────────────────────────────────────────── -->
+        <div class="flex-1 bg-[#393E46] rounded-3xl border border-[#EEEEEE]/10 shadow-lg p-8 sm:p-12 flex flex-col items-center text-center">
+          
+          <div class="w-24 h-24 rounded-full bg-[#232931] border-2 border-[#EEEEEE]/5 flex items-center justify-center text-[#EEEEEE]/20 mb-8 shadow-inner">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           </div>
+          
+          <h2 class="text-2xl lg:text-3xl font-black text-[#EEEEEE] mb-3 tracking-wide">No Active Player</h2>
+          
+          <p class="text-sm font-bold text-[#EEEEEE]/40 max-w-md mx-auto mb-10 leading-relaxed">
+            @if (remainingPlayers() > 0) {
+              Search the pool below to bring a specific player to the block.
+            } @else if (totalPlayers() > 0) {
+              All players have been processed. Use "Init" to add more players.
+            } @else {
+              No players available. Head to the Player Pool to add players.
+            }
+          </p>
+
+          @if (remainingPlayers() > 0) {
+            <div class="w-full max-w-xl mx-auto flex flex-col items-center">
+              <!-- Search Input -->
+              <div class="relative w-full group mb-6">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <input type="text" placeholder="Search by name to start auction..."
+                       [value]="playerSearch()" (input)="onPlayerSearch($event)"
+                       class="w-full bg-[#232931] border-2 border-[#EEEEEE]/5 rounded-2xl pl-14 pr-6 py-4 text-[#EEEEEE] font-black placeholder-[#EEEEEE]/20 focus:border-[#4ECCA3] focus:ring-4 focus:ring-[#4ECCA3]/10 outline-none transition-all shadow-inner text-base lg:text-lg">
+              </div>
+
+              <!-- Search Results -->
+              @if (filteredPlayers().length > 0) {
+                <div class="w-full bg-[#232931] rounded-2xl border border-[#EEEEEE]/10 shadow-2xl overflow-hidden max-h-80 overflow-y-auto custom-scroll text-left">
+                  @for (player of filteredPlayers(); track player.id) {
+                    <div (click)="selectPlayer(player)"
+                         class="p-4 border-b border-[#EEEEEE]/5 last:border-0 hover:bg-[#4ECCA3]/10 cursor-pointer transition-colors flex items-center justify-between group">
+                      <div>
+                        <p class="text-sm font-black text-[#EEEEEE] group-hover:text-[#4ECCA3] transition-colors">{{ player.name }}</p>
+                        <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-1">
+                          {{ player.position }} · {{ player.category }}
+                        </p>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mb-1">Base</p>
+                        <p class="text-sm font-black text-[#4ECCA3]">₹{{ formatNumber(player.base_price) }}</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else if (playerSearch().length > 0) {
+                <p class="text-sm font-bold text-red-400 bg-red-400/10 px-6 py-3 rounded-xl border border-red-400/20">
+                  No pending players found matching "{{ playerSearch() }}"
+                </p>
+              }
+            </div>
+          }
         </div>
       }
+
+    } @else {
+      <!-- ── No Configuration ──────────────────────────────────────────────── -->
+      <div class="flex-1 flex flex-col items-center justify-center py-20 text-center animate-fade-in bg-[#393E46] rounded-3xl border border-[#EEEEEE]/10">
+        <div class="w-20 h-20 rounded-3xl bg-[#232931] flex items-center justify-center mb-6 shadow-inner border border-[#EEEEEE]/5 text-[#EEEEEE]/20">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </div>
+        <h3 class="text-2xl font-black text-[#EEEEEE] tracking-wide mb-3">No Auction Configured</h3>
+        <p class="text-sm font-bold text-[#EEEEEE]/40 mb-8 max-w-sm">You must set up the primary auction configuration before accessing the control desk.</p>
+        <button routerLink="/auction-config"
+          class="bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 text-[#232931] font-black py-4 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(78,204,163,0.3)] text-sm uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Configure Now
+        </button>
+      </div>
     }
+
+  }
+
 </div>
 
-<!-- Sell Player Dialog -->
-<ng-template #sellDialogTemplate>
-  <div class="p-6">
-    <h2 mat-dialog-title>Sell Player</h2>
-    <mat-dialog-content>
-      <form [formGroup]="sellForm" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <mat-form-field class="w-full">
-            <mat-label>Team</mat-label>
-            <mat-select formControlName="team_id" required>
-              @for (team of availableTeams(); track team.id) {
-                <mat-option [value]="team.id">
-                  {{ team.name }} (₹{{ formatNumber(team.budget_remaining) }})
-                </mat-option>
-              }
-            </mat-select>
-            @if (sellForm.get('team_id')?.hasError('required')) {
-              <mat-error>Team is required</mat-error>
-            }
-          </mat-form-field>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SIDE PANEL — Sell Player
+══════════════════════════════════════════════════════════════════════════ -->
+<app-side-panel [isOpen]="showSellPanel()" title="Sell Player" subtitle="Finalize the transaction" (closePanel)="closeSellDialog()">
+  
+  <form [formGroup]="sellForm" (ngSubmit)="sellPlayer()" id="sell-form" class="h-full flex flex-col" panel-body>
+    
+    <!-- Recap Card -->
+    @if (currentPlayer()) {
+    <div class="mb-6 p-4 rounded-2xl bg-[#393E46]/50 border border-[#EEEEEE]/5 flex items-center gap-4 shrink-0">
+      <div class="w-12 h-12 rounded-full border-2 border-[#232931] shadow-lg flex items-center justify-center bg-gradient-to-br from-[#4ECCA3]/20 to-[#232931] overflow-hidden text-[#4ECCA3] font-black text-lg shrink-0">
+        @if (currentPlayer()!.image_url) {
+          <img [src]="currentPlayer()!.image_url" class="w-full h-full object-cover" />
+        } @else {
+          {{ currentPlayer()!.name.charAt(0).toUpperCase() }}
+        }
+      </div>
+      <div class="min-w-0">
+        <p class="text-sm font-black text-[#EEEEEE] truncate">{{ currentPlayer()!.name }}</p>
+        <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5">Base: ₹{{ formatNumber(currentPlayer()!.base_price) }}</p>
+      </div>
+    </div>
+    }
 
-          <mat-form-field class="w-full">
-            <mat-label>Price (₹)</mat-label>
-            <input matInput type="number" formControlName="price" required>
-            @if (sellForm.get('price')?.hasError('required')) {
-              <mat-error>Price is required</mat-error>
+    <div class="flex-1 overflow-y-auto custom-scroll space-y-6 pr-1 pb-4">
+      
+      <!-- Team Selection -->
+      <div class="group">
+        <label class="block text-[10px] font-bold text-[#EEEEEE]/70 uppercase tracking-widest mb-2 group-focus-within:text-[#4ECCA3] transition-colors">Select Team <span class="text-[#4ECCA3]">*</span></label>
+        <div class="relative">
+          <select formControlName="team_id"
+            class="w-full appearance-none bg-[#393E46] border border-[#EEEEEE]/10 rounded-xl px-4 py-3.5 text-sm text-[#EEEEEE] outline-none focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] transition-all font-semibold shadow-inner">
+            <option value="" disabled selected>Choose a team...</option>
+            @for (team of availableTeams(); track team.id) {
+              <option [value]="team.id">
+                {{ team.name }} (₹{{ formatNumber(team.budget_remaining) }})
+              </option>
             }
-            @if (sellForm.get('price')?.hasError('min')) {
-              <mat-error>Price must be at least ₹{{ formatNumber(currentPlayer()?.base_price) }}</mat-error>
-            }
-          </mat-form-field>
+          </select>
+          <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-[#EEEEEE]/50">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
         </div>
+        @if (sellForm.get('team_id')?.hasError('required') && sellForm.get('team_id')?.touched) {
+          <p class="mt-2 text-[10px] font-black text-red-400 uppercase tracking-widest">Team is required.</p>
+        }
+      </div>
 
-        <mat-form-field class="w-full">
-          <mat-label>Notes (Optional)</mat-label>
-          <textarea matInput formControlName="notes" rows="3"></textarea>
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="sellPlayer()"
-        [disabled]="!sellForm.valid || loading()">
-        Sell Player
-      </button>
-    </mat-dialog-actions>
+      <!-- Price -->
+      <div class="group">
+        <label class="block text-[10px] font-bold text-[#EEEEEE]/70 uppercase tracking-widest mb-2 group-focus-within:text-[#4ECCA3] transition-colors">Final Price <span class="text-[#4ECCA3]">*</span></label>
+        <div class="relative">
+          <span class="absolute left-5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#EEEEEE]/30">₹</span>
+          <input type="number" formControlName="price"
+            class="w-full pl-10 pr-5 py-4 bg-[#393E46] border border-[#EEEEEE]/10 rounded-xl text-[#4ECCA3] font-black text-lg placeholder-[#EEEEEE]/20 focus:border-[#4ECCA3] focus:ring-2 focus:ring-[#4ECCA3]/20 outline-none transition-all shadow-inner" />
+        </div>
+        @if (sellForm.get('price')?.hasError('required') && sellForm.get('price')?.touched) {
+          <p class="mt-2 text-[10px] font-black text-red-400 uppercase tracking-widest">Price is required.</p>
+        }
+        @if (sellForm.get('price')?.hasError('min') && sellForm.get('price')?.touched) {
+          <p class="mt-2 text-[10px] font-black text-red-400 uppercase tracking-widest">Must be ≥ Base Price (₹{{ formatNumber(currentPlayer()?.base_price) }}).</p>
+        }
+      </div>
+
+      <!-- Notes -->
+      <div class="group">
+        <label class="block text-[10px] font-bold text-[#EEEEEE]/70 uppercase tracking-widest mb-2 group-focus-within:text-[#4ECCA3] transition-colors">Notes (Optional)</label>
+        <textarea formControlName="notes" rows="3" placeholder="Add transaction notes..."
+          class="w-full bg-[#393E46] border border-[#EEEEEE]/10 rounded-xl px-4 py-3 text-sm text-[#EEEEEE] placeholder-[#EEEEEE]/30 outline-none focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] transition-all font-medium resize-none shadow-inner"></textarea>
+      </div>
+
+    </div>
+
+  </form>
+
+  <!-- Side Panel Footer -->
+  <div panel-footer class="w-full flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
+    <button type="button" (click)="closeSellDialog()" class="w-full sm:w-auto px-6 py-3.5 rounded-xl text-xs font-black text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-white/5 transition-all tracking-[0.15em] uppercase focus:outline-none">CANCEL</button>
+    <button type="submit" form="sell-form" [disabled]="sellForm.invalid || loading()"
+      class="w-full sm:w-auto bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:opacity-30 disabled:cursor-not-allowed text-[#232931] font-black py-4 px-8 rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(78,204,163,0.3)] flex items-center justify-center tracking-[0.1em] uppercase text-xs focus:outline-none">
+      @if (loading()) { <span class="inline-block animate-spin h-4 w-4 rounded-full border-b-2 border-[#232931] mr-3"></span> SELLING... }
+      @else { CONFIRM SALE }
+    </button>
   </div>
-</ng-template> 
+
+</app-side-panel>
