@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
 import { Player } from '../../services/players.service';
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ type StatusFilter = 'all' | AuctionStatus;
 @Component({
   selector: 'app-auction-players',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SidePanelComponent],
   templateUrl: './auction-players.component.html',
   styleUrls: ['./auction-players.component.css'],
 })

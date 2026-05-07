@@ -81,7 +81,8 @@
     </div>
     } @else {
     <div class="flex-1 overflow-auto custom-scroll">
-      <table class="w-full min-w-[800px]">
+      <!-- Desktop Table (Hidden on mobile) -->
+      <table class="w-full min-w-[800px] hidden sm:table">
         <thead>
           <tr class="border-b border-[#EEEEEE]/5">
             <th class="px-6 py-4 text-left"><span class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Team</span></th>
@@ -166,6 +167,70 @@
           }
         </tbody>
       </table>
+
+      <!-- Mobile Card List (Visible on < sm) -->
+      <div class="sm:hidden divide-y divide-[#EEEEEE]/5">
+        @for (team of filteredTeams(); track team.id) {
+        <div class="p-4 space-y-4">
+          <!-- Identity & Status -->
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                @if (team.logo_url) {
+                  <img [src]="team.logo_url" class="w-12 h-12 rounded-xl object-cover ring-1 ring-[#EEEEEE]/10">
+                } @else {
+                  <div class="w-12 h-12 rounded-xl bg-[#232931] flex items-center justify-center text-[#4ECCA3] font-black text-lg border border-[#4ECCA3]/10">
+                    {{ team.name.charAt(0).toUpperCase() }}
+                  </div>
+                }
+                <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#393E46]" [class]="team.is_active ? 'bg-[#4ECCA3]' : 'bg-red-400'"></div>
+              </div>
+              <div class="min-w-0">
+                <p class="text-base font-bold text-[#EEEEEE] truncate">{{ team.name }}</p>
+                <p class="text-[10px] font-bold text-[#EEEEEE]/30 uppercase tracking-widest">{{ team.short_name || 'TEAM' }} · {{ team.owner_name || 'No Owner' }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button (click)="toggleTeamStatus(team)" class="p-2 text-[#EEEEEE]/40">
+                <mat-icon class="scale-75">{{ team.is_active ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <button (click)="editTeam(team)" class="p-2 text-[#4ECCA3]">
+                <mat-icon class="scale-75">edit</mat-icon>
+              </button>
+              <button (click)="confirmDelete(team)" class="p-2 text-red-400/60">
+                <mat-icon class="scale-75">delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Metrics Grid -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <p class="text-[9px] font-black text-[#EEEEEE]/30 uppercase tracking-widest">Budget Utilization</p>
+              <div class="flex items-baseline justify-between mb-1">
+                <span class="text-xs font-bold text-[#4ECCA3]">{{ formatCurrency(team.budget_spent) }}</span>
+                <span class="text-[10px] font-black text-[#4ECCA3]">{{ getBudgetPercentage(team).toFixed(0) }}%</span>
+              </div>
+              <div class="h-1.5 bg-[#232931] rounded-full overflow-hidden border border-[#EEEEEE]/5">
+                <div class="h-full bg-[#4ECCA3] transition-all duration-1000" [style.width.%]="getBudgetPercentage(team)"></div>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <p class="text-[9px] font-black text-[#EEEEEE]/30 uppercase tracking-widest">Roster Status</p>
+              <div class="flex items-baseline justify-between mb-1">
+                <span class="text-xs font-bold text-[#EEEEEE]">{{ team.players_count || 0 }} Signed</span>
+                <span class="text-[10px] font-black text-[#EEEEEE]/30">/ {{ team.max_players }}</span>
+              </div>
+              <div class="h-1 bg-[#232931] rounded-full overflow-hidden">
+                <div class="h-full bg-[#EEEEEE]/10 transition-all duration-1000" [style.width.%]="(team.players_count || 0) / team.max_players * 100"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
     </div>
     
     <!-- Footer info -->
