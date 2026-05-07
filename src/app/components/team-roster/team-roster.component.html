@@ -1,74 +1,147 @@
-<div class="p-4 lg:p-6 bg-gray-50  min-h-screen">
-  
-  @if (loading()) {
-    <!-- Loading State -->
-    <div class="flex items-center justify-center py-12">
-      <div class="flex flex-col items-center space-y-4">
-        <svg class="animate-spin w-8 h-8 text-indigo-600 " fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <p class="text-gray-600 ">Loading team rosters...</p>
-      </div>
-    </div>
-  } @else if (error()) {
-    <!-- Error State -->
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 lg:p-6">
-      <div class="flex items-center">
-        <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <p class="text-red-800 font-medium">{{ error() }}</p>
-      </div>
-    </div>
-  } @else {
-    <!-- Team Roster Content -->
-    
-    <!-- Header -->
-    <div class="mb-4">
-      <div class="flex items-center justify-between">
-        <div>
-          
-        </div>
-        <button 
-          (click)="refreshData()"
-          [disabled]="loading()"
-          class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          Refresh
-        </button>
-      </div>
-    </div>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     TEAM ROSTERS — Premium Dark Redesign (All Teams Grid)
+══════════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Teams Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-      @for (team of teamsWithPlayersDebug(); track team.id) {
-        <app-team-card 
-          [team]="team" 
-          [config]="{ 
-            showPlayers: true, 
-            showActions: false, 
-            showBudgetDetails: true, 
-            showPlayerStats: true, 
-            showSellBack: isAdmin(),
-            variant: 'roster' 
-          }"
-          (playerSoldBack)="onPlayerSoldBack($event)">
-        </app-team-card>
-      }
-    </div>
-
-    <!-- Empty State -->
-    @if (teamsWithPlayersDebug().length === 0) {
-      <div class="bg-white  rounded-lg shadow-sm border border-gray-200  p-8 text-center">
-        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
-        <h3 class="text-base font-medium text-gray-900  mb-1">No teams found</h3>
-        <p class="text-gray-500  text-sm">No teams are available to display.</p>
-      </div>
+<!-- Toast Notification -->
+@if (toast()) {
+<div class="fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border animate-fade-in-up"
+  [class]="toast()!.type === 'error'
+    ? 'bg-red-500/10 border-red-500/30 text-red-400'
+    : 'bg-[#4ECCA3]/10 border-[#4ECCA3]/30 text-[#4ECCA3]'">
+  <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+    @if (toast()!.type === 'error') {
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    } @else {
+    <polyline points="20 6 9 17 4 12"/>
     }
+  </svg>
+  <p class="text-sm font-bold">{{ toast()!.message }}</p>
+  <button (click)="toast.set(null)" class="ml-1 opacity-60 hover:opacity-100 transition-opacity focus:outline-none">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
+}
+
+<div class="min-h-full bg-[#232931] text-[#EEEEEE] p-4 sm:p-5 lg:p-8 flex flex-col w-full overflow-y-auto custom-scroll">
+
+  <!-- ── Global Loading / Error State ────────────────────────────────────── -->
+  @if (loading() && teamsWithRosters().length === 0) {
+  <div class="flex-1 flex flex-col items-center justify-center p-8 animate-fade-in">
+    <div class="w-16 h-16 rounded-2xl bg-[#393E46] flex items-center justify-center mb-6 shadow-xl border border-[#EEEEEE]/5">
+      <div class="animate-spin h-6 w-6 border-b-4 border-[#4ECCA3] rounded-full"></div>
+    </div>
+    <h3 class="text-lg font-black tracking-wide text-[#EEEEEE]">Loading Rosters...</h3>
+  </div>
+  } @else if (error()) {
+  <div class="mb-6 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-5 py-4 flex items-center gap-3 animate-fade-in-up">
+    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p class="flex-1 text-sm font-medium">{{ error() }}</p>
+  </div>
+  } @else if (teamsWithRosters().length === 0) {
+  <div class="flex-1 flex flex-col items-center justify-center p-8 animate-fade-in text-center">
+    <div class="w-20 h-20 rounded-full bg-[#393E46] flex items-center justify-center mb-6 text-[#EEEEEE]/20 shadow-inner">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+    </div>
+    <h3 class="text-xl font-black text-[#EEEEEE] tracking-wide mb-2">No Rosters Found</h3>
+    <p class="text-sm font-bold text-[#EEEEEE]/40">Teams and players will appear here once drafted.</p>
+  </div>
+  } @else {
+
+    <!-- ── Header ────────────────────────────────────────────────────────── -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-black text-[#EEEEEE] tracking-wide">League Rosters</h1>
+      <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-1">All teams and their drafted players</p>
+    </div>
+
+    <!-- ── All Teams Grid ────────────────────────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
+      
+      @for (team of teamsWithRosters(); track team.id) {
+        <div class="bg-[#393E46] rounded-2xl border border-[#EEEEEE]/10 shadow-lg overflow-hidden flex flex-col">
+          
+          <!-- Team Header -->
+          <div class="p-5 border-b border-[#EEEEEE]/5 bg-[#393E46] flex flex-col">
+
+            <div class="flex items-center gap-4 relative">
+              <!-- Team Logo -->
+              <div class="relative shrink-0">
+                <app-avatar [src]="team.logo_url" [fallbackText]="team.name" shape="square" size="lg"></app-avatar>
+                <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#393E46]" [class]="team.is_active ? 'bg-[#4ECCA3]' : 'bg-red-400'"></div>
+              </div>
+              
+              <!-- Team Name & Stats -->
+              <div class="flex-1 min-w-0">
+                <h2 class="text-lg font-black text-[#EEEEEE] truncate">{{ team.name }}</h2>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-[10px] font-black uppercase tracking-widest"
+                        [ngClass]="getBudgetPercentage(team.budget_spent, team.budget_cap) > 90 ? 'text-red-400' : 'text-[#4ECCA3]'">
+                    ₹{{ formatNumber(team.budget_remaining || 0) }} Left
+                  </span>
+                  <span class="w-1 h-1 rounded-full bg-[#EEEEEE]/20"></span>
+                  <span class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/50">
+                    {{ team.players.length || 0 }}/{{ team.max_players || 0 }} Slots
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Player List -->
+          <div class="flex-1 p-2 bg-[#393E46]">
+            @if (team.players.length === 0) {
+              <div class="py-10 text-center px-4">
+                <div class="w-10 h-10 mx-auto rounded-full bg-[#232931] flex items-center justify-center text-[#EEEEEE]/20 mb-3 shadow-inner">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Empty Roster</p>
+              </div>
+            } @else {
+              <div class="space-y-1">
+                @for (player of team.players; track player.id) {
+                  <div class="group relative flex items-center justify-between p-2 rounded-xl hover:bg-[#232931] transition-colors">
+                    
+                    <!-- Player Info -->
+                    <div class="flex items-center gap-3 min-w-0">
+                      <app-avatar [src]="player.image_url" [fallbackText]="player.name" shape="circle" size="sm"></app-avatar>
+                      <div class="min-w-0">
+                        <p class="text-xs font-black text-[#EEEEEE] truncate group-hover:text-[#4ECCA3] transition-colors">{{ player.name }}</p>
+                        <p class="text-[9px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5 truncate">
+                          {{ player.category || 'N/A' }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Price & Action -->
+                    <div class="flex items-center gap-3 shrink-0 ml-2">
+                      <p class="text-xs font-black text-[#4ECCA3] bg-[#4ECCA3]/10 px-2 py-1 rounded-lg border border-[#4ECCA3]/20">
+                        ₹{{ formatNumber(player.purchase_price) }}
+                      </p>
+                      
+                      @if (isAdmin()) {
+                        <!-- Sell Back Button (Visible on Hover in Desktop, always on mobile) -->
+                        <button (click)="sellPlayerBack(player, team.name)" [disabled]="isSellingPlayer(player.id)"
+                                title="Sell back to pool"
+                                class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white hover:border-red-500 transition-all opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:outline-none focus:opacity-100 disabled:opacity-50">
+                          @if (isSellingPlayer(player.id)) {
+                            <span class="animate-spin h-3 w-3 border-b-2 border-current rounded-full"></span>
+                          } @else {
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38l-5.67-2.62"/></svg>
+                          }
+                        </button>
+                      }
+                    </div>
+
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+        </div>
+      }
+
+    </div>
   }
-</div> 
+
+</div>

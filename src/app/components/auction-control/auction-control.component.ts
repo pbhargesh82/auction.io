@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
 
 import { AuctionService, AuctionConfig } from '../../services/auction.service';
 import { PlayersService, Player } from '../../services/players.service';
@@ -18,7 +19,8 @@ import { SupabaseService } from '../../services/supabase.service';
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    SidePanelComponent
+    SidePanelComponent,
+    AvatarComponent
   ],
   templateUrl: './auction-control.component.html',
   styleUrls: ['./auction-control.component.css']

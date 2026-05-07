@@ -7,6 +7,7 @@ import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { ImageUploadService } from '../../services/image-upload.service';
 
 import { MatIconModule } from '@angular/material/icon';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
 
 @Component({
   selector: 'app-players',
@@ -15,7 +16,8 @@ import { MatIconModule } from '@angular/material/icon';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    MatIconModule
+    MatIconModule,
+    AvatarComponent
   ],
   templateUrl: './players.component.html',
   styleUrls: ['./players.component.css']

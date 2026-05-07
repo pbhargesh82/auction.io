@@ -21,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
 
 @Component({
   selector: 'app-teams',
@@ -39,7 +40,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatCardModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    AvatarComponent
   ],
   templateUrl: './teams.component.html',
   styleUrls: ['./teams.component.css']

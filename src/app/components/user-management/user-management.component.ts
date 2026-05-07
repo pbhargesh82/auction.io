@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UsersService, UserWithRole } from '../../services/users.service';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
 
 import { MatIconModule } from '@angular/material/icon';
 
@@ -14,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
         CommonModule,
         FormsModule,
         SidePanelComponent,
+        AvatarComponent,
         MatIconModule
     ],
     templateUrl: './user-management.component.html',

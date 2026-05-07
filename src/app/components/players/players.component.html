@@ -176,15 +176,7 @@
             <!-- Player Identity -->
             <td class="px-6 py-4">
               <div class="flex items-center gap-3 min-w-0">
-                <!-- Avatar -->
-                @if (player.image_url) {
-                <img [src]="player.image_url" [alt]="player.name"
-                  class="w-9 h-9 rounded-full object-cover border-2 border-[#EEEEEE]/10 shrink-0">
-                } @else {
-                <div class="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm text-[#232931] bg-[#4ECCA3] shrink-0 shadow-[0_0_10px_rgba(78,204,163,0.25)]">
-                  {{ player.name.charAt(0).toUpperCase() }}
-                </div>
-                }
+                <app-avatar [src]="player.image_url" [fallbackText]="player.name" shape="circle" size="sm"></app-avatar>
                 <div class="min-w-0">
                   <p class="text-sm font-bold text-[#EEEEEE] truncate">{{ player.name }}</p>
                   @if (player.age) {
@@ -251,14 +243,7 @@
     <div class="sm:hidden flex-1 overflow-y-auto custom-scroll divide-y divide-[#EEEEEE]/5">
       @for (player of filteredPlayers(); track player.id) {
       <div class="px-4 py-4 flex items-start gap-3">
-        <!-- Avatar -->
-        @if (player.image_url) {
-        <img [src]="player.image_url" [alt]="player.name" class="w-10 h-10 rounded-full object-cover shrink-0 border-2 border-[#EEEEEE]/10">
-        } @else {
-        <div class="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm text-[#232931] bg-[#4ECCA3] shrink-0">
-          {{ player.name.charAt(0).toUpperCase() }}
-        </div>
-        }
+        <app-avatar [src]="player.image_url" [fallbackText]="player.name" shape="circle" size="md"></app-avatar>
         <!-- Info -->
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between gap-2 mb-1">

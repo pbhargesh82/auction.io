@@ -135,13 +135,7 @@
               
               <!-- Avatar Spotlight -->
               <div class="shrink-0 relative">
-                <div class="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-4 border-[#232931] shadow-2xl flex items-center justify-center bg-gradient-to-br from-[#4ECCA3]/20 to-[#232931] overflow-hidden text-[#4ECCA3] font-black text-5xl">
-                  @if (currentPlayer()!.image_url) {
-                    <img [src]="currentPlayer()!.image_url" class="w-full h-full object-cover" />
-                  } @else {
-                    {{ currentPlayer()!.name.charAt(0).toUpperCase() }}
-                  }
-                </div>
+                <app-avatar [src]="currentPlayer()!.image_url" [fallbackText]="currentPlayer()!.name" shape="circle" size="2xl"></app-avatar>
                 <!-- Status Badge -->
                 <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl shadow-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#4ECCA3]">
                   ON THE BLOCK
@@ -315,13 +309,7 @@
     <!-- Recap Card -->
     @if (currentPlayer()) {
     <div class="mb-6 p-4 rounded-2xl bg-[#393E46]/50 border border-[#EEEEEE]/5 flex items-center gap-4 shrink-0">
-      <div class="w-12 h-12 rounded-full border-2 border-[#232931] shadow-lg flex items-center justify-center bg-gradient-to-br from-[#4ECCA3]/20 to-[#232931] overflow-hidden text-[#4ECCA3] font-black text-lg shrink-0">
-        @if (currentPlayer()!.image_url) {
-          <img [src]="currentPlayer()!.image_url" class="w-full h-full object-cover" />
-        } @else {
-          {{ currentPlayer()!.name.charAt(0).toUpperCase() }}
-        }
-      </div>
+      <app-avatar [src]="currentPlayer()!.image_url" [fallbackText]="currentPlayer()!.name" shape="circle" size="lg"></app-avatar>
       <div class="min-w-0">
         <p class="text-sm font-black text-[#EEEEEE] truncate">{{ currentPlayer()!.name }}</p>
         <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5">Base: ₹{{ formatNumber(currentPlayer()!.base_price) }}</p>

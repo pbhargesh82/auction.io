@@ -98,16 +98,7 @@
             <!-- Identity -->
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
-                <div class="relative shrink-0">
-                  @if (team.logo_url) {
-                    <img [src]="team.logo_url" class="w-10 h-10 rounded-xl object-cover ring-1 ring-[#EEEEEE]/10">
-                  } @else {
-                    <div class="w-10 h-10 rounded-xl bg-[#232931] flex items-center justify-center text-[#4ECCA3] font-black text-sm border border-[#4ECCA3]/10">
-                      {{ team.name.charAt(0).toUpperCase() }}
-                    </div>
-                  }
-                  <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#393E46]" [class]="team.is_active ? 'bg-[#4ECCA3]' : 'bg-red-400'"></div>
-                </div>
+                <app-avatar [src]="team.logo_url" [fallbackText]="team.name" shape="square" size="md" [showIndicator]="true" [indicatorActive]="team.is_active"></app-avatar>
                 <div class="min-w-0">
                   <p class="text-sm font-bold text-[#EEEEEE] truncate group-hover/row:text-[#4ECCA3] transition-colors">{{ team.name }}</p>
                   <p class="text-[10px] font-bold text-[#EEEEEE]/30 uppercase tracking-widest">{{ team.short_name || 'TEAM' }}</p>
@@ -175,16 +166,7 @@
           <!-- Identity & Status -->
           <div class="flex items-start justify-between">
             <div class="flex items-center gap-3">
-              <div class="relative">
-                @if (team.logo_url) {
-                  <img [src]="team.logo_url" class="w-12 h-12 rounded-xl object-cover ring-1 ring-[#EEEEEE]/10">
-                } @else {
-                  <div class="w-12 h-12 rounded-xl bg-[#232931] flex items-center justify-center text-[#4ECCA3] font-black text-lg border border-[#4ECCA3]/10">
-                    {{ team.name.charAt(0).toUpperCase() }}
-                  </div>
-                }
-                <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#393E46]" [class]="team.is_active ? 'bg-[#4ECCA3]' : 'bg-red-400'"></div>
-              </div>
+              <app-avatar [src]="team.logo_url" [fallbackText]="team.name" shape="square" size="lg" [showIndicator]="true" [indicatorActive]="team.is_active"></app-avatar>
               <div class="min-w-0">
                 <p class="text-base font-bold text-[#EEEEEE] truncate">{{ team.name }}</p>
                 <p class="text-[10px] font-bold text-[#EEEEEE]/30 uppercase tracking-widest">{{ team.short_name || 'TEAM' }} · {{ team.owner_name || 'No Owner' }}</p>
