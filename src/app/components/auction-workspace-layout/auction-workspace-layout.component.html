@@ -186,37 +186,36 @@
           </button>
 
           <!-- Breadcrumb / Title -->
-          <div class="flex items-center space-x-2 truncate ml-2 lg:ml-2">
-            <h1 class="text-xl font-black text-[#EEEEEE] tracking-wide truncate">
+          <div class="flex flex-col min-w-0 ml-1 lg:ml-2">
+            <h1 class="text-base lg:text-xl font-black text-[#EEEEEE] tracking-wide truncate max-w-[120px] sm:max-w-[200px] lg:max-w-none">
               {{ auctionName() }}
             </h1>
-            <span class="text-[#EEEEEE]/30 hidden sm:inline">/</span>
-            <span class="text-[#4ECCA3] font-bold text-sm hidden sm:inline tracking-wide">{{ currentSegmentLabel() }}</span>
+            <span class="text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest leading-none hidden sm:block">{{ currentSegmentLabel() }}</span>
           </div>
         </div>
 
         <!-- Right Side: Status Badge & User Controls -->
-        <div class="flex items-center space-x-4 shrink-0">
+        <div class="flex items-center gap-2 sm:gap-3 lg:gap-4 shrink-0">
           @if (auction()?.is_public) {
           <button (click)="copyShareLink()"
-            class="flex items-center gap-2 px-3 py-1.5 bg-[#393E46] hover:bg-[#393E46]/80 text-[#EEEEEE] text-[10px] font-black uppercase tracking-wider rounded-xl border border-[#EEEEEE]/10 transition-all active:scale-95">
+            class="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#393E46] hover:bg-[#393E46]/80 text-[#EEEEEE] text-[10px] font-black uppercase tracking-wider rounded-xl border border-[#EEEEEE]/10 transition-all active:scale-95">
             <mat-icon class="text-sm scale-75">{{ linkCopied() ? 'check' : 'share' }}</mat-icon>
-            <span class="hidden xs:inline">{{ linkCopied() ? 'Copied' : 'Share' }}</span>
+            <span class="hidden sm:inline">{{ linkCopied() ? 'Copied' : 'Share' }}</span>
           </button>
           }
           
           @if (auction()) {
           <div
-            class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors"
+            class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors"
             [class]="auctionStatus() === 'active' ? 'bg-[#4ECCA3]/10 text-[#4ECCA3] border border-[#4ECCA3]/20' : 
                          auctionStatus() === 'draft' ? 'bg-amber-400/10 text-amber-500 border border-amber-400/20' :
                          auctionStatus() === 'paused' ? 'bg-red-400/10 text-red-400 border border-red-400/20' :
                          'bg-[#232931]/50 text-[#EEEEEE]/50 border border-[#EEEEEE]/5'">
-            <span class="w-1.5 h-1.5 rounded-full mr-2" [class]="auctionStatus() === 'active' ? 'bg-[#4ECCA3] animate-pulse' : 
+            <span class="w-1.5 h-1.5 rounded-full shrink-0" [class]="auctionStatus() === 'active' ? 'bg-[#4ECCA3] animate-pulse' : 
                            auctionStatus() === 'draft' ? 'bg-amber-400' :
                            auctionStatus() === 'paused' ? 'bg-red-400' :
                            'bg-[#EEEEEE]/30'"></span>
-            <span class="hidden xs:inline">{{ statusLabel() }}</span>
+            <span>{{ statusLabel() }}</span>
           </div>
           }
           <app-user-profile></app-user-profile>

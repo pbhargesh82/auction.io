@@ -3,68 +3,68 @@
 
 
   <!-- ── Metrics Grid ───────────────────────────────────────────────────── -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
     <!-- Teams -->
     <div (click)="goToTeams()" 
-         class="group bg-[#393E46] p-5 rounded-2xl border border-[#EEEEEE]/5 hover:border-[#4ECCA3]/30 transition-all duration-300 cursor-pointer hover:-translate-y-1 shadow-lg">
-      <div class="flex justify-between items-start mb-4">
-        <div class="p-2 bg-[#4ECCA3]/10 rounded-xl text-[#4ECCA3]">
-          <mat-icon>groups</mat-icon>
+         class="group bg-[#393E46] p-3 lg:p-5 rounded-2xl border border-[#EEEEEE]/5 hover:border-[#4ECCA3]/30 transition-all duration-300 cursor-pointer hover:-translate-y-1 shadow-lg">
+      <div class="flex justify-between items-start mb-2 lg:mb-4">
+        <div class="p-1.5 lg:p-2 bg-[#4ECCA3]/10 rounded-xl text-[#4ECCA3]">
+          <mat-icon class="text-base lg:text-2xl">groups</mat-icon>
         </div>
-        <mat-icon class="text-[#EEEEEE]/20 group-hover:text-[#4ECCA3]/40 transition-colors">arrow_forward</mat-icon>
+        <mat-icon class="text-[#EEEEEE]/20 group-hover:text-[#4ECCA3]/40 transition-colors text-base lg:text-2xl">arrow_forward</mat-icon>
       </div>
       <div class="space-y-0.5">
-        <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Active Teams</p>
-        <p class="text-3xl font-black text-[#EEEEEE]">{{ teamCount() }}</p>
+        <p class="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Active Teams</p>
+        <p class="text-2xl lg:text-3xl font-black text-[#EEEEEE]">{{ teamCount() }}</p>
       </div>
     </div>
 
     <!-- Players Sold -->
     <div (click)="goToHistory()"
-         class="group bg-[#393E46] p-5 rounded-2xl border border-[#EEEEEE]/5 hover:border-[#4ECCA3]/30 transition-all duration-300 cursor-pointer hover:-translate-y-1 shadow-lg">
-      <div class="flex justify-between items-start mb-4">
-        <div class="p-2 bg-[#4ECCA3]/10 rounded-xl text-[#4ECCA3]">
-          <mat-icon>sports_cricket</mat-icon>
+         class="group bg-[#393E46] p-3 lg:p-5 rounded-2xl border border-[#EEEEEE]/5 hover:border-[#4ECCA3]/30 transition-all duration-300 cursor-pointer hover:-translate-y-1 shadow-lg">
+      <div class="flex justify-between items-start mb-2 lg:mb-4">
+        <div class="p-1.5 lg:p-2 bg-[#4ECCA3]/10 rounded-xl text-[#4ECCA3]">
+          <mat-icon class="text-base lg:text-2xl">sports_cricket</mat-icon>
         </div>
-        <div class="text-[10px] font-black text-[#4ECCA3] bg-[#4ECCA3]/10 px-2 py-1 rounded-lg">
+        <div class="text-[9px] lg:text-[10px] font-black text-[#4ECCA3] bg-[#4ECCA3]/10 px-1.5 py-0.5 rounded-lg">
           {{ progressPct() }}%
         </div>
       </div>
       <div class="space-y-0.5">
-        <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Players Sold</p>
+        <p class="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Players Sold</p>
         <div class="flex items-baseline gap-1">
-          <p class="text-3xl font-black text-[#EEEEEE]">{{ soldCount() }}</p>
-          <p class="text-sm font-bold text-[#EEEEEE]/30">/ {{ totalPlayers() }}</p>
+          <p class="text-2xl lg:text-3xl font-black text-[#EEEEEE]">{{ soldCount() }}</p>
+          <p class="text-xs font-bold text-[#EEEEEE]/30">/ {{ totalPlayers() }}</p>
         </div>
       </div>
-      <div class="mt-4 h-1.5 bg-[#232931] rounded-full overflow-hidden">
+      <div class="mt-2 lg:mt-4 h-1 lg:h-1.5 bg-[#232931] rounded-full overflow-hidden">
         <div class="h-full bg-[#4ECCA3] transition-all duration-1000 ease-out" [style.width.%]="progressPct()"></div>
       </div>
     </div>
 
     <!-- Budget Spent -->
-    <div class="bg-[#393E46] p-5 rounded-2xl border border-[#EEEEEE]/5 shadow-lg relative overflow-hidden group">
-      <div class="flex justify-between items-start mb-4">
-        <div class="p-2 bg-[#4ECCA3]/10 rounded-xl text-[#4ECCA3]">
-          <mat-icon>payments</mat-icon>
+    <div class="bg-[#393E46] p-3 lg:p-5 rounded-2xl border border-[#EEEEEE]/5 shadow-lg relative overflow-hidden group">
+      <div class="flex justify-between items-start mb-2 lg:mb-4">
+        <div class="p-1.5 lg:p-2 bg-[#4ECCA3]/10 rounded-xl text-[#4ECCA3]">
+          <mat-icon class="text-base lg:text-2xl">payments</mat-icon>
         </div>
       </div>
       <div class="space-y-0.5">
-        <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Budget Spent</p>
-        <p class="text-2xl font-black text-[#EEEEEE]">{{ formatCurrency(totalBudgetSpent()) }}</p>
+        <p class="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Budget Spent</p>
+        <p class="text-xl lg:text-2xl font-black text-[#EEEEEE]">{{ formatCurrency(totalBudgetSpent()) }}</p>
       </div>
-      <p class="mt-2 text-[10px] font-bold text-[#EEEEEE]/30 uppercase tracking-tighter">
-        {{ formatCurrency(totalBudgetCap() - totalBudgetSpent()) }} remaining in pool
+      <p class="mt-1 lg:mt-2 text-[9px] font-bold text-[#EEEEEE]/30 uppercase tracking-tighter">
+        {{ formatCurrency(totalBudgetCap() - totalBudgetSpent()) }} remaining
       </p>
     </div>
 
     <!-- Auction Progress -->
-    <div class="bg-[#393E46] p-5 rounded-2xl border border-[#EEEEEE]/5 shadow-lg flex items-center justify-between group">
+    <div class="bg-[#393E46] p-3 lg:p-5 rounded-2xl border border-[#EEEEEE]/5 shadow-lg flex items-center justify-between group">
       <div class="space-y-0.5">
-        <p class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Total Progress</p>
-        <p class="text-3xl font-black text-[#EEEEEE]">{{ progressPct() }}%</p>
+        <p class="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Total Progress</p>
+        <p class="text-2xl lg:text-3xl font-black text-[#EEEEEE]">{{ progressPct() }}%</p>
       </div>
-      <div class="relative w-16 h-16">
+      <div class="relative w-12 h-12 lg:w-16 lg:h-16">
         <svg class="w-full h-full transform -rotate-90">
           <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="6" fill="transparent" class="text-[#232931]" />
           <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="6" fill="transparent" 
@@ -88,43 +88,55 @@
           <h2 class="text-sm font-black uppercase tracking-widest text-[#EEEEEE]">Command Center</h2>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Mobile: horizontal scrollable row | Desktop: grid -->
+        <div class="flex flex-row gap-2 overflow-x-auto pb-1 lg:grid lg:grid-cols-3 lg:gap-3 lg:overflow-visible lg:pb-0">
           @if (auctionStatus() === 'draft') {
             <button (click)="updateAuctionStatus('active')" [disabled]="!canStart() || isTransitioning()"
-                    class="flex flex-col items-start p-4 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 text-[#232931] rounded-xl transition-all active:scale-95 disabled:opacity-50">
-              <mat-icon class="mb-2">play_arrow</mat-icon>
-              <span class="font-black uppercase tracking-wider text-xs">Start Auction</span>
-              <span class="text-[10px] font-bold opacity-60">Initialize real-time bidding</span>
+                    class="flex-shrink-0 flex items-center lg:flex-col lg:items-start gap-2 lg:gap-0 p-3 lg:p-4 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 text-[#232931] rounded-xl transition-all active:scale-95 disabled:opacity-50 min-w-[120px] lg:min-w-0 lg:w-full">
+              <mat-icon class="text-lg lg:text-2xl shrink-0 lg:mb-2">play_arrow</mat-icon>
+              <div class="flex flex-col min-w-0">
+                <span class="font-black uppercase tracking-wider text-[10px] lg:text-xs whitespace-nowrap">Start Auction</span>
+                <span class="text-[9px] font-bold opacity-60 hidden lg:block">Initialize real-time bidding</span>
+              </div>
             </button>
           } @else if (auctionStatus() === 'active' || auctionStatus() === 'paused') {
             <button (click)="goToControl()"
-                    class="flex flex-col items-start p-4 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 text-[#232931] rounded-xl transition-all active:scale-95">
-              <mat-icon class="mb-2">gavel</mat-icon>
-              <span class="font-black uppercase tracking-wider text-xs">Auction Desk</span>
-              <span class="text-[10px] font-bold opacity-60">Manage live bidding</span>
+                    class="flex-shrink-0 flex items-center lg:flex-col lg:items-start gap-2 lg:gap-0 p-3 lg:p-4 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 text-[#232931] rounded-xl transition-all active:scale-95 min-w-[120px] lg:min-w-0 lg:w-full">
+              <mat-icon class="text-lg lg:text-2xl shrink-0 lg:mb-2">gavel</mat-icon>
+              <div class="flex flex-col min-w-0">
+                <span class="font-black uppercase tracking-wider text-[10px] lg:text-xs whitespace-nowrap">Auction Desk</span>
+                <span class="text-[9px] font-bold opacity-60 hidden lg:block">Manage live bidding</span>
+              </div>
             </button>
             <button (click)="updateAuctionStatus('completed')"
-                    class="flex flex-col items-start p-4 bg-[#393E46] hover:bg-[#4ECCA3]/10 text-[#4ECCA3] border border-[#4ECCA3]/30 rounded-xl transition-all active:scale-95">
-              <mat-icon class="mb-2">check_circle</mat-icon>
-              <span class="font-black uppercase tracking-wider text-xs">Finalize</span>
-              <span class="text-[10px] font-bold opacity-60">End and close workspace</span>
+                    class="flex-shrink-0 flex items-center lg:flex-col lg:items-start gap-2 lg:gap-0 p-3 lg:p-4 bg-[#393E46] hover:bg-[#4ECCA3]/10 text-[#4ECCA3] border border-[#4ECCA3]/30 rounded-xl transition-all active:scale-95 min-w-[120px] lg:min-w-0 lg:w-full">
+              <mat-icon class="text-lg lg:text-2xl shrink-0 lg:mb-2">check_circle</mat-icon>
+              <div class="flex flex-col min-w-0">
+                <span class="font-black uppercase tracking-wider text-[10px] lg:text-xs whitespace-nowrap">Finalize</span>
+                <span class="text-[9px] font-bold opacity-60 hidden lg:block">End and close workspace</span>
+              </div>
             </button>
           }
 
           <button (click)="goToPlayers()"
-                  class="flex flex-col items-start p-4 bg-[#232931] hover:bg-[#232931]/80 text-[#EEEEEE] rounded-xl border border-[#EEEEEE]/5 transition-all active:scale-95">
-            <mat-icon class="mb-2">person_add</mat-icon>
-            <span class="font-black uppercase tracking-wider text-xs">Players</span>
-            <span class="text-[10px] font-bold text-[#EEEEEE]/40">Manage pool & draft status</span>
+                  class="flex-shrink-0 flex items-center lg:flex-col lg:items-start gap-2 lg:gap-0 p-3 lg:p-4 bg-[#232931] hover:bg-[#232931]/80 text-[#EEEEEE] rounded-xl border border-[#EEEEEE]/5 transition-all active:scale-95 min-w-[120px] lg:min-w-0 lg:w-full">
+            <mat-icon class="text-lg lg:text-2xl shrink-0 lg:mb-2">person_add</mat-icon>
+            <div class="flex flex-col min-w-0">
+              <span class="font-black uppercase tracking-wider text-[10px] lg:text-xs whitespace-nowrap">Players</span>
+              <span class="text-[9px] font-bold text-[#EEEEEE]/40 hidden lg:block">Manage pool &amp; draft status</span>
+            </div>
           </button>
 
           <button (click)="goToTeams()"
-                  class="flex flex-col items-start p-4 bg-[#232931] hover:bg-[#232931]/80 text-[#EEEEEE] rounded-xl border border-[#EEEEEE]/5 transition-all active:scale-95">
-            <mat-icon class="mb-2">shield</mat-icon>
-            <span class="font-black uppercase tracking-wider text-xs">Teams</span>
-            <span class="text-[10px] font-bold text-[#EEEEEE]/40">Configure roster & budgets</span>
+                  class="flex-shrink-0 flex items-center lg:flex-col lg:items-start gap-2 lg:gap-0 p-3 lg:p-4 bg-[#232931] hover:bg-[#232931]/80 text-[#EEEEEE] rounded-xl border border-[#EEEEEE]/5 transition-all active:scale-95 min-w-[120px] lg:min-w-0 lg:w-full">
+            <mat-icon class="text-lg lg:text-2xl shrink-0 lg:mb-2">shield</mat-icon>
+            <div class="flex flex-col min-w-0">
+              <span class="font-black uppercase tracking-wider text-[10px] lg:text-xs whitespace-nowrap">Teams</span>
+              <span class="text-[9px] font-bold text-[#EEEEEE]/40 hidden lg:block">Configure roster &amp; budgets</span>
+            </div>
           </button>
         </div>
+
       </section>
 
       <!-- Teams Section -->
