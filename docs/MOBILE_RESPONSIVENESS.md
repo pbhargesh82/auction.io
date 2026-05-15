@@ -17,8 +17,8 @@ This document tracks the progress of making the Auction.io application fully mob
 ### Admin Management Modules
 - [ ] **Teams Dashboard** (`teams`)
 - [ ] **Team Roster** (`team-roster`)
-- [ ] **Player Pool / Auction Players** (`players`, `auction-players`)
-- [ ] **User Management** (`user-management`)
+- [x] **Player Pool / Auction Players** (`players`, `auction-players`)
+- [x] **User Management** (`user-management`)
 - [ ] **Auction Settings** (`auction-settings`)
 
 ### Live Operations
