@@ -1,12 +1,6 @@
 import { Component, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
 
 import { AuctionStateService } from '../../services/auction-state.service';
 import { SupabaseService } from '../../services/supabase.service';
@@ -17,13 +11,7 @@ import { Auction } from '../../services/auctions.service';
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
-    MatCardModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatChipsModule,
-    MatDividerModule
+    RouterModule
   ],
   templateUrl: './public-auction.component.html',
   styleUrls: ['./public-auction.component.css']
@@ -33,6 +21,7 @@ export class PublicAuctionComponent implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   auction = signal<Auction | null>(null);
   currentUrl = signal<string>('');
+  showLargeQr = signal(false);
   
   private subscription: any;
 
@@ -87,10 +76,10 @@ export class PublicAuctionComponent implements OnInit, OnDestroy {
 
   getStatusClass(status: string | undefined): string {
     switch (status?.toLowerCase()) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20';
+      case 'paused': return 'bg-amber-400/10 text-amber-400 border border-amber-400/20';
+      case 'completed': return 'bg-blue-400/10 text-blue-400 border border-blue-400/20';
+      default: return 'bg-[#EEEEEE]/5 text-[#EEEEEE]/60 border border-[#EEEEEE]/10';
     }
   }
 }

@@ -1,281 +1,287 @@
-<div class="settings-page">
+<div class="h-full bg-[#232931] text-[#EEEEEE] p-4 sm:p-5 lg:p-8 flex flex-col w-full overflow-y-auto custom-scroll">
+  <div class="max-w-4xl mx-auto w-full space-y-6">
 
-  <!-- ── Loading ─────────────────────────────────────────────────────────── -->
-  @if (loading()) {
-  <div class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading settings…</p>
-  </div>
-
-  } @else if (!auction()) {
-  <div class="error-state">
-    <p>Auction not found.</p>
-  </div>
-
-  } @else {
-
-  <header class="page-header">
-    <div>
-      <h1 class="page-title">Auction Settings</h1>
-      <p class="page-sub">Configure "{{ auction()!.name }}"</p>
+    <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+    @if (loading()) {
+    <div class="flex flex-col items-center justify-center py-20">
+      <svg class="animate-spin h-10 w-10 text-[#4ECCA3] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p class="text-[#EEEEEE]/60 font-bold tracking-widest uppercase text-xs">Loading settings…</p>
     </div>
 
-    <!-- Save success badge -->
-    @if (saveSuccess()) {
-    <span class="save-badge">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-      Saved!
-    </span>
-    }
-  </header>
+    } @else if (!auction()) {
+    <div class="flex flex-col items-center justify-center py-20">
+      <div class="w-16 h-16 rounded-full bg-[#393E46] flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <p class="text-xl font-black text-[#EEEEEE]">Auction not found.</p>
+    </div>
 
-  <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="settings-body">
+    } @else {
 
-    <!-- ──────────────────────────────────────────────────────────────────── -->
-    <!-- SECTION: General                                                     -->
-    <!-- ──────────────────────────────────────────────────────────────────── -->
-    <section class="card">
-      <div class="card-header">
-        <div class="card-icon card-icon--blue">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-        </div>
-        <div>
-          <h2 class="card-title">General</h2>
-          <p class="card-sub">Basic auction details</p>
-        </div>
+    <!-- ── Header ──────────────────────────────────────────────────────────── -->
+    <header class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
+      <div>
+        <h1 class="text-3xl font-black text-[#EEEEEE] tracking-tight">Auction Settings</h1>
+        <p class="text-sm font-bold text-[#EEEEEE]/40 mt-1 uppercase tracking-widest">Configure "{{ auction()!.name }}"</p>
       </div>
 
-      <div class="card-body">
-        <!-- Name -->
-        <div class="field">
-          <label class="field__label" for="s-name">Auction Name <span class="req">*</span></label>
-          <input id="s-name" type="text" formControlName="name" class="field__input"
-                 [class.field__input--error]="settingsForm.get('name')?.invalid && settingsForm.get('name')?.touched"
-                 placeholder="e.g. IPL 2026 Draft">
-          @if (settingsForm.get('name')?.hasError('required') && settingsForm.get('name')?.touched) {
-          <p class="field__error">Name is required.</p>
+      <!-- Save success badge -->
+      @if (saveSuccess()) {
+      <span class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-xl text-xs font-black uppercase tracking-widest animate-[fadeInUp_0.3s_ease-out]">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Saved!
+      </span>
+      }
+    </header>
+
+    <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="space-y-6">
+
+      <!-- ──────────────────────────────────────────────────────────────────── -->
+      <!-- SECTION: General                                                     -->
+      <!-- ──────────────────────────────────────────────────────────────────── -->
+      <section class="bg-[#393E46] border border-[#EEEEEE]/5 rounded-2xl shadow-xl overflow-hidden">
+        <div class="px-6 py-5 border-b border-[#EEEEEE]/5 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-black text-[#EEEEEE]">General</h2>
+            <p class="text-[11px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5">Basic auction details</p>
+          </div>
+        </div>
+
+        <div class="p-6 space-y-5">
+          <!-- Name -->
+          <div>
+            <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="s-name">Auction Name <span class="text-red-400">*</span></label>
+            <input id="s-name" type="text" formControlName="name" 
+                   class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all"
+                   [ngClass]="{'border-red-500/50 focus:border-red-500 focus:ring-red-500/50': settingsForm.get('name')?.invalid && settingsForm.get('name')?.touched}"
+                   placeholder="e.g. IPL 2026 Draft">
+            @if (settingsForm.get('name')?.hasError('required') && settingsForm.get('name')?.touched) {
+            <p class="text-xs font-bold text-red-400 mt-2">Name is required.</p>
+            }
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="s-desc">Description</label>
+            <textarea id="s-desc" formControlName="description" rows="3" 
+                      class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all resize-y min-h-[80px]"
+                      placeholder="Optional description"></textarea>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="s-status">Status</label>
+            <div class="relative">
+              <select id="s-status" formControlName="status" 
+                      class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all appearance-none cursor-pointer">
+                @for (opt of statusOptions; track opt.value) {
+                  <option [value]="opt.value" class="bg-[#393E46] text-[#EEEEEE]">{{ opt.label }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#EEEEEE]/40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+            <p class="text-xs font-bold text-[#EEEEEE]/40 mt-2">Controls the auction state shown to spectators.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────────────── -->
+      <!-- SECTION: Rules                                                       -->
+      <!-- ──────────────────────────────────────────────────────────────────── -->
+      <section class="bg-[#393E46] border border-[#EEEEEE]/5 rounded-2xl shadow-xl overflow-hidden">
+        <div class="px-6 py-5 border-b border-[#EEEEEE]/5 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-black text-[#EEEEEE]">Auction Rules</h2>
+            <p class="text-[11px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5">Budget and player limits per team</p>
+          </div>
+        </div>
+
+        <div class="p-6 space-y-5">
+          <!-- Budget -->
+          <div>
+            <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="s-budget">Budget per Team <span class="text-red-400">*</span></label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#EEEEEE]/40 font-bold">₹</span>
+              <input id="s-budget" type="number" formControlName="budget_per_team"
+                     class="w-full pl-10 pr-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all" 
+                     placeholder="10000000">
+            </div>
+            <p class="text-xs font-bold text-[#EEEEEE]/40 mt-2">Total spending limit for each team.</p>
+          </div>
+
+          <!-- Player limits -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="s-max">Max Players / Team <span class="text-red-400">*</span></label>
+              <input id="s-max" type="number" formControlName="max_players_per_team"
+                     class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all" min="1">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="s-min">Min Players / Team <span class="text-red-400">*</span></label>
+              <input id="s-min" type="number" formControlName="min_players_per_team"
+                     class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all" min="1">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────────────── -->
+      <!-- SECTION: Sharing                                                     -->
+      <!-- ──────────────────────────────────────────────────────────────────── -->
+      <section class="bg-[#393E46] border border-[#EEEEEE]/5 rounded-2xl shadow-xl overflow-hidden">
+        <div class="px-6 py-5 border-b border-[#EEEEEE]/5 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-black text-[#EEEEEE]">Sharing &amp; Visibility</h2>
+            <p class="text-[11px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5">Control who can see this auction</p>
+          </div>
+        </div>
+
+        <div class="p-6 space-y-5">
+          <!-- Public toggle -->
+          <div class="flex items-center justify-between p-4 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl">
+            <div>
+              <p class="text-sm font-bold text-[#EEEEEE]">Public Auction</p>
+              <p class="text-xs font-bold text-[#EEEEEE]/40 mt-1">Anyone with the link can view the live results</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+              <input type="checkbox" formControlName="is_public" class="sr-only peer">
+              <div class="w-11 h-6 bg-[#EEEEEE]/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[#232931] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#EEEEEE] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4ECCA3]"></div>
+            </label>
+          </div>
+
+          <!-- Share link -->
+          @if (isPublic() && publicSlug()) {
+          <div class="flex items-center gap-3 p-2 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl">
+            <span class="flex-1 px-3 text-xs font-medium text-[#EEEEEE]/60 truncate select-all">{{ shareUrl() }}</span>
+            <button type="button" 
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all shrink-0 border focus:outline-none"
+                    [ngClass]="slugCopied() ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' : 'bg-[#393E46] text-[#EEEEEE]/80 border-[#EEEEEE]/10 hover:bg-[#EEEEEE]/10 hover:text-[#EEEEEE]'"
+                    (click)="copyShareLink()" id="copy-share-url-btn">
+              @if (slugCopied()) {
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Copied!
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                </svg>
+                Copy
+              }
+            </button>
+          </div>
+          } @else if (isPublic() && !publicSlug()) {
+          <p class="text-xs font-bold text-[#EEEEEE]/40">Public slug will be generated on save.</p>
           }
         </div>
+      </section>
 
-        <!-- Description -->
-        <div class="field">
-          <label class="field__label" for="s-desc">Description</label>
-          <textarea id="s-desc" formControlName="description" rows="3" class="field__input field__input--ta"
-                    placeholder="Optional description"></textarea>
-        </div>
-
-        <!-- Status -->
-        <div class="field">
-          <label class="field__label" for="s-status">Status</label>
-          <select id="s-status" formControlName="status" class="field__select">
-            @for (opt of statusOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
-          <p class="field__hint">Controls the auction state shown to spectators.</p>
-        </div>
+      <!-- ── Save button ─────────────────────────────────────────────────── -->
+      <div class="flex justify-end pt-2">
+        <button type="submit" 
+                class="inline-flex items-center gap-2 px-6 py-3.5 bg-[#4ECCA3] text-[#232931] font-black uppercase tracking-widest text-xs rounded-xl shadow-lg hover:bg-[#4ECCA3]/90 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-[#4ECCA3] focus:ring-offset-2 focus:ring-offset-[#232931]"
+                [disabled]="settingsForm.invalid || saving()" id="save-settings-btn">
+          @if (saving()) {
+            <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+            Saving…
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Settings
+          }
+        </button>
       </div>
-    </section>
+
+    </form>
 
     <!-- ──────────────────────────────────────────────────────────────────── -->
-    <!-- SECTION: Rules                                                       -->
+    <!-- SECTION: Danger Zone                                                 -->
     <!-- ──────────────────────────────────────────────────────────────────── -->
-    <section class="card">
-      <div class="card-header">
-        <div class="card-icon card-icon--indigo">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-          </svg>
-        </div>
+    <section class="bg-[#393E46] border border-red-500/20 rounded-2xl shadow-xl overflow-hidden mt-12">
+      <div class="px-6 py-4 border-b border-red-500/20 bg-red-500/5 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-red-400">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <h2 class="text-sm font-black text-red-400 uppercase tracking-widest">Danger Zone</h2>
+      </div>
+
+      <!-- Reset -->
+      <div class="p-6 border-b border-[#EEEEEE]/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="card-title">Auction Rules</h2>
-          <p class="card-sub">Budget and player limits per team</p>
+          <p class="text-sm font-bold text-[#EEEEEE]">Reset Auction Data</p>
+          <p class="text-xs font-medium text-[#EEEEEE]/40 mt-1 max-w-xl">Clears all player assignments, team budgets, and auction history. The auction itself and its teams/players remain.</p>
         </div>
+        <button type="button" 
+                class="inline-flex items-center justify-center gap-2 px-5 py-3 border border-red-500/30 text-red-400 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-red-500/10 hover:border-red-500/50 transition-all disabled:opacity-50 disabled:pointer-events-none focus:outline-none whitespace-nowrap"
+                [disabled]="resetting()" (click)="resetAuction()" id="reset-auction-btn">
+          @if (resetting()) {
+            <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+            Resetting…
+          } @else {
+            Reset Auction
+          }
+        </button>
       </div>
 
-      <div class="card-body">
-        <!-- Budget -->
-        <div class="field">
-          <label class="field__label" for="s-budget">Budget per Team <span class="req">*</span></label>
-          <div class="field__prefix-wrap">
-            <span class="field__prefix">₹</span>
-            <input id="s-budget" type="number" formControlName="budget_per_team"
-                   class="field__input field__input--prefixed" placeholder="10000000">
-          </div>
-          <p class="field__hint">Total spending limit for each team.</p>
-        </div>
-
-        <!-- Player limits -->
-        <div class="field-row">
-          <div class="field">
-            <label class="field__label" for="s-max">Max Players / Team <span class="req">*</span></label>
-            <input id="s-max" type="number" formControlName="max_players_per_team"
-                   class="field__input" min="1">
-          </div>
-          <div class="field">
-            <label class="field__label" for="s-min">Min Players / Team <span class="req">*</span></label>
-            <input id="s-min" type="number" formControlName="min_players_per_team"
-                   class="field__input" min="1">
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-
-    <!-- ──────────────────────────────────────────────────────────────────── -->
-    <!-- SECTION: Sharing                                                     -->
-    <!-- ──────────────────────────────────────────────────────────────────── -->
-    <section class="card">
-      <div class="card-header">
-        <div class="card-icon card-icon--green">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-        </div>
+      <!-- Delete -->
+      <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-red-500/5">
         <div>
-          <h2 class="card-title">Sharing &amp; Visibility</h2>
-          <p class="card-sub">Control who can see this auction</p>
+          <p class="text-sm font-bold text-[#EEEEEE]">Delete Auction</p>
+          <p class="text-xs font-medium text-red-400/80 mt-1 max-w-xl">Permanently deletes this auction and all associated teams, players, and history. You will be asked to type the auction name to confirm.</p>
         </div>
-      </div>
-
-      <div class="card-body">
-        <!-- Public toggle -->
-        <div class="field-toggle">
-          <div class="field-toggle__text">
-            <p class="field-toggle__label">Public Auction</p>
-            <p class="field-toggle__hint">Anyone with the link can view the live results</p>
-          </div>
-          <label class="toggle" for="s-public">
-            <input id="s-public" type="checkbox" formControlName="is_public" class="toggle__input">
-            <span class="toggle__track"></span>
-          </label>
-        </div>
-
-        <!-- Share link -->
-        @if (isPublic() && publicSlug()) {
-        <div class="share-link-box">
-          <span class="share-link-box__url">{{ shareUrl() }}</span>
-          <button type="button" class="share-link-box__btn"
-                  [class.share-link-box__btn--copied]="slugCopied()"
-                  (click)="copyShareLink()" id="copy-share-url-btn">
-            @if (slugCopied()) {
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              Copied!
-            } @else {
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-              </svg>
-              Copy
-            }
-          </button>
-        </div>
-        } @else if (isPublic() && !publicSlug()) {
-        <p class="field__hint">Public slug will be generated on save.</p>
-        }
+        <button type="button" 
+                class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-red-500 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all disabled:opacity-50 disabled:pointer-events-none focus:outline-none whitespace-nowrap"
+                [disabled]="deleting()" (click)="deleteAuction()" id="delete-auction-btn">
+          @if (deleting()) {
+            <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+            Deleting…
+          } @else {
+            Delete Auction
+          }
+        </button>
       </div>
     </section>
 
-    <!-- ── Save button ─────────────────────────────────────────────────── -->
-    <div class="form-actions">
-      <button type="submit" class="btn btn--primary" [disabled]="settingsForm.invalid || saving()" id="save-settings-btn">
-        @if (saving()) {
-          <svg class="spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5">
-            <path d="M21 12a9 9 0 11-6.219-8.56"/>
-          </svg>
-          Saving…
-        } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/>
-            <polyline points="7 3 7 8 15 8"/>
-          </svg>
-          Save Settings
-        }
-      </button>
-    </div>
+    } <!-- end @else -->
 
-  </form>
-
-  <!-- ──────────────────────────────────────────────────────────────────── -->
-  <!-- SECTION: Danger Zone                                                 -->
-  <!-- ──────────────────────────────────────────────────────────────────── -->
-  <section class="danger-zone">
-    <h2 class="danger-zone__title">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-        <line x1="12" y1="9" x2="12" y2="13"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-      Danger Zone
-    </h2>
-
-    <!-- Reset -->
-    <div class="danger-row">
-      <div class="danger-row__text">
-        <p class="danger-row__label">Reset Auction Data</p>
-        <p class="danger-row__hint">
-          Clears all player assignments, team budgets, and auction history.
-          The auction itself and its teams/players remain.
-        </p>
-      </div>
-      <button type="button" class="btn btn--danger-outline"
-              [disabled]="resetting()" (click)="resetAuction()" id="reset-auction-btn">
-        @if (resetting()) {
-          <svg class="spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5">
-            <path d="M21 12a9 9 0 11-6.219-8.56"/>
-          </svg>
-          Resetting…
-        } @else {
-          Reset Auction
-        }
-      </button>
-    </div>
-
-    <!-- Delete -->
-    <div class="danger-row danger-row--delete">
-      <div class="danger-row__text">
-        <p class="danger-row__label">Delete Auction</p>
-        <p class="danger-row__hint">
-          Permanently deletes this auction and all associated teams, players, and history.
-          You will be asked to type the auction name to confirm.
-        </p>
-      </div>
-      <button type="button" class="btn btn--danger"
-              [disabled]="deleting()" (click)="deleteAuction()" id="delete-auction-btn">
-        @if (deleting()) {
-          <svg class="spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5">
-            <path d="M21 12a9 9 0 11-6.219-8.56"/>
-          </svg>
-          Deleting…
-        } @else {
-          Delete Auction
-        }
-      </button>
-    </div>
-  </section>
-
-  } <!-- end @else -->
-
+  </div>
 </div>
