@@ -15,16 +15,16 @@ This document tracks the progress of making the Auction.io application fully mob
 - [x] **App Layout Wrapper** (`auction-workspace-layout`)
 
 ### Admin Management Modules
-- [ ] **Teams Dashboard** (`teams`)
-- [ ] **Team Roster** (`team-roster`)
+- [x] **Teams Dashboard** (`teams`)
+- [x] **Team Roster** (`team-roster`)
 - [x] **Player Pool / Auction Players** (`players`, `auction-players`)
 - [x] **User Management** (`user-management`)
-- [ ] **Auction Settings** (`auction-settings`)
+- [x] **Auction Settings** (`auction-settings`)
 
 ### Live Operations
-- [ ] **Auction Control Desk** (`auction-control`)
-- [ ] **Auction History** (`auction-history`)
-- [ ] **Auction Overview** (`auction-overview`)
+- [x] **Auction Control Desk** (`auction-control`)
+- [x] **Auction History** (`auction-history`)
+- [x] **Auction Overview** (`auction-overview`)
 
 ### Public Views
 - [x] **Public Broadcast View** (`public-auction`)
