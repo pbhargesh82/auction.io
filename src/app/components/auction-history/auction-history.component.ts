@@ -14,7 +14,8 @@ type SortDirection = 'asc' | 'desc';
   standalone: true,
   imports: [CommonModule, AvatarComponent],
   templateUrl: './auction-history.component.html',
-  styleUrls: ['./auction-history.component.css']
+  styleUrls: ['./auction-history.component.css'],
+  host: { class: 'block h-full w-full' }
 })
 export class AuctionHistoryComponent implements OnInit {
   loading      = signal(false);

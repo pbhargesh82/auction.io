@@ -14,7 +14,8 @@ import { Auction } from '../../services/auctions.service';
     RouterModule
   ],
   templateUrl: './public-auction.component.html',
-  styleUrls: ['./public-auction.component.css']
+  styleUrls: ['./public-auction.component.css'],
+  host: { class: 'block h-full w-full' }
 })
 export class PublicAuctionComponent implements OnInit, OnDestroy {
   loading = signal(true);

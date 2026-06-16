@@ -35,6 +35,7 @@ type StatusFilter = 'all' | AuctionStatus;
   imports: [CommonModule, FormsModule, ReactiveFormsModule, SidePanelComponent, AvatarComponent],
   templateUrl: './auction-players.component.html',
   styleUrls: ['./auction-players.component.css'],
+  host: { class: 'block h-full w-full' }
 })
 export class AuctionPlayersComponent implements OnInit {
   // ── Core state ────────────────────────────────────────────────────────────
