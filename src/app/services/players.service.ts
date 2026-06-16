@@ -21,6 +21,7 @@ export interface Player {
   auction_status?: 'PENDING' | 'CURRENT' | 'SOLD' | 'UNSOLD' | 'SKIPPED' | 'INACTIVE';
   created_at: string;
   updated_at: string;
+  _fmtBasePrice?: string; // Precomputed UI string
 }
 
 export interface CreatePlayerData {
