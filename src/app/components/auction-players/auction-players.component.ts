@@ -23,6 +23,10 @@ export interface AuctionPlayer {
   // joined from team_players / auction_history
   sold_team_name?: string;
   sold_price?: number;
+  // precomputed UI fields
+  _fmtBasePrice?: string;
+  _fmtSoldPrice?: string;
+  _statusLabel?: string;
 }
 
 type StatusFilter = 'all' | AuctionStatus;
@@ -63,6 +67,9 @@ export class AuctionPlayersComponent implements OnInit {
   // ── Toast ─────────────────────────────────────────────────────────────────
   toast         = signal<{ msg: string; type: 'ok' | 'err' } | null>(null);
   private toastTimer: any;
+  
+  // ── Responsive ────────────────────────────────────────────────────────────
+  isMobile      = signal(false);
 
   // ── Computed ──────────────────────────────────────────────────────────────
   filtered = computed(() => {
@@ -125,6 +132,12 @@ export class AuctionPlayersComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      const mql = window.matchMedia('(max-width: 767px)');
+      this.isMobile.set(mql.matches);
+      mql.addEventListener('change', e => this.isMobile.set(e.matches));
+    }
+
     let r: ActivatedRoute | null = this.route;
     while (r) {
       const id = r.snapshot.paramMap.get('id');
@@ -170,16 +183,22 @@ export class AuctionPlayersComponent implements OnInit {
         });
       }
 
-      const entries: AuctionPlayer[] = raw.map(r => ({
-        id:             r.id,
-        auction_id:     r.auction_id,
-        player_id:      r.player_id,
-        base_price:     r.base_price,
-        auction_status: ((r.status || 'pending') as string).toUpperCase() as AuctionStatus,
-        player:         Array.isArray(r.player) ? r.player[0] : r.player,
-        sold_team_name: historyMap[r.player_id]?.team,
-        sold_price:     historyMap[r.player_id]?.price,
-      }));
+      const entries: AuctionPlayer[] = raw.map(r => {
+        const apStatus = ((r.status || 'pending') as string).toUpperCase() as AuctionStatus;
+        return {
+          id:             r.id,
+          auction_id:     r.auction_id,
+          player_id:      r.player_id,
+          base_price:     r.base_price,
+          auction_status: apStatus,
+          player:         Array.isArray(r.player) ? r.player[0] : r.player,
+          sold_team_name: historyMap[r.player_id]?.team,
+          sold_price:     historyMap[r.player_id]?.price,
+          _fmtBasePrice:  this.formatCurrency(r.base_price),
+          _fmtSoldPrice:  historyMap[r.player_id]?.price ? this.formatCurrency(historyMap[r.player_id].price) : '',
+          _statusLabel:   this.statusMeta(apStatus).label
+        };
+      });
 
       this.auctionPlayers.set(entries);
     } finally {
@@ -202,7 +221,11 @@ export class AuctionPlayersComponent implements OnInit {
         .eq('owner_id', user!.id)
         .eq('is_active', true)
         .order('name', { ascending: true });
-      if (!error) this.poolPlayers.set((data ?? []) as Player[]);
+      if (!error) {
+        const p = (data ?? []) as Player[];
+        p.forEach(x => (x as any)._fmtBasePrice = this.formatCurrency(x.base_price));
+        this.poolPlayers.set(p);
+      }
     } finally {
       this.poolLoading.set(false);
     }

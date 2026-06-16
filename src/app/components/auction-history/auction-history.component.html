@@ -123,8 +123,9 @@
     </div>
 
     } @else {
+    @if (!isMobile()) {
     <!-- Desktop Table -->
-    <div class="hidden md:block flex-1 overflow-auto custom-scroll">
+    <div class="flex-1 overflow-auto custom-scroll">
       <table class="w-full text-left border-collapse min-w-[700px]">
         <thead class="sticky top-0 z-10 bg-[#393E46]/95 backdrop-blur-md border-b border-[#EEEEEE]/10">
           <tr>
@@ -184,7 +185,7 @@
             <!-- Price -->
             <td class="px-4 py-4 text-right">
               @if (h.final_price && h.status === 'SOLD') {
-              <span class="text-sm font-black text-[#4ECCA3]">{{ formatCompact(h.final_price) }}</span>
+              <span class="text-sm font-black text-[#4ECCA3]">{{ h._fmtFinalPrice }}</span>
               } @else {
               <span class="text-[#EEEEEE]/20 text-xs">—</span>
               }
@@ -192,7 +193,7 @@
 
             <!-- Date -->
             <td class="pl-4 pr-4 py-4">
-              <span class="text-xs font-bold text-[#EEEEEE]/40">{{ formatDate(h.auction_date || h.sold_at) }}</span>
+              <span class="text-xs font-bold text-[#EEEEEE]/40">{{ h._fmtDate }}</span>
             </td>
 
             <!-- Action: Return to Pool -->
@@ -218,9 +219,9 @@
         </tbody>
       </table>
     </div>
-
+    } @else {
     <!-- Mobile Card List -->
-    <div class="md:hidden flex-1 overflow-y-auto custom-scroll divide-y divide-[#EEEEEE]/5">
+    <div class="flex-1 overflow-y-auto custom-scroll divide-y divide-[#EEEEEE]/5">
       @for (h of sortedAuctionHistory(); track h.id) {
       <div class="px-4 py-4 flex items-start gap-3 relative">
 
@@ -262,11 +263,11 @@
             <div class="flex items-center gap-2 shrink-0 ml-2">
               <div class="text-right">
                 @if (h.final_price && h.status === 'SOLD') {
-                <p class="text-sm font-black text-[#4ECCA3]">{{ formatCompact(h.final_price) }}</p>
+                <p class="text-sm font-black text-[#4ECCA3]">{{ h._fmtFinalPrice }}</p>
                 } @else {
                 <p class="text-xs text-[#EEEEEE]/20">—</p>
                 }
-                <p class="text-[9px] font-bold text-[#EEEEEE]/30 mt-0.5">{{ formatDate(h.auction_date || h.sold_at) }}</p>
+                <p class="text-[9px] font-bold text-[#EEEEEE]/30 mt-0.5">{{ h._fmtDate }}</p>
               </div>
               <!-- Return to Pool (mobile) -->
               @if (h.status === 'SOLD') {
@@ -286,8 +287,10 @@
           </div>
         </div>
       </div>
+      </div>
       }
     </div>
+    }
 
     <!-- Footer row count -->
     <div class="px-6 py-3 border-t border-[#EEEEEE]/5 flex justify-between items-center shrink-0">

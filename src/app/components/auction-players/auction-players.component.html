@@ -136,8 +136,9 @@
     } @else {
     <div class="flex-1 overflow-auto custom-scroll">
       
+      @if (!isMobile()) {
       <!-- Desktop Table View (>= md) -->
-      <table class="w-full text-left border-collapse min-w-[800px] hidden md:table">
+      <table class="w-full text-left border-collapse min-w-[800px]">
         <thead class="sticky top-0 z-10 bg-[#393E46]/95 backdrop-blur-md border-b border-[#EEEEEE]/10">
           <tr>
             <th class="pl-8 pr-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Player</th>
@@ -171,7 +172,7 @@
             </td>
             
             <td class="px-4 py-4">
-              <p class="text-sm font-black text-[#EEEEEE]">{{ formatCurrency(ap.base_price) }}</p>
+              <p class="text-sm font-black text-[#EEEEEE]">{{ ap._fmtBasePrice }}</p>
             </td>
 
             <td class="px-4 py-4">
@@ -184,11 +185,11 @@
                         'bg-amber-400 text-amber-900 border-amber-500': ap.auction_status === 'SKIPPED',
                         'bg-blue-400/10 text-blue-400 border-blue-400/20': ap.auction_status === 'PENDING'
                       }">
-                  {{ statusMeta(ap.auction_status).label }}
+                  {{ ap._statusLabel }}
                 </span>
                 @if (ap.auction_status === 'SOLD' && ap.sold_team_name) {
                   <p class="text-[10px] font-bold text-[#EEEEEE]/40 tracking-wider uppercase">
-                    {{ ap.sold_team_name }} · <span class="text-[#4ECCA3]">{{ formatCurrency(ap.sold_price ?? 0) }}</span>
+                    {{ ap.sold_team_name }} · <span class="text-[#4ECCA3]">{{ ap._fmtSoldPrice }}</span>
                   </p>
                 }
               </div>
@@ -214,9 +215,9 @@
           }
         </tbody>
       </table>
-
+      } @else {
       <!-- Mobile Card Grid (< md) -->
-      <div class="md:hidden p-4 space-y-4">
+      <div class="p-4 space-y-4">
         @for (ap of filtered(); track ap.id) {
         <div class="bg-[#232931] rounded-2xl p-4 border border-[#EEEEEE]/5 shadow-md flex flex-col gap-3 relative overflow-hidden group">
           <div class="absolute top-0 left-0 bottom-0 w-1"
@@ -243,17 +244,17 @@
                     'bg-amber-400 text-amber-900': ap.auction_status === 'SKIPPED',
                     'bg-blue-400/10 text-blue-400': ap.auction_status === 'PENDING'
                   }">
-              {{ statusMeta(ap.auction_status).label }}
+              {{ ap._statusLabel }}
             </span>
           </div>
 
           <div class="pl-2 pt-2 border-t border-[#EEEEEE]/5 flex justify-between items-end">
             <div class="space-y-1">
               <p class="text-[9px] font-black text-[#EEEEEE]/30 uppercase tracking-widest">Base Price</p>
-              <p class="text-sm font-black text-[#EEEEEE]">{{ formatCurrency(ap.base_price) }}</p>
+              <p class="text-sm font-black text-[#EEEEEE]">{{ ap._fmtBasePrice }}</p>
               @if (ap.auction_status === 'SOLD' && ap.sold_team_name) {
                 <p class="text-[10px] font-bold text-[#EEEEEE]/40 tracking-wider uppercase mt-1">
-                  {{ ap.sold_team_name }} · <span class="text-[#4ECCA3]">{{ formatCurrency(ap.sold_price ?? 0) }}</span>
+                  {{ ap.sold_team_name }} · <span class="text-[#4ECCA3]">{{ ap._fmtSoldPrice }}</span>
                 </p>
               }
             </div>
@@ -272,6 +273,7 @@
         </div>
         }
       </div>
+      }
 
     </div>
     
@@ -341,7 +343,7 @@
               <p class="text-[9px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest truncate">{{ p.category }}</p>
             </div>
 
-            <p class="text-xs font-black text-[#EEEEEE] shrink-0">{{ formatCurrency(p.base_price) }}</p>
+            <p class="text-xs font-black text-[#EEEEEE] shrink-0">{{ p._fmtBasePrice }}</p>
           </div>
         }
       </div>

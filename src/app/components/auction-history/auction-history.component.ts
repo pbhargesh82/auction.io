@@ -9,6 +9,11 @@ import { AvatarComponent } from '../shared/avatar/avatar.component';
 type SortOption = 'time' | 'price' | 'name';
 type SortDirection = 'asc' | 'desc';
 
+type AuctionHistoryUI = AuctionHistory & {
+  _fmtFinalPrice?: string;
+  _fmtDate?: string;
+};
+
 @Component({
   selector: 'app-auction-history',
   standalone: true,
@@ -21,8 +26,10 @@ export class AuctionHistoryComponent implements OnInit {
   loading      = signal(false);
   error        = signal<string | null>(null);
   toast        = signal<{ msg: string; type: 'ok' | 'err' } | null>(null);
-  auctionHistory = signal<AuctionHistory[]>([]);
+  auctionHistory = signal<AuctionHistoryUI[]>([]);
   resettingId  = signal<string | null>(null); // tracks which history row is being reset
+  
+  isMobile     = signal(false);
 
   sortBy        = signal<SortOption>('time');
   sortDirection = signal<SortDirection>('desc');
@@ -65,7 +72,14 @@ export class AuctionHistoryComponent implements OnInit {
 
   constructor(private supabase: SupabaseService, private route: ActivatedRoute) {}
 
-  async ngOnInit() { await this.loadAuctionHistory(); }
+  async ngOnInit() {
+    if (typeof window !== 'undefined') {
+      const mql = window.matchMedia('(max-width: 767px)');
+      this.isMobile.set(mql.matches);
+      mql.addEventListener('change', e => this.isMobile.set(e.matches));
+    }
+    await this.loadAuctionHistory();
+  }
 
   private auctionId(): string {
     let r: ActivatedRoute | null = this.route;
@@ -97,8 +111,10 @@ export class AuctionHistoryComponent implements OnInit {
           ...row,
           player: Array.isArray(row.player) ? row.player[0] ?? null : row.player,
           team:   Array.isArray(row.team)   ? row.team[0]   ?? null : row.team,
+          _fmtFinalPrice: this.formatCompact(row.final_price ?? 0),
+          _fmtDate: this.formatDate(row.sold_at)
         }));
-        this.auctionHistory.set(entries as AuctionHistory[]);
+        this.auctionHistory.set(entries as AuctionHistoryUI[]);
       }
     } catch (err: any) { this.showToast(err.message, 'err'); }
     finally { this.loading.set(false); }
