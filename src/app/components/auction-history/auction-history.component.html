@@ -123,9 +123,8 @@
     </div>
 
     } @else {
-    @if (!isMobile()) {
     <!-- Desktop Table -->
-    <div class="flex-1 overflow-auto custom-scroll">
+    <div class="hidden sm:block flex-1 overflow-auto custom-scroll">
       <table class="w-full text-left border-collapse min-w-[700px]">
         <thead class="sticky top-0 z-10 bg-[#393E46]/95 backdrop-blur-md border-b border-[#EEEEEE]/10">
           <tr>
@@ -219,9 +218,8 @@
         </tbody>
       </table>
     </div>
-    } @else {
     <!-- Mobile Card List -->
-    <div class="flex-1 overflow-y-auto custom-scroll divide-y divide-[#EEEEEE]/5">
+    <div class="sm:hidden flex-1 overflow-y-auto custom-scroll divide-y divide-[#EEEEEE]/5">
       @for (h of sortedAuctionHistory(); track h.id) {
       <div class="px-4 py-4 flex items-start gap-3 relative">
 
@@ -289,7 +287,7 @@
       </div>
       }
     </div>
-    }
+
 
     <!-- Footer row count -->
     <div class="px-6 py-3 border-t border-[#EEEEEE]/5 flex justify-between items-center shrink-0">

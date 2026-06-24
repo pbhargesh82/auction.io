@@ -1,4 +1,4 @@
-<div class="h-screen max-h-screen h-[100dvh] max-h-[100dvh] bg-[#232931] flex font-sans text-[#EEEEEE] overflow-hidden">
+<div class="h-screen max-h-screen h-[100dvh] max-h-[100dvh] w-full bg-[#232931] flex font-sans text-[#EEEEEE] overflow-hidden">
 
   <!-- Mobile Menu Overlay -->
   @if (mobileMenuOpen()) {
@@ -153,7 +153,7 @@
   </div>
 
   <!-- Main Content Area -->
-  <div [class]="'flex-1 flex flex-col transition-all duration-300 min-w-0 overflow-hidden ' + 
+  <div [class]="'flex-1 flex flex-col transition-all duration-300 min-w-0 min-h-0 overflow-hidden ' + 
                 (sidebarCollapsed() ? 'lg:ml-[88px]' : 'lg:ml-72')">
 
     <!-- Top Navigation Bar -->
@@ -236,12 +236,12 @@
 
 
     <!-- Page Content -->
-    <main class="flex-1 overflow-hidden bg-[#232931] relative min-w-0">
+    <main class="flex-1 min-h-0 overflow-hidden bg-[#232931] relative min-w-0">
       <!-- Glow effect for background -->
       <div
         class="fixed top-20 right-0 w-[40%] h-[40%] bg-[#4ECCA3] opacity-[0.02] blur-[120px] pointer-events-none z-0">
       </div>
-      <div class="relative z-10 h-full overflow-y-auto overflow-x-hidden">
+      <div class="absolute inset-0 z-10">
         @if (loading()) {
         <div class="flex flex-col items-center justify-center h-full space-y-4">
           <svg class="animate-spin h-8 w-8 text-[#4ECCA3]" xmlns="http://www.w3.org/2000/svg" fill="none"

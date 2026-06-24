@@ -80,11 +80,11 @@
       <button (click)="openCreateForm()" class="mt-6 text-sm font-bold text-[#4ECCA3] uppercase tracking-widest">Add First Team</button>
     </div>
     } @else {
-    <div class="flex-1 overflow-auto custom-scroll">
       <!-- Desktop Table (Hidden on mobile) -->
-      <table class="w-full min-w-[800px] hidden sm:table">
-        <thead>
-          <tr class="border-b border-[#EEEEEE]/5">
+      <div class="hidden sm:block flex-1 overflow-auto custom-scroll">
+        <table class="w-full min-w-[800px]">
+          <thead class="sticky top-0 z-10 bg-[#393E46]/95 backdrop-blur-md shadow-sm">
+            <tr class="border-b border-[#EEEEEE]/5">
             <th class="px-6 py-4 text-left"><span class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Team</span></th>
             <th class="px-4 py-4 text-left"><span class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Owner</span></th>
             <th class="px-4 py-4 text-left w-64"><span class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Budget</span></th>
@@ -157,10 +157,11 @@
           </tr>
           }
         </tbody>
-      </table>
+        </table>
+      </div>
 
       <!-- Mobile Card List (Visible on < sm) -->
-      <div class="sm:hidden divide-y divide-[#EEEEEE]/5">
+      <div class="sm:hidden flex-1 overflow-y-auto custom-scroll divide-y divide-[#EEEEEE]/5">
         @for (team of filteredTeams(); track team.id) {
         <div class="p-4 space-y-4">
           <!-- Identity & Status -->
@@ -213,7 +214,6 @@
         </div>
         }
       </div>
-    </div>
     
     <!-- Footer info -->
     <div class="px-6 py-3 border-t border-[#EEEEEE]/5 flex items-center justify-between">

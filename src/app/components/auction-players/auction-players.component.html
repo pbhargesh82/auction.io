@@ -21,43 +21,43 @@
     </div>
 
     <!-- Actions Group -->
-    <div class="flex flex-col sm:flex-row w-full xl:w-auto items-start sm:items-center gap-3 lg:gap-4">
+    <div class="flex flex-row overflow-x-auto sm:overflow-visible w-full xl:w-auto items-center gap-2 sm:gap-3 lg:gap-4 custom-scroll pb-1 sm:pb-0">
       <button (click)="removeUnsold()" [disabled]="saving()"
-        class="w-full sm:w-auto px-5 py-3.5 rounded-xl text-xs font-bold text-red-400/80 hover:text-red-400 hover:bg-red-400/10 transition-all outline-none border border-transparent flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-30">
-        <svg class="w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        class="flex-none whitespace-nowrap min-w-max px-4 sm:px-5 py-3.5 rounded-xl text-[10px] sm:text-xs font-bold text-red-400/80 hover:text-red-400 hover:bg-red-400/10 transition-all outline-none border border-transparent flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-30">
+        <svg class="w-4 h-4 flex-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
           <path d="M10 11v6"/><path d="M14 11v6"/>
           <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
         </svg>
-        <span class="truncate">Drop Unsold</span>
+        <span>Drop Unsold</span>
       </button>
 
       <button (click)="resetStatuses()" [disabled]="saving()"
-        class="w-full sm:w-auto px-5 py-3.5 rounded-xl text-xs font-bold text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-all outline-none border border-transparent flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-30">
-        <svg class="w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        class="flex-none whitespace-nowrap min-w-max px-4 sm:px-5 py-3.5 rounded-xl text-[10px] sm:text-xs font-bold text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-all outline-none border border-transparent flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-30">
+        <svg class="w-4 h-4 flex-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="1 4 1 10 7 10"/>
           <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
         </svg>
-        <span class="truncate">Reset</span>
+        <span>Reset</span>
       </button>
 
       <button (click)="openModal()"
-        class="w-full sm:w-auto shrink-0 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 text-[#232931] font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm shadow-[0_0_15px_rgba(78,204,163,0.15)] hover:shadow-[0_0_25px_rgba(78,204,163,0.3)] focus:outline-none uppercase tracking-widest">
-        <svg class="w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        class="flex-none whitespace-nowrap min-w-max bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 text-[#232931] font-bold py-3.5 px-5 sm:px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-[10px] sm:text-sm shadow-[0_0_15px_rgba(78,204,163,0.15)] hover:shadow-[0_0_25px_rgba(78,204,163,0.3)] focus:outline-none uppercase tracking-widest">
+        <svg class="w-4 sm:w-5 h-4 sm:h-5 flex-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
-        <span class="truncate">Add from Pool</span>
+        <span>Add from Pool</span>
       </button>
     </div>
   </div>
 
   <!-- ── Status Filter Cards ────────────────────────────────────────────── -->
   @if (!loading()) {
-  <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 lg:gap-4 mb-6 shrink-0">
+  <div class="flex flex-row overflow-x-auto xl:grid xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 shrink-0 custom-scroll pb-2 sm:pb-0 snap-x">
     <!-- All -->
     <div (click)="setStatus('all')"
-         class="group bg-[#393E46] p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
+         class="flex-none min-w-max w-28 sm:w-auto snap-start group bg-[#393E46] p-3 sm:p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
          [class]="statusFilter() === 'all' ? 'border-[#4ECCA3] shadow-[0_0_15px_rgba(78,204,163,0.15)] bg-[#4ECCA3]/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'all' ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]'">{{ stats().total }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'all' ? 'text-[#4ECCA3]/80' : 'text-[#EEEEEE]/40'">Total</span>
@@ -66,7 +66,7 @@
     
     <!-- Available -->
     <div (click)="setStatus('PENDING')"
-         class="group bg-[#393E46] p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
+         class="flex-none min-w-max w-28 sm:w-auto snap-start group bg-[#393E46] p-3 sm:p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
          [class]="statusFilter() === 'PENDING' ? 'border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.15)] bg-blue-400/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'PENDING' ? 'text-blue-400' : 'text-[#EEEEEE]'">{{ stats().pending }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'PENDING' ? 'text-blue-400/80' : 'text-[#EEEEEE]/40'">Available</span>
@@ -75,7 +75,7 @@
 
     <!-- Sold -->
     <div (click)="setStatus('SOLD')"
-         class="group bg-[#393E46] p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
+         class="flex-none min-w-max w-28 sm:w-auto snap-start group bg-[#393E46] p-3 sm:p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
          [class]="statusFilter() === 'SOLD' ? 'border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.15)] bg-emerald-400/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'SOLD' ? 'text-emerald-400' : 'text-[#EEEEEE]'">{{ stats().sold }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'SOLD' ? 'text-emerald-400/80' : 'text-[#EEEEEE]/40'">Sold</span>
@@ -84,7 +84,7 @@
 
     <!-- Unsold -->
     <div (click)="setStatus('UNSOLD')"
-         class="group bg-[#393E46] p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
+         class="flex-none min-w-max w-28 sm:w-auto snap-start group bg-[#393E46] p-3 sm:p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
          [class]="statusFilter() === 'UNSOLD' ? 'border-red-400 shadow-[0_0_15px_rgba(248,113,113,0.15)] bg-red-400/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'UNSOLD' ? 'text-red-400' : 'text-[#EEEEEE]'">{{ stats().unsold }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'UNSOLD' ? 'text-red-400/80' : 'text-[#EEEEEE]/40'">Unsold</span>
@@ -93,7 +93,7 @@
 
     <!-- Skipped -->
     <div (click)="setStatus('SKIPPED')"
-         class="group bg-[#393E46] p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
+         class="flex-none min-w-max w-28 sm:w-auto snap-start group bg-[#393E46] p-3 sm:p-4 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center shadow-md relative overflow-hidden"
          [class]="statusFilter() === 'SKIPPED' ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)] bg-amber-400/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'SKIPPED' ? 'text-amber-400' : 'text-[#EEEEEE]'">{{ stats().skipped }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'SKIPPED' ? 'text-amber-400/80' : 'text-[#EEEEEE]/40'">Skipped</span>
@@ -134,11 +134,9 @@
     </div>
 
     } @else {
-    <div class="flex-1 overflow-auto custom-scroll">
-      
-      @if (!isMobile()) {
       <!-- Desktop Table View (>= md) -->
-      <table class="w-full text-left border-collapse min-w-[800px]">
+      <div class="hidden sm:block flex-1 overflow-auto custom-scroll">
+        <table class="w-full text-left border-collapse min-w-[800px]">
         <thead class="sticky top-0 z-10 bg-[#393E46]/95 backdrop-blur-md border-b border-[#EEEEEE]/10">
           <tr>
             <th class="pl-8 pr-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Player</th>
@@ -214,10 +212,11 @@
           </tr>
           }
         </tbody>
-      </table>
-      } @else {
+        </table>
+      </div>
+
       <!-- Mobile Card Grid (< md) -->
-      <div class="p-4 space-y-4">
+      <div class="sm:hidden flex-1 overflow-y-auto custom-scroll p-4 space-y-4">
         @for (ap of filtered(); track ap.id) {
         <div class="bg-[#232931] rounded-2xl p-4 border border-[#EEEEEE]/5 shadow-md flex flex-col gap-3 relative overflow-hidden group">
           <div class="absolute top-0 left-0 bottom-0 w-1"
@@ -273,9 +272,6 @@
         </div>
         }
       </div>
-      }
-
-    </div>
     
     <div class="px-6 py-3 border-t border-[#EEEEEE]/5 flex justify-between items-center bg-[#232931]/30">
       <span class="text-[9px] font-black uppercase tracking-widest text-[#EEEEEE]/30">{{ filtered().length }} shown</span>
@@ -343,7 +339,7 @@
               <p class="text-[9px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest truncate">{{ p.category }}</p>
             </div>
 
-            <p class="text-xs font-black text-[#EEEEEE] shrink-0">{{ p._fmtBasePrice }}</p>
+            <p class="text-xs font-black text-[#EEEEEE] shrink-0">{{ formatCurrency(p.base_price) }}</p>
           </div>
         }
       </div>
