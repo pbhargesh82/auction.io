@@ -1,4 +1,4 @@
-<div class="h-screen max-h-screen h-[100dvh] max-h-[100dvh] w-full bg-[#232931] flex font-sans text-[#EEEEEE] overflow-hidden">
+<div class="h-dvh max-h-dvh w-full bg-[#232931] flex font-sans text-[#EEEEEE] overflow-hidden">
 
   <!-- Mobile Menu Overlay -->
   @if (mobileMenuOpen()) {
@@ -241,7 +241,7 @@
       <div
         class="fixed top-20 right-0 w-[40%] h-[40%] bg-[#4ECCA3] opacity-[0.02] blur-[120px] pointer-events-none z-0">
       </div>
-      <div class="absolute inset-0 z-10">
+      <div class="relative z-10 h-full flex flex-col">
         @if (loading()) {
         <div class="flex flex-col items-center justify-center h-full space-y-4">
           <svg class="animate-spin h-8 w-8 text-[#4ECCA3]" xmlns="http://www.w3.org/2000/svg" fill="none"
