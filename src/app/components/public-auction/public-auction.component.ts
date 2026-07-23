@@ -15,7 +15,7 @@ import { Auction } from '../../services/auctions.service';
   ],
   templateUrl: './public-auction.component.html',
   styleUrls: ['./public-auction.component.css'],
-  host: { class: 'block h-full w-full' }
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class PublicAuctionComponent implements OnInit, OnDestroy {
   loading = signal(true);

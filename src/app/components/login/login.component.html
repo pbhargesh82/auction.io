@@ -1,4 +1,4 @@
-<div class="min-h-screen w-full bg-[#232931] relative flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden"
+<div class="h-dvh max-h-dvh w-full bg-[#232931] relative overflow-y-auto overflow-x-hidden"
      (mousemove)="onMouseMove($event)"
      [style.--mouse-x.%]="mouseX()"
      [style.--mouse-y.%]="mouseY()">
@@ -23,7 +23,8 @@
          style="background: radial-gradient(circle, rgba(78,204,163,0.25) 0%, rgba(78,204,163,0) 70%); transform: translate(calc(var(--mouse-x) * 1vw - 50%), calc(var(--mouse-y) * 1vh - 50%)); left: 0; top: 0;"></div>
   </div>
 
-  <div class="w-full max-w-sm sm:max-w-md relative z-10 animate-fade-in-up">
+  <div class="relative z-10 min-h-dvh flex flex-col justify-center p-4 sm:p-6 lg:p-8">
+  <div class="w-full max-w-sm sm:max-w-md mx-auto animate-fade-in-up">
     <!-- Premium Login Card (Surface) -->
     <div class="bg-[#393E46]/90 backdrop-blur-xl rounded-3xl shadow-[0_8px_40px_rgba(35,41,49,0.8)] border border-[#EEEEEE]/10 p-6 sm:p-8 transition-all duration-300 hover:shadow-[0_8px_50px_rgba(78,204,163,0.15)] relative overflow-hidden">
 
@@ -232,9 +233,10 @@
       </form>
     </div>
   </div>
+  </div>
 
   <!-- Footer links / info -->
-  <div class="absolute bottom-6 w-full text-center text-xs text-[#EEEEEE]/30 font-bold tracking-wider uppercase">
+  <div class="pointer-events-none absolute bottom-4 left-0 right-0 w-full text-center text-xs text-[#EEEEEE]/30 font-bold tracking-wider uppercase z-10">
     &copy; {{ currentYear || '2024' }} Auction.io
   </div>
 </div>

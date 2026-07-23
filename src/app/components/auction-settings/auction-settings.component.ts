@@ -12,6 +12,7 @@ import { Auction } from '../../services/auctions.service';
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './auction-settings.component.html',
   styleUrls: ['./auction-settings.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class AuctionSettingsComponent implements OnInit {
   // ── State ─────────────────────────────────────────────────────────────────

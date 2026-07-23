@@ -4,7 +4,7 @@
 ══════════════════════════════════════════════════════════════════════════ -->
 
 <div
-  class="min-h-screen xl:h-screen bg-[#232931] text-[#EEEEEE] overflow-x-hidden overflow-y-auto xl:overflow-hidden flex flex-col font-sans selection:bg-[#4ECCA3]/30 selection:text-[#EEEEEE]">
+  class="h-dvh max-h-dvh xl:h-screen bg-[#232931] text-[#EEEEEE] overflow-x-hidden overflow-y-auto xl:overflow-hidden flex flex-col font-sans selection:bg-[#4ECCA3]/30 selection:text-[#EEEEEE]">
 
   <!-- Loading State -->
   @if (loading()) {
@@ -123,7 +123,7 @@
   </header>
 
   <!-- ── Main Broadcast Grid ────────────────────────────────────────── -->
-  <main class="flex-1 flex flex-col xl:flex-row overflow-visible xl:overflow-hidden relative">
+  <main class="flex-1 min-h-0 flex flex-col xl:flex-row overflow-y-auto xl:overflow-hidden relative custom-scroll">
 
     <!-- Background dramatic lighting -->
     <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
@@ -131,7 +131,7 @@
     </div>
 
     <!-- LEFT: Hero Stage (Current Player) -->
-    <section class="flex-none xl:flex-1 p-4 sm:p-6 lg:p-10 flex flex-col justify-center relative z-10 xl:overflow-y-auto custom-scroll min-h-[85vh] xl:min-h-0">
+    <section class="flex-none xl:flex-1 p-4 sm:p-6 lg:p-10 flex flex-col justify-center relative z-10 xl:overflow-y-auto custom-scroll min-h-0 xl:min-h-0">
 
       @if (auctionStateService.currentPlayer()) {
       <div

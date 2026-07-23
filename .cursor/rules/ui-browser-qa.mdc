@@ -1,0 +1,64 @@
+---
+description: Verify UI changes with Cursor browser after every feature change and iterate until correct
+alwaysApply: true
+---
+
+# UI browser QA
+
+After implementing or changing any UI feature (components, styles, layout, routes, forms, dialogs):
+
+1. Pull the latest changes from the current branch (`git pull`) before starting work or verification when the branch tracks a remote.
+2. Start the dev server (`npm start` / `ng serve`) if not already running.
+3. Use Cursor browser tools to navigate to `http://localhost:4200` and verify the change visually and interactively.
+4. Verify the **affected route or named critical flow** (below). Prefer non-destructive checks. Default viewport is desktop; for layout/nav/mobile changes also check ~375px width.
+5. If the change is incorrect, broken, or doesn't match the requirement — fix the code and repeat from step 3. Keep iterating until the UI is correct.
+6. For changes to shared chrome (`LayoutComponent`, `AuctionWorkspaceLayoutComponent`, global styles, Material/Tailwind theme, app-wide nav), spot-check both shells and the routes touched by the change. If anything is broken, fix it and re-verify.
+7. Only consider the task done when the browser confirms everything works as expected.
+
+## Auth (non-negotiable)
+
+- Prefer email/password login. **Do not** automate Google OAuth in agent QA.
+- Prefer an existing logged-in Cursor browser session. If not logged in, use a **dedicated QA account** whose credentials the user provides out-of-band.
+- **Never** commit passwords into rules, docs, or the repo. Never invent credentials.
+- If login is blocked or credentials are missing, **stop and ask the user** — do not guess.
+- Prefer **read / non-destructive** checks on real data.
+- **Destructive** flows (sell, unsold, reset auction, delete auction, ban user, create junk data) only against a user-designated **QA Sandbox** auction/account. If none is designated, skip destructive steps and note that in the QA summary.
+
+Human conventions: [docs/QA_BROWSER.md](docs/QA_BROWSER.md).
+
+## Shared shells (spot-check when these change)
+
+- **Global layout** (`src/app/components/layout/`) — sidebar (My Auctions, Player Pool, User Management if admin), mobile nav, sign-out.
+- **Auction workspace layout** (`src/app/components/auction-workspace-layout/`) — Back, auction name/status, workspace nav (overview, teams, players, control, rosters, history, settings).
+- **Global styles / theme** — `src/styles.css`, Material theme, shared Tailwind utilities.
+
+## Route checklist
+
+Verify the changed surface; use this as the regression map:
+
+| Area | Route | What to confirm |
+|------|-------|-----------------|
+| Login | `/login` | Form, validation, redirect to `/home` or `returnUrl` |
+| Home | `/home` | Auction list/filters; create/edit dialogs load (create only in sandbox) |
+| Player pool | `/player-pool` | List loads; CRUD UI reachable for allowed roles |
+| Admin | `/user-management` | Admin sees page; non-admin redirected/blocked |
+| Overview | `/auction/:id/overview` | Workspace entry, summary loads |
+| Teams | `/auction/:id/teams` | Teams list/CRUD UI |
+| Players | `/auction/:id/players` | Auction players UI |
+| Control | `/auction/:id/control` | Desk loads; controls visible (sell/reset only in sandbox) |
+| Rosters | `/auction/:id/rosters` | Rosters render |
+| History | `/auction/:id/history` | History list |
+| Settings | `/auction/:id/settings` | Settings form |
+| Public | `/view/:slug` | Loads **without** auth for a known public slug; private/missing handled |
+
+## Named critical flows
+
+Run the flows touched by the change (names are stable for a future Playwright suite):
+
+1. `auth.login` — email/password → session → `/home`
+2. `auth.guard` — logged-out visit to `/home` → `/login`
+3. `home.list` — auctions render; open one workspace
+4. `workspace.nav` — switch overview → teams → players → control → rosters → history → settings
+5. `public.view` — open `/view/:slug` logged out
+6. `control.smoke` — control page interactive (sandbox-only for sell/unsold/reset)
+7. `admin.gate` — `/user-management` allowed or blocked by role

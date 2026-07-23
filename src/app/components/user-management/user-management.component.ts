@@ -19,7 +19,8 @@ import { MatIconModule } from '@angular/material/icon';
         MatIconModule
     ],
     templateUrl: './user-management.component.html',
-    styleUrls: ['./user-management.component.css']
+    styleUrls: ['./user-management.component.css'],
+    host: { class: 'block h-full w-full min-h-0' }
 })
 export class UserManagementComponent implements OnInit {
     // Signals for reactive state management

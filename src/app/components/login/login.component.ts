@@ -12,7 +12,8 @@ import { Router, ActivatedRoute } from '@angular/router';
     ReactiveFormsModule
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  host: { class: 'block h-full w-full' }
 })
 export class LoginComponent implements OnInit {
   private fb = new FormBuilder();

@@ -170,10 +170,10 @@
 - [ ] **Day 25**: Add export functionality (PDF/Excel) for results
 
 ### Priority 3: Mobile Optimization ⭐
-- [ ] **Day 26**: Make dashboard responsive for mobile devices
+- [x] **Day 26**: Make dashboard responsive for mobile devices ✅ (Completed: 2026-07-23 — viewport shell + Option A / Player Pool scroll contract)
 - [ ] **Day 26**: Optimize charts for small screens
-- [ ] **Day 27**: Add touch-friendly interactions and gestures
-- [ ] **Day 28**: Test mobile experience and fix UI issues
+- [x] **Day 27**: Add touch-friendly interactions and gestures ✅ (Completed: 2026-07-23 — mobile cards, drawers full-bleed, touch scroll panes)
+- [x] **Day 28**: Test mobile experience and fix UI issues ✅ (Completed: 2026-07-23 — login/public live QA; host height chain + table/list scroll fixes; see docs/MOBILE_RESPONSIVENESS.md)
 
 **Week 4 Deliverable**: 🚧 In Progress - Complete dashboard with analytics and mobile optimization
 
@@ -281,8 +281,9 @@
 ## 🔧 Post-MVP Improvements
 
 ### Immediate Technical Debt
-- [ ] Add comprehensive unit tests with Jest
-- [ ] Implement E2E tests with Cypress
+- [x] Cursor browser QA rules (`ai-coding-loop` + `ui-browser-qa`) + [docs/QA_BROWSER.md](QA_BROWSER.md) ✅ (Completed: 2026-07-23)
+- [ ] Playwright E2E (deferred — mirror named flows in `ui-browser-qa` when needed)
+- [ ] Unit tests (Karma/Jasmine today; Jest migration deferred)
 - [x] Setup TypeScript strict mode
 - [ ] Configure ESLint and Prettier
 - [ ] Add Husky pre-commit hooks
@@ -444,13 +445,16 @@ npm run build && netlify deploy --prod --dir=dist/auction-io
 - [ ] Success and error feedback
 - [ ] Proper navigation and routing
 - [ ] State management and data persistence
-- [ ] Unit tests (added later)
+- [ ] Unit tests (deferred; UI gated by Cursor browser QA — see docs/QA_BROWSER.md)
 
 This roadmap provides a clear, day-by-day plan with specific deliverables, risk mitigation, and success criteria to ensure a successful project completion!
 
 ---
 
 ## ✅ Recent Progress Updates
+
+### Cursor browser QA (agent)
+- [x] **Agent QA setup**: Added always-on `.cursor/rules/ai-coding-loop.mdc` + `ui-browser-qa.mdc` for `localhost:4200`; docs in `docs/QA_BROWSER.md`; Playwright/Jest deferred ✅ (Completed: 2026-07-23)
 
 ### Phase 1 - Foundation & Authentication
 - [x] **Day 1-4**: Complete login system with glassmorphism UI ✅ (Completed: 2024-01-15)

@@ -26,6 +26,7 @@ interface HistoryEntry {
   imports: [CommonModule, RouterModule, TeamCardComponent, MatIconModule],
   templateUrl: './auction-overview.component.html',
   styleUrls: ['./auction-overview.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class AuctionOverviewComponent implements OnInit, OnDestroy {
   // ── IDs & auction meta ────────────────────────────────────────────────────

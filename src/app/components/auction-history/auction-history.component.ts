@@ -20,7 +20,7 @@ type AuctionHistoryUI = AuctionHistory & {
   imports: [CommonModule, AvatarComponent],
   templateUrl: './auction-history.component.html',
   styleUrls: ['./auction-history.component.css'],
-  host: { class: 'block h-full w-full' }
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class AuctionHistoryComponent implements OnInit {
   loading      = signal(false);

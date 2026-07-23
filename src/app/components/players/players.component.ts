@@ -20,7 +20,8 @@ import { AvatarComponent } from '../shared/avatar/avatar.component';
     AvatarComponent
   ],
   templateUrl: './players.component.html',
-  styleUrls: ['./players.component.css']
+  styleUrls: ['./players.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class PlayersComponent implements OnInit {
   // Signals for reactive state management

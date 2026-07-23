@@ -11,6 +11,7 @@ import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, SidePanelComponent],
   templateUrl: './home.component.html',
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class HomeComponent implements OnInit {
   // ── State ────────────────────────────────────────────────────────────────────

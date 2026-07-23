@@ -23,7 +23,8 @@ import { SupabaseService } from '../../services/supabase.service';
     AvatarComponent
   ],
   templateUrl: './auction-control.component.html',
-  styleUrls: ['./auction-control.component.css']
+  styleUrls: ['./auction-control.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class AuctionControlComponent implements OnInit {
   // Reactive signals

@@ -44,7 +44,8 @@ import { AvatarComponent } from '../shared/avatar/avatar.component';
     AvatarComponent
   ],
   templateUrl: './teams.component.html',
-  styleUrls: ['./teams.component.css']
+  styleUrls: ['./teams.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class TeamsComponent implements OnInit {
   // Signals for reactive state management

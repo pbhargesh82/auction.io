@@ -12,7 +12,8 @@ import { AvatarComponent } from '../shared/avatar/avatar.component';
   standalone: true,
   imports: [CommonModule, AvatarComponent],
   templateUrl: './team-roster.component.html',
-  styleUrls: ['./team-roster.component.css']
+  styleUrls: ['./team-roster.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class TeamRosterComponent implements OnInit {
   // Use centralized state service

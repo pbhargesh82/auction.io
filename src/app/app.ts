@@ -5,7 +5,8 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
+  host: { class: 'block h-full w-full' }
 })
 export class App {
   protected title = 'auction.io';

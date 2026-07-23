@@ -1,0 +1,25 @@
+---
+description: Understand task, self-author a prompt, Plan mode, implement, verify via ui-browser-qa, and loop with AI fix prompts until correct
+alwaysApply: true
+---
+
+# AI coding loop
+
+For non-trivial work (features, UI changes, multi-file edits, refixes), follow this loop. Do not jump straight to edits.
+
+```
+understand → ask questions if needed → agent writes prompt
+→ Plan mode → user approves → implement → full ui-browser-qa
+→ if wrong, agent writes fix prompt → Plan again → repeat
+```
+
+1. **Understand first** — read the task and relevant code before changing anything.
+2. **Clarify** — ask 1–2 critical questions when requirements or approach are ambiguous; wait for answers.
+3. **Self-author the prompt** — write a clear, scoped implementation prompt (goal, constraints, files/sections, success criteria). Do not ask the user to write the prompt.
+4. **Send via Plan mode** — switch to Plan mode (`SwitchMode` → `plan`) and/or call `CreatePlan` with that prompt so the user can review before coding.
+5. **Implement only after approval** — then execute the approved plan.
+6. **Verify via ui-browser-qa** — for any UI change, run the **entire** `ui-browser-qa` rule (pull when applicable, `npm start` on `http://localhost:4200`, Cursor browser, affected route/flow checklist, shared-shell spot-check when applicable). Do not invent a lighter check.
+7. **Fix loop** — on failure or mismatch: diagnose, write a new fix prompt (broken behavior, expected vs actual, targeted fix), send it through Plan mode again, implement, then re-run full `ui-browser-qa`. Repeat until correct.
+8. **Done** — only when `ui-browser-qa` passes (or non-UI success criteria, when there is no UI change).
+
+Skip the full plan gate only for trivial one-liners the user explicitly wants done immediately. UI changes still require full `ui-browser-qa`.
