@@ -56,6 +56,34 @@ This document tracks the progress of making the Auction.io application fully mob
 
 Destructive control actions (sell/unsold/reset) skipped — no QA Sandbox designated.
 
+## Mobile UI cleanup pass (2026-07-27, 390x844, localhost:4200)
+
+- `auction-control`
+  - Removed duplicate inner `Auction Desk` title and tightened the status card spacing.
+  - Verified `Sell Player` side panel opens at a narrow mobile width instead of taking over the full screen.
+  - Verified backdrop dismissal on mobile and confirmed the close control remains in the panel header.
+- `auction-players`
+  - Reduced the mobile action bar to search + `Add from Pool`.
+  - Removed the non-functional `Drop Unsold` and `Reset` actions.
+  - Gated `Add from Pool` to the auction owner by `auction.owner_id === currentUser.id`.
+- `auction-history`
+  - Removed the `Revenue` stat and collapsed stats to a 3-column mobile row (`Total`, `Sold`, `Unsold`).
+- `team-roster`
+  - Removed the duplicate `League Rosters` page header and kept the workspace label as the single title source.
+- `auction-settings`
+  - Removed the duplicate page title/subtitle header and kept the workspace label plus settings sections.
+- `user-profile`
+  - Removed the chevron and simplified the avatar button styling for a cleaner mobile header control.
+
+### Targeted QA notes
+
+- `/auction/:id/control` — Pass: no body scroll; duplicate title removed; sell panel width measured at ~359px on a 390px viewport; backdrop dismiss works.
+- `/auction/:id/players` — Pass: only search + add action remains; `Drop Unsold` and `Reset` are absent.
+- `/auction/:id/history` — Pass: no `Revenue` stat; stat grid resolves to 3 mobile columns.
+- `/auction/:id/rosters` — Pass: duplicate `League Rosters` title removed.
+- `/auction/:id/settings` — Pass: duplicate settings subtitle block removed; page sections remain intact.
+- Workspace header avatar — Pass: mobile header shows a clean avatar control without the old chevron/pill look.
+
 ## Guidelines for Refactoring
 
 1. **Mobile-First Approach**: Write base Tailwind classes for mobile devices (e.g., stacking elements vertically), and use breakpoints like `lg:` to lock in the complex desktop layouts.

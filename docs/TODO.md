@@ -174,6 +174,7 @@
 - [ ] **Day 26**: Optimize charts for small screens
 - [x] **Day 27**: Add touch-friendly interactions and gestures ✅ (Completed: 2026-07-23 — mobile cards, drawers full-bleed, touch scroll panes)
 - [x] **Day 28**: Test mobile experience and fix UI issues ✅ (Completed: 2026-07-23 — login/public live QA; host height chain + table/list scroll fixes; see docs/MOBILE_RESPONSIVENESS.md)
+- [x] **Day 28**: Mobile UI cleanup pass for workspace routes ✅ (Completed: 2026-07-27 — removed duplicate Auction Desk / Current Squads / Auction Settings titles; simplified Auction Players mobile action bar; removed Bid History revenue stat; tightened Sell Player side panel on mobile; cleaned workspace avatar button)
 
 **Week 4 Deliverable**: 🚧 In Progress - Complete dashboard with analytics and mobile optimization
 

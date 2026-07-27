@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
+import { Auction } from '../../services/auctions.service';
 import { Player } from '../../services/players.service';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
@@ -70,6 +71,7 @@ export class AuctionPlayersComponent implements OnInit {
   
   // ── Responsive ────────────────────────────────────────────────────────────
   isMobile      = signal(false);
+  canEditAuctionPool = signal(false);
 
   // ── Computed ──────────────────────────────────────────────────────────────
   filtered = computed(() => {
@@ -144,7 +146,10 @@ export class AuctionPlayersComponent implements OnInit {
       if (id) { this.auctionId.set(id); break; }
       r = r.parent;
     }
-    if (this.auctionId()) this.loadAuctionPlayers();
+    if (this.auctionId()) {
+      this.resolveAuctionOwnership();
+      this.loadAuctionPlayers();
+    }
   }
 
   // ── Data loading ──────────────────────────────────────────────────────────
@@ -204,6 +209,27 @@ export class AuctionPlayersComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private async resolveAuctionOwnership() {
+    const user = this.supabase.currentUserValue;
+    if (!user || !this.auctionId()) {
+      this.canEditAuctionPool.set(false);
+      return;
+    }
+
+    const { data, error } = await this.supabase.db
+      .from('auctions')
+      .select('owner_id')
+      .eq('id', this.auctionId())
+      .single();
+
+    if (error || !data) {
+      this.canEditAuctionPool.set(false);
+      return;
+    }
+
+    this.canEditAuctionPool.set((data as Pick<Auction, 'owner_id'>).owner_id === user.id);
   }
 
   // ── Pool modal ────────────────────────────────────────────────────────────
@@ -340,45 +366,6 @@ export class AuctionPlayersComponent implements OnInit {
     } finally {
       this.saving.set(false);
     }
-  }
-
-  // ── Bulk actions ──────────────────────────────────────────────────────────
-
-  async removeUnsold() {
-    const unsold = this.auctionPlayers().filter(ap => ap.auction_status === 'UNSOLD');
-    if (!unsold.length) { this.showToast('No unsold players to remove.'); return; }
-    if (!confirm(`Remove ${unsold.length} unsold player(s) from auction?`)) return;
-    this.saving.set(true);
-    try {
-      const ids = unsold.map(ap => ap.id);
-      const { error } = await this.supabase.db
-        .from('auction_players').delete().in('id', ids);
-      if (error) { this.showToast(error.message, 'err'); }
-      else {
-        this.showToast(`${ids.length} unsold player(s) removed.`);
-        await this.loadAuctionPlayers();
-      }
-    } finally { this.saving.set(false); }
-  }
-
-  async resetStatuses() {
-    if (!confirm('Reset all non-sold player statuses back to PENDING?')) return;
-    this.saving.set(true);
-    try {
-      const resetIds = this.auctionPlayers()
-        .filter(ap => ap.auction_status !== 'SOLD')
-        .map(ap => ap.id);
-      if (!resetIds.length) { this.showToast('Nothing to reset.'); return; }
-      const { error } = await this.supabase.db
-        .from('auction_players')
-        .update({ status: 'pending' })
-        .in('id', resetIds);
-      if (error) { this.showToast(error.message, 'err'); }
-      else {
-        this.showToast('Statuses reset to PENDING.');
-        await this.loadAuctionPlayers();
-      }
-    } finally { this.saving.set(false); }
   }
 
   // ── Utils ─────────────────────────────────────────────────────────────────

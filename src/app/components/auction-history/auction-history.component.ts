@@ -41,13 +41,6 @@ export class AuctionHistoryComponent implements OnInit {
   totalTransactions = computed(() => this.auctionHistory().length);
   soldPlayers  = computed(() => this.auctionHistory().filter(h => h.status === 'SOLD').length);
   unsoldPlayers= computed(() => this.auctionHistory().filter(h => h.status !== 'SOLD').length);
-  totalRevenue = computed(() =>
-    this.auctionHistory().filter(h => h.status === 'SOLD').reduce((s, h) => s + (h.final_price || 0), 0)
-  );
-  averagePrice = computed(() => {
-    const sold = this.soldPlayers();
-    return sold > 0 ? this.totalRevenue() / sold : 0;
-  });
 
   sortedAuctionHistory = computed(() => {
     const q    = this.searchTerm().toLowerCase();
