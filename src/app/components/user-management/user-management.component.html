@@ -193,9 +193,6 @@
       <div class="md:hidden flex-1 overflow-y-auto custom-scroll p-4 space-y-4">
       @for (user of filteredUsers(); track user.user_id) {
       <div class="bg-[#393E46] rounded-2xl p-5 border border-[#EEEEEE]/5 shadow-lg flex flex-col gap-5 relative overflow-hidden" [class.opacity-60]="user.is_banned">
-        <!-- Status indicator line -->
-        <div class="absolute top-0 left-0 bottom-0 w-1" [class]="user.is_banned ? 'bg-red-500' : (user.email_confirmed ? 'bg-[#4ECCA3]' : 'bg-amber-400')"></div>
-        
         <div class="flex items-start justify-between gap-4">
           <div class="flex items-center gap-3 min-w-0">
             <app-avatar [fallbackText]="user.email" shape="circle" size="lg"></app-avatar>

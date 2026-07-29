@@ -41,7 +41,6 @@
          [class]="statusFilter() === 'all' ? 'border-[#4ECCA3] shadow-[0_0_15px_rgba(78,204,163,0.15)] bg-[#4ECCA3]/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'all' ? 'text-[#4ECCA3]' : 'text-[#EEEEEE]'">{{ stats().total }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'all' ? 'text-[#4ECCA3]/80' : 'text-[#EEEEEE]/40'">Total</span>
-      @if (statusFilter() === 'all') { <div class="absolute bottom-0 left-0 right-0 h-1 bg-[#4ECCA3]"></div> }
     </div>
     
     <!-- Available -->
@@ -50,7 +49,6 @@
          [class]="statusFilter() === 'PENDING' ? 'border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.15)] bg-blue-400/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'PENDING' ? 'text-blue-400' : 'text-[#EEEEEE]'">{{ stats().pending }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'PENDING' ? 'text-blue-400/80' : 'text-[#EEEEEE]/40'">Available</span>
-      @if (statusFilter() === 'PENDING') { <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-400"></div> }
     </div>
 
     <!-- Sold -->
@@ -59,7 +57,6 @@
          [class]="statusFilter() === 'SOLD' ? 'border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.15)] bg-emerald-400/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'SOLD' ? 'text-emerald-400' : 'text-[#EEEEEE]'">{{ stats().sold }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'SOLD' ? 'text-emerald-400/80' : 'text-[#EEEEEE]/40'">Sold</span>
-      @if (statusFilter() === 'SOLD') { <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-400"></div> }
     </div>
 
     <!-- Unsold -->
@@ -68,7 +65,6 @@
          [class]="statusFilter() === 'UNSOLD' ? 'border-red-400 shadow-[0_0_15px_rgba(248,113,113,0.15)] bg-red-400/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'UNSOLD' ? 'text-red-400' : 'text-[#EEEEEE]'">{{ stats().unsold }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'UNSOLD' ? 'text-red-400/80' : 'text-[#EEEEEE]/40'">Unsold</span>
-      @if (statusFilter() === 'UNSOLD') { <div class="absolute bottom-0 left-0 right-0 h-1 bg-red-400"></div> }
     </div>
 
     <!-- Skipped -->
@@ -77,7 +73,6 @@
          [class]="statusFilter() === 'SKIPPED' ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)] bg-amber-400/5' : 'border-[#EEEEEE]/5 hover:border-[#EEEEEE]/30 hover:bg-[#EEEEEE]/5'">
       <span class="text-2xl font-black transition-colors" [class]="statusFilter() === 'SKIPPED' ? 'text-amber-400' : 'text-[#EEEEEE]'">{{ stats().skipped }}</span>
       <span class="text-[10px] font-bold uppercase tracking-widest mt-1 transition-colors" [class]="statusFilter() === 'SKIPPED' ? 'text-amber-400/80' : 'text-[#EEEEEE]/40'">Skipped</span>
-      @if (statusFilter() === 'SKIPPED') { <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-400"></div> }
     </div>
   </div>
   }
@@ -199,14 +194,7 @@
       <div class="sm:hidden flex-1 overflow-y-auto custom-scroll p-4 space-y-4">
         @for (ap of filtered(); track ap.id) {
         <div class="bg-[#232931] rounded-2xl p-4 border border-[#EEEEEE]/5 shadow-md flex flex-col gap-3 relative overflow-hidden group">
-          <div class="absolute top-0 left-0 bottom-0 w-1"
-               [class.bg-emerald-400]="ap.auction_status === 'SOLD'"
-               [class.bg-red-400]="ap.auction_status === 'UNSOLD'"
-               [class.bg-purple-400]="ap.auction_status === 'CURRENT'"
-               [class.bg-amber-400]="ap.auction_status === 'SKIPPED'"
-               [class.bg-blue-400]="ap.auction_status === 'PENDING'"></div>
-
-          <div class="flex justify-between items-start pl-2">
+          <div class="flex justify-between items-start">
             <div class="flex items-center gap-3 min-w-0">
               <app-avatar [src]="ap.player.image_url" [fallbackText]="ap.player.name" shape="circle" size="md"></app-avatar>
               <div class="min-w-0">
@@ -227,7 +215,7 @@
             </span>
           </div>
 
-          <div class="pl-2 pt-2 border-t border-[#EEEEEE]/5 flex justify-between items-end">
+          <div class="pt-2 border-t border-[#EEEEEE]/5 flex justify-between items-end">
             <div class="space-y-1">
               <p class="text-[9px] font-black text-[#EEEEEE]/30 uppercase tracking-widest">Base Price</p>
               <p class="text-sm font-black text-[#EEEEEE]">{{ ap._fmtBasePrice }}</p>
