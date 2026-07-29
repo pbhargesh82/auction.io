@@ -65,6 +65,15 @@ export class AuctionControlComponent implements OnInit {
     return this.auctionStateService.players().filter(p => p.auction_status === 'PENDING').length;
   });
 
+  /** True when INIT / START / COMPLETE controls should render (hide empty wrapper when completed). */
+  hasControlActions = computed(() => {
+    const status = this.auctionStatus();
+    if (status === 'draft' || status === 'active') return true;
+    return status !== 'completed'
+      && this.remainingPlayers() === 0
+      && this.totalPlayers() > 0;
+  });
+
   progressPercentage = computed(() => {
     if (this.totalPlayers() === 0) return 0;
     return Math.round((this.soldPlayers() / this.totalPlayers()) * 100);

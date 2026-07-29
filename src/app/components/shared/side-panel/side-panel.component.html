@@ -4,11 +4,11 @@
   (click)="onOverlayClick($event)" role="dialog" aria-modal="true">
 
   <div
-    class="bg-[#232931] border border-[#EEEEEE]/10 sm:border-l sm:border-t-0 sm:border-r-0 sm:border-b-0 w-[92vw] sm:w-full max-w-md h-[calc(100dvh-6rem)] sm:h-full max-h-[calc(100dvh-6rem)] sm:max-h-dvh mt-20 mb-4 mr-4 sm:mt-0 sm:mb-0 sm:mr-0 rounded-3xl sm:rounded-none shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col transform transition-transform duration-300 animate-slide-in-right relative"
+    class="bg-[#232931] border-l border-[#EEEEEE]/10 w-full max-w-md h-dvh max-h-dvh flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.5)] animate-slide-in-right relative"
     (click)="$event.stopPropagation()">
 
     <!-- Panel Header -->
-    <div class="flex items-center justify-between px-5 sm:px-8 pt-[max(1rem,env(safe-area-inset-top))] sm:pt-4 pb-4 border-b border-[#EEEEEE]/5 bg-[#232931] shrink-0 rounded-t-3xl sm:rounded-none">
+    <div class="flex items-center justify-between px-5 sm:px-8 pt-[max(0.75rem,env(safe-area-inset-top))] pb-4 border-b border-[#EEEEEE]/5 bg-[#232931] shrink-0">
       <div>
         <h2 class="text-xl font-black text-[#EEEEEE] tracking-wide">{{ title }}</h2>
         @if (subtitle) {
@@ -27,13 +27,12 @@
     </div>
 
     <!-- Panel Body -->
-    <div class="flex flex-col flex-1 overflow-y-auto px-5 sm:px-8 py-5 sm:py-6 custom-scroll">
+    <div class="flex flex-col flex-1 min-h-0 overflow-y-auto px-5 sm:px-8 py-5 sm:py-6 custom-scroll">
       <ng-content select="[panel-body]"></ng-content>
     </div>
 
     <!-- Panel Footer (Sticky Bottom) -->
-    <div
-      class="px-5 sm:px-6 py-4 border-t border-[#EEEEEE]/5 bg-[#232931] flex shrink-0 rounded-b-3xl sm:rounded-none">
+    <div class="px-5 sm:px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-[#EEEEEE]/5 bg-[#232931] flex shrink-0">
       <ng-content select="[panel-footer]"></ng-content>
     </div>
 

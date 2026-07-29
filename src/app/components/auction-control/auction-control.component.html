@@ -49,36 +49,35 @@
 
       <!-- ── Action Bar / Dashboard ────────────────────────────────────────── -->
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 mb-6">
-        
-        <!-- Main Controls -->
-        <div class="xl:col-span-6 bg-[#393E46] rounded-2xl border border-[#EEEEEE]/10 shadow-lg p-4 sm:p-5 flex flex-row items-center justify-end gap-3">
-          <div class="flex items-center gap-3 w-full sm:w-auto">
-            @if (remainingPlayers() === 0 && totalPlayers() > 0 && auctionStatus() !== 'completed') {
-              <button (click)="initializeAuction()" [disabled]="loading()"
-                class="flex-1 sm:flex-none bg-[#EEEEEE]/10 hover:bg-[#EEEEEE]/15 active:bg-[#EEEEEE]/5 text-[#EEEEEE] disabled:opacity-50 font-black py-3 px-6 rounded-xl transition-all shadow-inner text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path><path d="M9 12h6"></path><path d="M12 9v6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
-                INIT
-              </button>
-            }
 
-            @if (auctionStatus() === 'draft') {
-              <button (click)="updateAuctionStatus('active')" [disabled]="loading() || (remainingPlayers() === 0 && totalPlayers() === 0)"
-                class="flex-1 sm:flex-none bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:opacity-30 disabled:cursor-not-allowed text-[#232931] font-black py-3 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(78,204,163,0.3)] text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                START
-              </button>
-            } @else if (auctionStatus() === 'active') {
-              <button (click)="updateAuctionStatus('completed')" [disabled]="loading() || remainingPlayers() > 0 || currentPlayer() !== null"
-                class="flex-1 sm:flex-none bg-purple-500 hover:bg-purple-400 active:bg-purple-600 disabled:opacity-30 disabled:cursor-not-allowed text-white font-black py-3 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                COMPLETE
-              </button>
-            }
-          </div>
+        @if (hasControlActions()) {
+        <div class="xl:col-span-6 flex flex-row flex-wrap items-center justify-end gap-3">
+          @if (remainingPlayers() === 0 && totalPlayers() > 0 && auctionStatus() !== 'completed') {
+            <button (click)="initializeAuction()" [disabled]="loading()"
+              class="flex-1 sm:flex-none bg-[#EEEEEE]/10 hover:bg-[#EEEEEE]/15 active:bg-[#EEEEEE]/5 text-[#EEEEEE] disabled:opacity-50 font-black py-3 px-6 rounded-xl transition-all shadow-inner text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path><path d="M9 12h6"></path><path d="M12 9v6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+              INIT
+            </button>
+          }
+
+          @if (auctionStatus() === 'draft') {
+            <button (click)="updateAuctionStatus('active')" [disabled]="loading() || (remainingPlayers() === 0 && totalPlayers() === 0)"
+              class="flex-1 sm:flex-none bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:opacity-30 disabled:cursor-not-allowed text-[#232931] font-black py-3 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(78,204,163,0.3)] text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              START
+            </button>
+          } @else if (auctionStatus() === 'active') {
+            <button (click)="updateAuctionStatus('completed')" [disabled]="loading() || remainingPlayers() > 0 || currentPlayer() !== null"
+              class="flex-1 sm:flex-none bg-purple-500 hover:bg-purple-400 active:bg-purple-600 disabled:opacity-30 disabled:cursor-not-allowed text-white font-black py-3 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+              COMPLETE
+            </button>
+          }
         </div>
+        }
 
         <!-- Metrics Grid -->
-        <div class="xl:col-span-6 grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-3 gap-4" [class]="hasControlActions() ? 'xl:col-span-6' : 'xl:col-span-12'">
           <!-- Total -->
           <div class="bg-[#393E46]/50 rounded-2xl border border-[#EEEEEE]/5 p-5 relative overflow-hidden group flex flex-col justify-center">
             <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
