@@ -36,10 +36,10 @@
     class="flex flex-row justify-between items-center gap-2 lg:gap-4 mb-8 bg-[#393E46] p-2 rounded-2xl border border-[#EEEEEE]/10 shadow-lg min-w-0 w-full">
 
     <!-- Search -->
-    <div class="relative flex-1 xl:w-96 group">
+    <div class="relative flex-1 min-w-0 xl:w-96 group">
       <div
-        class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors">
-        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors z-10">
+        <svg class="w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -47,7 +47,7 @@
       </div>
       <input type="text" [value]="searchTerm()" (input)="onSearch($event)"
         class="w-full pl-12 pr-4 py-3.5 rounded-xl outline-none transition-all duration-200 text-sm font-semibold bg-[#232931] border border-transparent text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] shadow-inner"
-        placeholder="Search teams by name or short name..." />
+        placeholder="Search teams..." />
     </div>
 
     <!-- Action Button -->
@@ -270,32 +270,13 @@
 <!-- ══════════════════════════════════════════════════════════════════════════
      SIDE PANEL — Create / Edit Team
 ══════════════════════════════════════════════════════════════════════════ -->
-@if (showForm()) {
-<div class="fixed inset-0 z-[100] flex justify-end modal-backdrop bg-black/60 backdrop-blur-sm" (click)="closeForm()"
-  role="dialog" aria-modal="true">
+<app-side-panel
+  [isOpen]="showForm()"
+  [title]="editingTeam() ? 'Edit Team' : 'New Team'"
+  subtitle="Management Portal"
+  (closePanel)="closeForm()">
 
-  <div
-    class="bg-[#232931] border-l border-[#EEEEEE]/10 w-full max-w-md h-full max-h-dvh pt-0 shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col animate-slide-in-right"
-    (click)="$event.stopPropagation()">
-
-    <!-- Panel Header -->
-    <div class="flex items-center justify-between px-8 py-6 border-b border-[#EEEEEE]/5 shrink-0">
-      <div>
-        <h2 class="text-xl font-black text-[#EEEEEE] tracking-tight">{{ editingTeam() ? 'Edit Team' : 'New Team' }}</h2>
-        <p class="text-[10px] font-black text-[#4ECCA3] uppercase tracking-[0.2em] mt-1">Management Portal</p>
-      </div>
-      <button type="button" (click)="closeForm()"
-        class="p-2 -mr-2 rounded-xl text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-colors focus:outline-none">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Panel Body -->
-    <div class="flex-1 overflow-y-auto px-8 py-8 custom-scroll">
-      <form [formGroup]="teamForm" (ngSubmit)="onSubmit()" class="space-y-6" id="team-form">
+  <form [formGroup]="teamForm" (ngSubmit)="onSubmit()" class="space-y-6" id="team-form" panel-body>
 
         <!-- Logo Upload -->
         <div class="flex items-center gap-6">
@@ -407,26 +388,22 @@
               class="w-full px-5 py-4 bg-[#393E46] border border-[#EEEEEE]/5 rounded-xl text-sm text-[#EEEEEE] placeholder-[#EEEEEE]/20 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all font-bold shadow-inner">
           </div>
         </div>
-      </form>
-    </div>
+  </form>
 
-    <!-- Panel Footer -->
-    <div
-      class="px-8 py-6 border-t border-[#EEEEEE]/5 bg-[#232931] shrink-0 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
-      <button type="button" (click)="closeForm()"
-        class="w-full sm:w-auto px-6 py-3.5 rounded-xl text-xs font-black text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-all tracking-[0.2em] uppercase">
-        Cancel
-      </button>
-      <button type="submit" form="team-form" [disabled]="!isFormValid() || formSubmitting()"
-        class="w-full sm:w-auto bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 disabled:opacity-40 text-[#232931] font-black py-4 px-8 rounded-xl transition-all duration-300 text-xs uppercase tracking-[0.2em] shadow-xl hover:shadow-[#4ECCA3]/20 flex items-center justify-center gap-2">
-        @if (formSubmitting()) {
-        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#232931]"></div>
-        Processing…
-        } @else {
-        {{ editingTeam() ? 'Update Team' : 'Create Team' }}
-        }
-      </button>
-    </div>
+  <div panel-footer class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 w-full">
+    <button type="button" (click)="closeForm()"
+      class="w-full sm:w-auto px-6 py-3.5 rounded-xl text-xs font-black text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-all tracking-[0.2em] uppercase">
+      Cancel
+    </button>
+    <button type="submit" form="team-form" [disabled]="!isFormValid() || formSubmitting()"
+      class="w-full sm:w-auto bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 disabled:opacity-40 text-[#232931] font-black py-4 px-8 rounded-xl transition-all duration-300 text-xs uppercase tracking-[0.2em] shadow-xl hover:shadow-[#4ECCA3]/20 flex items-center justify-center gap-2">
+      @if (formSubmitting()) {
+      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#232931]"></div>
+      Processing…
+      } @else {
+      {{ editingTeam() ? 'Update Team' : 'Create Team' }}
+      }
+    </button>
   </div>
-</div>
-}
+
+</app-side-panel>

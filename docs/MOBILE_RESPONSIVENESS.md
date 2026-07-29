@@ -84,6 +84,28 @@ Destructive control actions (sell/unsold/reset) skipped — no QA Sandbox design
 - `/auction/:id/settings` — Pass: duplicate settings subtitle block removed; page sections remain intact.
 - Workspace header avatar — Pass: mobile header shows a clean avatar control without the old chevron/pill look.
 
+## Mobile UI cleanup pass (2026-07-29, 390x844, localhost:4200)
+
+- `teams`
+  - Fixed Manage Teams search: added `min-w-0`, shortened placeholder to `Search teams...`, ensured icon visibility.
+  - Migrated Add/Edit Team form from inline full-bleed panel to shared `app-side-panel`.
+- `auction-control`
+  - Removed redundant in-page Status block (status remains in workspace header).
+  - Verified `Sell Player` uses shared side panel on mobile.
+- `players`
+  - Migrated Add/Edit Player form from inline panel to shared `app-side-panel` (consistent mobile floating card).
+- `shared/side-panel`
+  - Unified mobile behavior: `z-[200]`, `mt-20` below workspace header, `w-[92vw]`, rounded card, safe-area top padding on header.
+- `public-auction`
+  - Scaled down hero player card on mobile (smaller portrait, typography, padding, badge); reduced aside `min-h` on mobile.
+
+### Targeted QA notes (2026-07-29)
+
+- `/auction/:id/teams` — Pass: search icon + short placeholder; Add Team opens floating side panel with form fields.
+- `/player-pool` — Pass: Add Player opens shared side panel on mobile (not full-screen dialog).
+- `/auction/:id/control` — Pass: no in-page Status block; Sell Player panel opens with form fields.
+- `/view/super-admin-test-auc-a83ee179` — Pass: player card fits iPhone 15 Pro width; Team Standings visible below without excessive scroll.
+
 ## Guidelines for Refactoring
 
 1. **Mobile-First Approach**: Write base Tailwind classes for mobile devices (e.g., stacking elements vertically), and use breakpoints like `lg:` to lock in the complex desktop layouts.

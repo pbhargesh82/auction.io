@@ -50,27 +50,8 @@
       <!-- ── Action Bar / Dashboard ────────────────────────────────────────── -->
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 mb-6">
         
-        <!-- Status & Main Controls -->
-        <div class="xl:col-span-6 bg-[#393E46] rounded-2xl border border-[#EEEEEE]/10 shadow-lg p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-[#EEEEEE]/40 uppercase tracking-widest">Status:</span>
-              @if (auctionStatus() === 'draft') {
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  <span class="w-2 h-2 rounded-full bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.5)]"></span> DRAFT
-                </span>
-              } @else if (auctionStatus() === 'active') {
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#4ECCA3]">
-                  <span class="w-2 h-2 rounded-full bg-[#4ECCA3] animate-pulse shadow-[0_0_8px_rgba(78,204,163,0.8)]"></span> LIVE
-                </span>
-              } @else if (auctionStatus() === 'completed') {
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-purple-400">
-                  <span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span> COMPLETED
-                </span>
-              }
-            </div>
-          </div>
-
+        <!-- Main Controls -->
+        <div class="xl:col-span-6 bg-[#393E46] rounded-2xl border border-[#EEEEEE]/10 shadow-lg p-4 sm:p-5 flex flex-row items-center justify-end gap-3">
           <div class="flex items-center gap-3 w-full sm:w-auto">
             @if (remainingPlayers() === 0 && totalPlayers() > 0 && auctionStatus() !== 'completed') {
               <button (click)="initializeAuction()" [disabled]="loading()"

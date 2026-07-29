@@ -8,6 +8,7 @@ import { ImageUploadService } from '../../services/image-upload.service';
 
 import { MatIconModule } from '@angular/material/icon';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 
 @Component({
   selector: 'app-players',
@@ -17,7 +18,8 @@ import { AvatarComponent } from '../shared/avatar/avatar.component';
     ReactiveFormsModule,
     FormsModule,
     MatIconModule,
-    AvatarComponent
+    AvatarComponent,
+    SidePanelComponent
   ],
   templateUrl: './players.component.html',
   styleUrls: ['./players.component.css'],
