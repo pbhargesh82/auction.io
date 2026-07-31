@@ -172,16 +172,6 @@ body {
   }
 }
 
-/* Responsive snackbar positioning */
-@media (max-width: 640px) {
-  .mdc-snackbar {
-    left: 16px !important;
-    right: 16px !important;
-    bottom: 16px !important;
-    width: auto !important;
-  }
-}
-
 /* Premium Animations */
 @layer utilities {
   .animate-fade-in-up {

@@ -353,21 +353,3 @@
 
   </app-side-panel>
 </form>
-
-<!-- ── Global Notifications ────────────────────────────────────────────── -->
-@if (toast()) {
-<div
-  class="fixed bottom-6 left-6 right-6 sm:left-auto sm:right-8 z-[200] max-w-sm ml-auto bg-[#393E46] border border-[#EEEEEE]/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-5 flex items-center gap-4 animate-fade-in-up"
-  role="alert">
-  <div class="flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center shadow-inner"
-       [class]="toast()?.type === 'success' ? 'bg-[#4ECCA3]/20 text-[#4ECCA3]' : 'bg-red-500/20 text-red-500'">
-    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-      @if (toast()?.type === 'success') { <polyline points="20 6 9 17 4 12" /> } @else { <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /> }
-    </svg>
-  </div>
-  <p class="text-sm font-bold text-[#EEEEEE] tracking-tight leading-snug">{{ toast()?.message }}</p>
-  <button (click)="toast.set(null)" class="ml-auto text-[#EEEEEE]/20 hover:text-[#EEEEEE] transition-colors">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </button>
-</div>
-}

@@ -9,6 +9,7 @@ import { ImageUploadService } from '../../services/image-upload.service';
 import { MatIconModule } from '@angular/material/icon';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-players',
@@ -55,9 +56,6 @@ export class PlayersComponent implements OnInit {
   formValid = signal(false);
 
   // Toast notification
-  toast = signal<{ message: string; type: 'success' | 'error' } | null>(null);
-  private toastTimer: any;
-
   // Predefined options
   categories = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper'];
   specializations: { [key: string]: string[] } = {
@@ -165,6 +163,7 @@ export class PlayersComponent implements OnInit {
     private teamPlayersService: TeamPlayersService,
     private supabaseService: SupabaseService,
     private imageUploadService: ImageUploadService,
+    private toast: ToastService,
     private fb: FormBuilder
   ) {
     // Initialize form with enhanced fields
@@ -295,12 +294,12 @@ export class PlayersComponent implements OnInit {
       if (result.success && result.url) {
         this.photoPreview.set(result.url);
         this.playerForm.patchValue({ image_url: result.url });
-        this.notify('Photo uploaded successfully');
+        this.toast.success('Photo uploaded successfully');
       } else {
-        this.notify(`Upload failed: ${result.error}`, 'error');
+        this.toast.error(`Upload failed: ${result.error}`);
       }
     } catch (err: any) {
-      this.notify(`Upload error: ${err.message}`, 'error');
+      this.toast.error(`Upload error: ${err.message}`);
     } finally {
       this.uploadingPhoto.set(false);
     }
@@ -352,25 +351,25 @@ export class PlayersComponent implements OnInit {
         // Update existing player
         const { error } = await this.playersService.updatePlayer(editingPlayer.id, dbData as UpdatePlayerData);
         if (error) {
-          this.notify(`Error updating player: ${error.message}`, 'error');
+          this.toast.error(`Error updating player: ${error.message}`);
           return;
         }
-        this.notify('Player updated successfully!');
+        this.toast.success('Player updated successfully!');
       } else {
         // Create new player
         const { error } = await this.playersService.createPlayer(dbData as CreatePlayerData);
         if (error) {
-          this.notify(`Error creating player: ${error.message}`, 'error');
+          this.toast.error(`Error creating player: ${error.message}`);
           return;
         }
-        this.notify('Player created successfully!');
+        this.toast.success('Player created successfully!');
       }
 
       this.closeForm();
       // Restore scroll position after successful submission
       this.restoreScrollPosition();
     } catch (error: any) {
-      this.notify(`Error: ${error.message}`, 'error');
+      this.toast.error(`Error: ${error.message}`);
     } finally {
       this.formSubmitting.set(false);
     }
@@ -384,18 +383,18 @@ export class PlayersComponent implements OnInit {
 
     const { error } = await this.playersService.deletePlayer(player.id);
     if (error) {
-      this.notify(`Error deleting player: ${error.message}`, 'error');
+      this.toast.error(`Error deleting player: ${error.message}`);
     } else {
-      this.notify('Player deleted successfully!');
+      this.toast.success('Player deleted successfully!');
     }
   }
 
   async togglePlayerStatus(player: Player) {
     const { error } = await this.playersService.togglePlayerStatus(player.id);
     if (error) {
-      this.notify(`Error toggling player status: ${error.message}`, 'error');
+      this.toast.error(`Error toggling player status: ${error.message}`);
     } else {
-      this.notify(`Player ${player.is_active ? 'deactivated' : 'activated'} successfully!`);
+      this.toast.success(`Player ${player.is_active ? 'deactivated' : 'activated'} successfully!`);
     }
   }
 
@@ -436,7 +435,7 @@ export class PlayersComponent implements OnInit {
     }
 
     this.selectedPlayers.set(new Set());
-    this.notify(`${selectedIds.length} players deleted successfully!`);
+    this.toast.success(`${selectedIds.length} players deleted successfully!`);
   }
 
   // Sorting and filtering
@@ -514,9 +513,4 @@ export class PlayersComponent implements OnInit {
     this.playersService.clearError();
   }
 
-  notify(message: string, type: 'success' | 'error' = 'success') {
-    clearTimeout(this.toastTimer);
-    this.toast.set({ message, type });
-    this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
-  }
 }

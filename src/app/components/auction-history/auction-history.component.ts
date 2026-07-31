@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AuctionHistory } from '../../services/auction.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { ToastService } from '../../services/toast.service';
 
 type SortOption = 'time' | 'price' | 'name';
 type SortDirection = 'asc' | 'desc';
@@ -25,7 +26,6 @@ type AuctionHistoryUI = AuctionHistory & {
 export class AuctionHistoryComponent implements OnInit {
   loading      = signal(false);
   error        = signal<string | null>(null);
-  toast        = signal<{ msg: string; type: 'ok' | 'err' } | null>(null);
   auctionHistory = signal<AuctionHistoryUI[]>([]);
   resettingId  = signal<string | null>(null); // tracks which history row is being reset
   
@@ -34,8 +34,6 @@ export class AuctionHistoryComponent implements OnInit {
   sortBy        = signal<SortOption>('time');
   sortDirection = signal<SortDirection>('desc');
   searchTerm    = signal('');
-
-  private toastTimer: any;
 
   // ── Computed ──────────────────────────────────────────────────────────────
   totalTransactions = computed(() => this.auctionHistory().length);
@@ -63,7 +61,11 @@ export class AuctionHistoryComponent implements OnInit {
     });
   });
 
-  constructor(private supabase: SupabaseService, private route: ActivatedRoute) {}
+  constructor(
+    private supabase: SupabaseService,
+    private route: ActivatedRoute,
+    private toast: ToastService
+  ) {}
 
   async ngOnInit() {
     if (typeof window !== 'undefined') {
@@ -98,7 +100,7 @@ export class AuctionHistoryComponent implements OnInit {
         .eq('auction_id', auctionId)
         .order('sold_at', { ascending: false });
 
-      if (error) { this.showToast(error.message, 'err'); }
+      if (error) { this.toast.error(error.message); }
       else {
         const entries = ((data ?? []) as any[]).map(row => ({
           ...row,
@@ -109,7 +111,7 @@ export class AuctionHistoryComponent implements OnInit {
         }));
         this.auctionHistory.set(entries as AuctionHistoryUI[]);
       }
-    } catch (err: any) { this.showToast(err.message, 'err'); }
+    } catch (err: any) { this.toast.error(err.message); }
     finally { this.loading.set(false); }
   }
 
@@ -135,7 +137,7 @@ export class AuctionHistoryComponent implements OnInit {
         .limit(1);
 
       if (fetchErr || !tpRows?.length) {
-        this.showToast(fetchErr?.message ?? 'team_players record not found', 'err');
+        this.toast.error(fetchErr?.message ?? 'team_players record not found');
         return;
       }
 
@@ -148,11 +150,11 @@ export class AuctionHistoryComponent implements OnInit {
         p_purchase_price: tpRows[0].purchase_price,
       });
 
-      if (error) { this.showToast(error.message, 'err'); return; }
+      if (error) { this.toast.error(error.message); return; }
 
-      this.showToast(`${playerName} returned to pool.`);
+      this.toast.success(`${playerName} returned to pool.`);
       await this.loadAuctionHistory(); // refresh list
-    } catch (e: any) { this.showToast(e.message, 'err'); }
+    } catch (e: any) { this.toast.error(e.message); }
     finally { this.resettingId.set(null); }
   }
 
@@ -179,9 +181,4 @@ export class AuctionHistoryComponent implements OnInit {
     });
   }
 
-  private showToast(msg: string, type: 'ok' | 'err' = 'ok') {
-    clearTimeout(this.toastTimer);
-    this.toast.set({ msg, type });
-    this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
-  }
 }

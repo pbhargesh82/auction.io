@@ -8,6 +8,7 @@ import { Auction } from '../../services/auctions.service';
 import { Player } from '../../services/players.service';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { ToastService } from '../../services/toast.service';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -65,10 +66,6 @@ export class AuctionPlayersComponent implements OnInit {
   searchTerm    = signal('');
   statusFilter  = signal<StatusFilter>('all');
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
-  toast         = signal<{ msg: string; type: 'ok' | 'err' } | null>(null);
-  private toastTimer: any;
-  
   // ── Responsive ────────────────────────────────────────────────────────────
   isMobile      = signal(false);
   canEditAuctionPool = signal(false);
@@ -127,6 +124,7 @@ export class AuctionPlayersComponent implements OnInit {
     private route: ActivatedRoute,
     private supabase: SupabaseService,
     private fb: FormBuilder,
+    private toast: ToastService,
   ) {
     this.editForm = this.fb.group({
       base_price: [100_000, [Validators.required, Validators.min(1000)]],
@@ -166,7 +164,7 @@ export class AuctionPlayersComponent implements OnInit {
         .eq('auction_id', this.auctionId())
         .order('created_at', { ascending: true });
 
-      if (error) { this.showToast(error.message, 'err'); return; }
+      if (error) { this.toast.error(error.message); return; }
 
       // Build enriched list — retrieve sold info from auction_history
       const raw = (data ?? []) as any[];
@@ -295,9 +293,9 @@ export class AuctionPlayersComponent implements OnInit {
         .from('auction_players')
         .insert(rows);
 
-      if (error) { this.showToast(error.message, 'err'); }
+      if (error) { this.toast.error(error.message); }
       else {
-        this.showToast(`${ids.length} player${ids.length > 1 ? 's' : ''} added!`);
+        this.toast.success(`${ids.length} player${ids.length > 1 ? 's' : ''} added!`);
         this.closeModal();
         await this.loadAuctionPlayers();
       }
@@ -335,9 +333,9 @@ export class AuctionPlayersComponent implements OnInit {
         .update({ base_price: this.editForm.value.base_price })
         .eq('id', this.editingAP()!.id);
 
-      if (error) { this.showToast(error.message, 'err'); }
+      if (error) { this.toast.error(error.message); }
       else {
-        this.showToast('Base price updated.');
+        this.toast.success('Base price updated.');
         this.closeEdit();
         await this.loadAuctionPlayers();
       }
@@ -358,9 +356,9 @@ export class AuctionPlayersComponent implements OnInit {
         .from('auction_players')
         .delete()
         .eq('id', ap.id);
-      if (error) { this.showToast(error.message, 'err'); }
+      if (error) { this.toast.error(error.message); }
       else {
-        this.showToast('Player removed from auction.');
+        this.toast.success('Player removed from auction.');
         this.auctionPlayers.update(list => list.filter(a => a.id !== ap.id));
       }
     } finally {
@@ -397,9 +395,4 @@ export class AuctionPlayersComponent implements OnInit {
   trackAP(_: number, ap: AuctionPlayer) { return ap.id; }
   trackPlayer(_: number, p: Player)     { return p.id; }
 
-  private showToast(msg: string, type: 'ok' | 'err' = 'ok') {
-    clearTimeout(this.toastTimer);
-    this.toast.set({ msg, type });
-    this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
-  }
 }

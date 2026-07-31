@@ -14,13 +14,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../services/toast.service';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 
@@ -36,7 +35,6 @@ import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
-    MatSnackBarModule,
     MatCheckboxModule,
     MatCardModule,
     MatProgressSpinnerModule,
@@ -54,7 +52,6 @@ export class TeamsComponent implements OnInit {
   teams = signal<(Team | TeamWithPlayers)[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-  toast = signal<{ message: string; type: 'success' | 'error' } | null>(null);
   showForm = signal(false);
   editingTeam = signal<Team | TeamWithPlayers | null>(null);
   searchTerm = signal('');
@@ -96,7 +93,7 @@ export class TeamsComponent implements OnInit {
     private supabaseService: SupabaseService,
     private imageUploadService: ImageUploadService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar,
+    private toast: ToastService,
     private route: ActivatedRoute,
   ) {
     // Initialize form with enhanced fields
@@ -216,12 +213,12 @@ export class TeamsComponent implements OnInit {
       if (result.success && result.url) {
         this.logoPreview.set(result.url);
         this.teamForm.patchValue({ logo_url: result.url });
-        this.snackBar.open('Logo uploaded successfully', 'Close', { duration: 3000 });
+        this.toast.success('Logo uploaded successfully');
       } else {
-        this.snackBar.open(`Upload failed: ${result.error}`, 'Close', { duration: 5000 });
+        this.toast.error(`Upload failed: ${result.error}`);
       }
     } catch (err: any) {
-      this.snackBar.open(`Upload error: ${err.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Upload error: ${err.message}`);
     } finally {
       this.uploadingLogo.set(false);
     }
@@ -244,24 +241,19 @@ export class TeamsComponent implements OnInit {
       if (editingTeam) {
         // Update existing team
         const { error } = await this.teamsService.updateTeam(editingTeam.id, formData as UpdateTeamData);
-        this.toast.set({ message: 'Team updated successfully!', type: 'success' });
+        this.toast.success('Team updated successfully!');
       } else {
-        // Create new team — pass explicit auctionId from route
         const { error } = await this.teamsService.createTeam(formData as CreateTeamData, this.auctionId());
         if (error) {
-          this.toast.set({ message: `Error creating team: ${error.message}`, type: 'error' });
+          this.toast.error(`Error creating team: ${error.message}`);
           return;
         }
-        this.toast.set({ message: 'Team created successfully!', type: 'success' });
+        this.toast.success('Team created successfully!');
       }
 
-      setTimeout(() => this.toast.set(null), 3000);
       this.closeForm();
     } catch (error: any) {
-      this.snackBar.open(`Error: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error: ${error.message}`);
     } finally {
       this.formSubmitting.set(false);
     }
@@ -275,19 +267,15 @@ export class TeamsComponent implements OnInit {
 
     const { error } = await this.teamsService.deleteTeam(team.id);
     if (error) {
-      this.snackBar.open(`Error deleting team: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error deleting team: ${error.message}`);
+    } else {
+      this.toast.success(`Team "${team.name}" deleted`);
     }
   }
 
   // View team details
   viewTeam(team: Team | TeamWithPlayers) {
-    // In a real app, you might navigate to a detail view
-    this.snackBar.open(`Viewing team: ${team.name}`, 'Close', {
-      duration: 2000
-    });
+    this.toast.success(`Viewing team: ${team.name}`);
   }
 
   // Edit team - wrapper around openEditForm for template
@@ -306,14 +294,9 @@ export class TeamsComponent implements OnInit {
     const { error } = await this.teamsService.updateTeam(team.id, { is_active: newStatus });
 
     if (error) {
-      this.snackBar.open(`Error updating team status: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error updating team status: ${error.message}`);
     } else {
-      this.snackBar.open(`Team ${newStatus ? 'activated' : 'deactivated'} successfully`, 'Close', {
-        duration: 2000
-      });
+      this.toast.success(`Team ${newStatus ? 'activated' : 'deactivated'} successfully`);
     }
   }
 

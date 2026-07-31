@@ -60,6 +60,10 @@
 - [x] **Day 7**: Implement automatic redirect for already authenticated users ✅ (Completed: 2024-01-15)
 - [x] **Day 7**: Fix production environment configuration for Netlify deployment ✅ (Completed: 2024-01-15)
 - [x] **Day 7**: Update build scripts to use production configuration ✅ (Completed: 2024-01-15)
+- [x] **Account Settings**: Create `user_profiles` table migration with RLS and signup trigger ✅ (Completed: 2026-07-31)
+- [x] **Account Settings**: Add ProfileService and Account Settings page at `/settings` ✅ (Completed: 2026-07-31)
+- [x] **Account Settings**: Profile form (display name, full name, avatar, bio, phone) + password update for email users ✅ (Completed: 2026-07-31)
+- [x] **Account Settings**: Wire profile dropdown and sidebar navigation; remove Preferences stub ✅ (Completed: 2026-07-31)
 
 ### Priority 5: Dashboard Foundation ⭐
 - [x] **Day 7**: Create dashboard component with modern Angular patterns ✅ (Completed: 2024-01-15)
@@ -263,7 +267,7 @@
 - [ ] **Day 29**: Add loading states and skeleton screens
 - [ ] **Day 30**: Create smooth transitions and micro-animations
 - [ ] **Day 30**: Implement dark/light theme toggle
-- [ ] **Day 31**: Add toast notifications and snackbars
+- [x] **Day 31**: Add toast notifications and snackbars ✅ (Completed: 2026-07-31 — unified ToastService + AppToastComponent across all forms)
 - [ ] **Day 31**: Create confirmation dialogs for destructive actions
 
 ### Priority 2: Performance & PWA ⭐

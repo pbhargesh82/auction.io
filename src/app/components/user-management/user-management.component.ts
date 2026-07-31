@@ -5,6 +5,7 @@ import { UsersService, UserWithRole } from '../../services/users.service';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { ToastService } from '../../services/toast.service';
 
 import { MatIconModule } from '@angular/material/icon';
 
@@ -30,9 +31,6 @@ export class UserManagementComponent implements OnInit {
     searchTerm = signal('');
     updatingUserId = signal<string | null>(null);
     currentUserId = signal<string | null>(null);
-
-    // Toast UI state
-    toast = signal<{ message: string; type: 'success' | 'error' } | null>(null);
 
     // Invite form state
     showInviteForm = signal(false);
@@ -62,7 +60,8 @@ export class UserManagementComponent implements OnInit {
 
     constructor(
         public usersService: UsersService,
-        private supabaseService: SupabaseService
+        private supabaseService: SupabaseService,
+        private toast: ToastService
     ) {
         // Use service signals directly
         this.users = this.usersService.users;
@@ -84,19 +83,10 @@ export class UserManagementComponent implements OnInit {
         const { error } = await this.usersService.getUsers();
         if (error) {
             console.error('Error loading users:', error);
-            this.notify('Failed to load users', 'error');
+            this.toast.error('Failed to load users');
         }
     }
 
-    // Helper to show notifications
-    private notify(message: string, type: 'success' | 'error' = 'success') {
-        this.toast.set({ message, type });
-        setTimeout(() => {
-            if (this.toast()?.message === message) {
-                this.toast.set(null);
-            }
-        }, 3000);
-    }
 
     // Invite form methods
     openInviteForm() {
@@ -113,7 +103,7 @@ export class UserManagementComponent implements OnInit {
     async submitInvite() {
         const email = this.inviteEmail().trim();
         if (!email || !email.includes('@')) {
-            this.notify('Please enter a valid email address', 'error');
+            this.toast.error('Please enter a valid email address');
             return;
         }
 
@@ -125,10 +115,10 @@ export class UserManagementComponent implements OnInit {
         });
 
         if (success) {
-            this.notify(`Invitation sent to ${email}`, 'success');
+            this.toast.success(`Invitation sent to ${email}`);
             this.closeInviteForm();
         } else {
-            this.notify(`Error inviting user: ${error?.message || 'Unknown error'}`, 'error');
+            this.toast.error(`Error inviting user: ${error?.message || 'Unknown error'}`);
         }
 
         this.inviteLoading.set(false);
@@ -137,7 +127,7 @@ export class UserManagementComponent implements OnInit {
     async onRoleChange(user: UserWithRole, newRole: any) {
         // Prevent self-demotion from super_admin
         if (user.user_id === this.currentUserId() && user.role === 'super_admin' && newRole !== 'super_admin') {
-            this.notify('You cannot remove your own admin privileges', 'error');
+            this.toast.error('You cannot remove your own admin privileges');
             return;
         }
 
@@ -146,9 +136,9 @@ export class UserManagementComponent implements OnInit {
         const { success, error } = await this.usersService.updateUserRole(user.user_id, newRole);
 
         if (success) {
-            this.notify(`Role updated to ${newRole} successfully`, 'success');
+            this.toast.success(`Role updated to ${newRole} successfully`);
         } else {
-            this.notify(`Error updating role: ${error?.message || 'Unknown error'}`, 'error');
+            this.toast.error(`Error updating role: ${error?.message || 'Unknown error'}`);
         }
 
         this.updatingUserId.set(null);
@@ -157,7 +147,7 @@ export class UserManagementComponent implements OnInit {
     async toggleUserBan(user: UserWithRole) {
         // Prevent self-ban
         if (user.user_id === this.currentUserId()) {
-            this.notify('You cannot ban yourself', 'error');
+            this.toast.error('You cannot ban yourself');
             return;
         }
 
@@ -171,9 +161,9 @@ export class UserManagementComponent implements OnInit {
         const { success, error } = await this.usersService.toggleUserBan(user.user_id, !user.is_banned);
 
         if (success) {
-            this.notify(`User ${user.is_banned ? 'unbanned' : 'banned'} successfully`, 'success');
+            this.toast.success(`User ${user.is_banned ? 'unbanned' : 'banned'} successfully`);
         } else {
-            this.notify(`Error: ${error?.message || 'Unknown error'}`, 'error');
+            this.toast.error(`Error: ${error?.message || 'Unknown error'}`);
         }
 
         this.updatingUserId.set(null);
@@ -182,7 +172,7 @@ export class UserManagementComponent implements OnInit {
     async deleteUser(user: UserWithRole) {
         // Prevent self-delete
         if (user.user_id === this.currentUserId()) {
-            this.notify('You cannot delete your own account', 'error');
+            this.toast.error('You cannot delete your own account');
             return;
         }
 
@@ -195,9 +185,9 @@ export class UserManagementComponent implements OnInit {
         const { success, error } = await this.usersService.deleteUser(user.user_id);
 
         if (success) {
-            this.notify(`User deleted successfully`, 'success');
+            this.toast.success(`User deleted successfully`);
         } else {
-            this.notify(`Error deleting user: ${error?.message || 'Unknown error'}`, 'error');
+            this.toast.error(`Error deleting user: ${error?.message || 'Unknown error'}`);
         }
 
         this.updatingUserId.set(null);

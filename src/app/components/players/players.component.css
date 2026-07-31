@@ -1,24 +1,5 @@
 /* Players Component Styles */
 
-/* Success snackbar styling */
-
-::ng-deep .success-snackbar {
-  background-color: #4CAF50 !important;
-  color: white !important;
-}
-
-/* Error snackbar styling */
-::ng-deep .error-snackbar {
-  background-color: #f44336 !important;
-  color: white !important;
-}
-
-
-
-
-
-
-
 /* Table hover effects */
 .mat-mdc-row:hover {
   background-color: rgba(0, 0, 0, 0.04);

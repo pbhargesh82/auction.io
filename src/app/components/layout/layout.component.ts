@@ -6,6 +6,7 @@ import { VersionService } from '../../services/version.service';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs/operators';
 import { UserProfileComponent } from '../shared/user-profile/user-profile.component';
+import { AppToastComponent } from '../shared/app-toast/app-toast.component';
 
 interface MenuItem {
   label: string;
@@ -22,7 +23,8 @@ interface MenuItem {
     CommonModule,
     RouterModule,
     MatIconModule,
-    UserProfileComponent
+    UserProfileComponent,
+    AppToastComponent
   ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
@@ -78,6 +80,11 @@ export class LayoutComponent {
       icon: 'manage_accounts',
       route: '/user-management',
       requiresAdmin: true
+    },
+    {
+      label: 'Account Settings',
+      icon: 'settings',
+      route: '/settings'
     }
   ];
 

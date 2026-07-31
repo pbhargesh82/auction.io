@@ -13,8 +13,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ToastService } from '../../services/toast.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -33,7 +33,6 @@ import { MatDialogModule } from '@angular/material/dialog';
         MatInputModule,
         MatFormFieldModule,
         MatSelectModule,
-        MatSnackBarModule,
         MatProgressSpinnerModule,
         MatTooltipModule,
         MatMenuModule,
@@ -61,7 +60,7 @@ export class AuctionsComponent implements OnInit {
         private auctionsSvc: AuctionsService,
         private auctionStateSvc: AuctionStateService,
         private fb: FormBuilder,
-        private snackBar: MatSnackBar,
+        private toast: ToastService,
         private router: Router,
     ) {
         this.auctionForm = this.fb.group({
@@ -128,9 +127,9 @@ export class AuctionsComponent implements OnInit {
                 );
 
                 if (error) {
-                    this.showError('Failed to update auction: ' + error.message);
+                    this.toast.error('Failed to update auction: ' + error.message);
                 } else {
-                    this.showSuccess('Auction updated successfully');
+                    this.toast.success('Auction updated successfully');
                     this.closeForm();
                 }
             } else {
@@ -138,9 +137,9 @@ export class AuctionsComponent implements OnInit {
                 const { error } = await this.auctionsSvc.createAuction(formValue);
 
                 if (error) {
-                    this.showError('Failed to create auction: ' + error.message);
+                    this.toast.error('Failed to create auction: ' + error.message);
                 } else {
-                    this.showSuccess('Auction created successfully');
+                    this.toast.success('Auction created successfully');
                     this.closeForm();
                 }
             }
@@ -161,9 +160,9 @@ export class AuctionsComponent implements OnInit {
             const { error } = await this.auctionsSvc.deleteAuction(auction.id);
 
             if (error) {
-                this.showError('Failed to delete auction: ' + error.message);
+                this.toast.error('Failed to delete auction: ' + error.message);
             } else {
-                this.showSuccess('Auction deleted successfully');
+                this.toast.success('Auction deleted successfully');
             }
         } finally {
             this.deletingId.set(null);
@@ -179,7 +178,7 @@ export class AuctionsComponent implements OnInit {
     copyShareLink(auction: Auction) {
         const url = `${window.location.origin}/view/${auction.public_slug}`;
         navigator.clipboard.writeText(url);
-        this.showSuccess('Share link copied to clipboard');
+        this.toast.success('Share link copied to clipboard');
     }
 
     // Get status badge config
@@ -211,20 +210,6 @@ export class AuctionsComponent implements OnInit {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
-        });
-    }
-
-    private showSuccess(message: string) {
-        this.snackBar.open(message, 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-        });
-    }
-
-    private showError(message: string) {
-        this.snackBar.open(message, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
         });
     }
 }

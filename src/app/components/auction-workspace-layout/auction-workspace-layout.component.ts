@@ -15,6 +15,7 @@ import { VersionService } from '../../services/version.service';
 import { Auction } from '../../services/auctions.service';
 import { MatIconModule } from '@angular/material/icon';
 import { UserProfileComponent } from '../shared/user-profile/user-profile.component';
+import { AppToastComponent } from '../shared/app-toast/app-toast.component';
 
 interface WorkspaceNavItem {
   label: string;
@@ -25,7 +26,7 @@ interface WorkspaceNavItem {
 @Component({
   selector: 'app-auction-workspace-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, MatIconModule, UserProfileComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, MatIconModule, UserProfileComponent, AppToastComponent],
 
   templateUrl: './auction-workspace-layout.component.html',
   styleUrls: ['./auction-workspace-layout.component.css'],

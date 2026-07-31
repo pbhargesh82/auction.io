@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../services/toast.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Team } from '../../services/teams.service';
 import { TeamPlayersService } from '../../services/team-players.service';
@@ -56,7 +56,7 @@ export class TeamCardComponent {
 
   constructor(
     private teamPlayersService: TeamPlayersService,
-    private snackBar: MatSnackBar,
+    private toast: ToastService,
     private dialog: MatDialog,
     private supabaseService: SupabaseService
   ) {
@@ -142,7 +142,7 @@ export class TeamCardComponent {
   // Sell player back to auction pool
   async sellPlayerBack(player: any) {
     if (!player.team_player_id) {
-      this.snackBar.open('Player data is incomplete', 'Close', { duration: 3000 });
+      this.toast.error('Player data is incomplete');
       return;
     }
 
@@ -164,15 +164,12 @@ export class TeamCardComponent {
       const { data, error } = await this.teamPlayersService.sellPlayerBackToPool(player.team_player_id);
 
       if (error) {
-        this.snackBar.open(`Error selling player back: ${error.message}`, 'Close', { duration: 5000 });
+        this.toast.error(`Error selling player back: ${error.message}`);
         return;
       }
 
-      // Show success message
-      this.snackBar.open(
-        `Successfully sold ${player.name} back to auction pool. Refunded ₹${this.formatCurrency(player.purchase_price)} to ${this.team.name}.`, 
-        'Close', 
-        { duration: 4000 }
+      this.toast.success(
+        `Successfully sold ${player.name} back to auction pool. Refunded ₹${this.formatCurrency(player.purchase_price)} to ${this.team.name}.`
       );
 
       // Emit event for parent component to refresh data
@@ -183,7 +180,7 @@ export class TeamCardComponent {
       });
 
     } catch (error: any) {
-      this.snackBar.open(`Error: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error: ${error.message}`);
     } finally {
       this.sellingPlayer.set(null);
     }

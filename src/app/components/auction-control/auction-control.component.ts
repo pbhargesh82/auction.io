@@ -11,6 +11,7 @@ import { PlayersService, Player } from '../../services/players.service';
 import { TeamsService, Team } from '../../services/teams.service';
 import { AuctionStateService } from '../../services/auction-state.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-auction-control',
@@ -93,7 +94,8 @@ export class AuctionControlComponent implements OnInit {
     private auctionStateService: AuctionStateService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private supabase: SupabaseService
+    private supabase: SupabaseService,
+    private toast: ToastService
   ) {
     this.sellForm = this.fb.group({
       team_id: ['', [Validators.required]],
@@ -147,7 +149,7 @@ export class AuctionControlComponent implements OnInit {
     
     if (error) {
       this.error.set(error.message);
-      this.showToast('error', `Error loading auction config: ${error.message}`);
+      this.toast.error(`Error loading auction config: ${error.message}`);
     } else if (data) {
       this.auctionConfig.set(data);
       await this.loadCurrentPlayer();
@@ -161,7 +163,7 @@ export class AuctionControlComponent implements OnInit {
     
     if (error) {
       this.error.set(error.message);
-      this.showToast('error', `Error loading teams: ${error.message}`);
+      this.toast.error(`Error loading teams: ${error.message}`);
     } else if (data) {
       this.teams.set(data);
     }
@@ -192,13 +194,13 @@ export class AuctionControlComponent implements OnInit {
       if (!error) {
         // Refresh full state
         await this.auctionStateService.loadAllData(this.auctionId());
-        this.showToast('success', `Auction marked as ${status}`);
+        this.toast.success(`Auction marked as ${status}`);
       } else {
         throw error;
       }
     } catch (e: any) {
       this.error.set(e.message);
-      this.showToast('error', `Error updating status: ${e.message}`);
+      this.toast.error(`Error updating status: ${e.message}`);
     } finally {
       this.loading.set(false);
     }
@@ -214,7 +216,7 @@ export class AuctionControlComponent implements OnInit {
     this.loading.set(true);
     try {
       await this.auctionStateService.resetAuction();
-      this.showToast('success', 'Auction reset successfully! All data has been cleared.');
+      this.toast.success('Auction reset successfully! All data has been cleared.');
 
       // Refresh all data using centralized service
       await this.auctionStateService.loadAllData(this.auctionId());
@@ -226,7 +228,7 @@ export class AuctionControlComponent implements OnInit {
       
     } catch (error: any) {
       this.error.set(error.message);
-      this.showToast('error', `Error resetting auction: ${error.message}`);
+      this.toast.error(`Error resetting auction: ${error.message}`);
     } finally {
       this.loading.set(false);
     }
@@ -243,7 +245,7 @@ export class AuctionControlComponent implements OnInit {
       }
 
       if (!players || players.length === 0) {
-        this.showToast('error', 'No players found. Please add players first.');
+        this.toast.error('No players found. Please add players first.');
         return;
       }
 
@@ -253,14 +255,14 @@ export class AuctionControlComponent implements OnInit {
         .map(p => p.id);
 
       if (activePlayerIds.length === 0) {
-        this.showToast('error', 'No active players found. Please activate some players first.');
+        this.toast.error('No active players found. Please activate some players first.');
         return;
       }
 
       // Add all active players to auction (set to PENDING status)
       await this.auctionStateService.addPlayersToAuction(activePlayerIds);
       
-      this.showToast('success', `Successfully added ${activePlayerIds.length} players to the auction!`);
+      this.toast.success(`Successfully added ${activePlayerIds.length} players to the auction!`);
       
       // Refresh data
       await this.auctionStateService.loadAllData(this.auctionId());
@@ -272,7 +274,7 @@ export class AuctionControlComponent implements OnInit {
       
     } catch (error: any) {
       this.error.set(error.message);
-      this.showToast('error', `Error initializing auction: ${error.message}`);
+      this.toast.error(`Error initializing auction: ${error.message}`);
     } finally {
       this.loading.set(false);
     }
@@ -296,14 +298,14 @@ export class AuctionControlComponent implements OnInit {
         'UNSOLD'
       );
       
-      this.showToast('success', 'Player marked as unsold!');
+      this.toast.success('Player marked as unsold!');
       
       // Update local signals
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
       this.teams.set(this.auctionStateService.teams());
     } catch (error: any) {
       this.error.set(error.message);
-      this.showToast('error', `Error marking player unsold: ${error.message}`);
+      this.toast.error(`Error marking player unsold: ${error.message}`);
     } finally {
       this.loading.set(false);
     }
@@ -359,7 +361,7 @@ export class AuctionControlComponent implements OnInit {
       });
       
       this.triggerSoldAnimation();
-      this.showToast('success', 'Player sold successfully!');
+      this.toast.success('Player sold successfully!');
       this.sellForm.reset();
       
       // Update local signals
@@ -369,7 +371,7 @@ export class AuctionControlComponent implements OnInit {
       this.closeSellDialog();
     } catch (error: any) {
       this.error.set(error.message);
-      this.showToast('error', `Error selling player: ${error.message}`);
+      this.toast.error(`Error selling player: ${error.message}`);
     } finally {
       this.loading.set(false);
     }
@@ -378,14 +380,6 @@ export class AuctionControlComponent implements OnInit {
   formatNumber(num: number | undefined | null): string {
     if (num === undefined || num === null) return '0';
     return new Intl.NumberFormat('en-IN').format(num);
-  }
-
-  // Basic custom toast mechanism
-  toast = signal<{ type: 'success' | 'error', message: string } | null>(null);
-  
-  private showToast(type: 'success' | 'error', message: string) {
-    this.toast.set({ type, message });
-    setTimeout(() => this.toast.set(null), 3000);
   }
 
   clearError(): void {
@@ -421,7 +415,7 @@ export class AuctionControlComponent implements OnInit {
       // Set the selected player as current
       await this.auctionStateService.updatePlayerAuctionStatus(player.id, 'CURRENT');
       
-      this.showToast('success', `Started auction for ${player.name}!`);
+      this.toast.success(`Started auction for ${player.name}!`);
       
       // Update local signals
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
@@ -430,7 +424,7 @@ export class AuctionControlComponent implements OnInit {
       
     } catch (error: any) {
       this.error.set(error.message);
-      this.showToast('error', `Error starting player auction: ${error.message}`);
+      this.toast.error(`Error starting player auction: ${error.message}`);
     } finally {
       this.loading.set(false);
     }

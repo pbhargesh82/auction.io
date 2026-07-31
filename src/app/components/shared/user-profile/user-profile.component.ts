@@ -2,6 +2,7 @@ import { Component, OnInit, computed, signal, OnDestroy, HostListener, ElementRe
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../../services/supabase.service';
+import { ProfileService } from '../../../services/profile.service';
 import { VersionService } from '../../../services/version.service';
 import { Subscription } from 'rxjs';
 
@@ -22,9 +23,13 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   // Versions no longer render inside this component (moved directly to sidebar bottoms)
   // but kept logic in case it's needed elsewhere.
   
-  userDisplayName = computed(() => {
-    const u = this.user();
-    return u?.email ? u.email.split('@')[0] : 'User';
+  userDisplayName = computed(() => this.profileService.displayName());
+
+  avatarUrl = computed(() => this.profileService.avatarUrl());
+
+  avatarInitial = computed(() => {
+    const name = this.userDisplayName();
+    return name ? name.charAt(0).toUpperCase() : 'U';
   });
   
   isAdmin = computed(() => this.userRole() === 'super_admin');
@@ -33,6 +38,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   constructor(
     private supabaseService: SupabaseService,
+    private profileService: ProfileService,
     private versionService: VersionService,
     private router: Router,
     private eRef: ElementRef
@@ -57,6 +63,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     if(!this.eRef.nativeElement.contains(event.target)) {
       this.menuOpen.set(false);
     }
+  }
+
+  openAccountSettings() {
+    this.menuOpen.set(false);
+    this.router.navigate(['/settings']);
   }
 
   async onSignOut() {

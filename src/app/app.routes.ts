@@ -13,6 +13,7 @@ import { AuctionWorkspaceLayoutComponent } from './components/auction-workspace-
 import { HomeComponent } from './components/home/home.component';
 import { PlayersComponent } from './components/players/players.component';
 import { UserManagementComponent } from './components/user-management/user-management.component';
+import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
 
 // ── Auction Workspace pages ───────────────────────────────────────────────────
 import { AuctionOverviewComponent } from './components/auction-overview/auction-overview.component';
@@ -45,7 +46,7 @@ export const routes: Routes = [
       { path: 'home',            component: HomeComponent },
       { path: 'player-pool',     component: PlayersComponent },
       { path: 'user-management', component: UserManagementComponent, canActivate: [adminGuard] },
-      { path: 'settings',        redirectTo: '/home', pathMatch: 'full' }, // Phase 7
+      { path: 'settings',        component: AccountSettingsComponent },
 
       // Backwards-compatibility redirects (old flat routes → /home or /player-pool)
       { path: 'dashboard',       redirectTo: '/home',        pathMatch: 'full' },

@@ -6,6 +6,7 @@ import { AuctionStateService } from '../../services/auction-state.service';
 import { TeamPlayersService } from '../../services/team-players.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-team-roster',
@@ -25,9 +26,6 @@ export class TeamRosterComponent implements OnInit {
 
   // Selling state for UX
   sellingPlayer = signal<string | null>(null);
-
-  // Custom Toast UI
-  toast = signal<{ type: 'success' | 'error', message: string } | null>(null);
 
   // All Teams with their Rosters
   teamsWithRosters = computed(() => {
@@ -53,6 +51,7 @@ export class TeamRosterComponent implements OnInit {
     private teamPlayersService: TeamPlayersService,
     private supabaseService: SupabaseService,
     private route: ActivatedRoute,
+    private toast: ToastService,
   ) {
     this.loading = this.auctionStateService.loading;
     this.error = this.auctionStateService.error;
@@ -78,16 +77,10 @@ export class TeamRosterComponent implements OnInit {
     return '';
   }
 
-  // Toast UI helper
-  private showToast(type: 'success' | 'error', message: string) {
-    this.toast.set({ type, message });
-    setTimeout(() => this.toast.set(null), 3000);
-  }
-
   // Sell player back to auction pool
   async sellPlayerBack(player: any, teamName: string) {
     if (!player.team_player_id) {
-      this.showToast('error', 'Player data is incomplete');
+      this.toast.error('Player data is incomplete');
       return;
     }
 
@@ -112,13 +105,13 @@ export class TeamRosterComponent implements OnInit {
         throw error;
       }
 
-      this.showToast('success', `Successfully sold ${player.name} back to auction pool. Refunded ₹${this.formatNumber(player.purchase_price)}.`);
+      this.toast.success(`Successfully sold ${player.name} back to auction pool. Refunded ₹${this.formatNumber(player.purchase_price)}.`);
 
       // Refresh data to show updated team budgets and player lists
       await this.auctionStateService.loadAllData(this.auctionId());
 
     } catch (error: any) {
-      this.showToast('error', `Error: ${error.message}`);
+      this.toast.error(`Error: ${error.message}`);
     } finally {
       this.sellingPlayer.set(null);
     }
