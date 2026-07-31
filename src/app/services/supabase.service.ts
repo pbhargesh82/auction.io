@@ -25,7 +25,8 @@ export class SupabaseService {
           storage: window.localStorage,
           autoRefreshToken: true,
           persistSession: true,
-          detectSessionInUrl: true // Enable automatic session detection from URL
+          detectSessionInUrl: true,
+          flowType: 'pkce'
         }
       }
     );
@@ -33,8 +34,41 @@ export class SupabaseService {
     this.initializeAuth();
   }
 
+  private hasAuthTokensInUrl(): boolean {
+    const hash = window.location.hash;
+    const search = window.location.search;
+    return (
+      hash.includes('access_token=') ||
+      hash.includes('error=') ||
+      search.includes('code=')
+    );
+  }
+
+  private stripAuthFromUrl(): void {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+
+  private async recoverSessionFromUrl(): Promise<void> {
+    if (!this.hasAuthTokensInUrl()) {
+      return;
+    }
+
+    const { data: { session }, error } = await this.supabase.auth.getSession();
+    if (error) {
+      console.error('OAuth URL recovery error:', error);
+      return;
+    }
+
+    if (session?.user) {
+      this._currentUser.next(session.user);
+      await this.updateUserRole(session.user);
+      this.stripAuthFromUrl();
+    }
+  }
+
   private async initializeAuth() {
-    // Get the current session on initialization
+    await this.recoverSessionFromUrl();
+
     const { data: { session } } = await this.supabase.auth.getSession();
     this._currentUser.next(session?.user ?? null);
     await this.updateUserRole(session?.user ?? null);
@@ -180,8 +214,14 @@ export class SupabaseService {
     return { data, error };
   }
 
-  async waitForOAuthSession(timeoutMs = 5000): Promise<{ user: User | null; error: Error | null }> {
+  async waitForOAuthSession(timeoutMs = 10000): Promise<{ user: User | null; error: Error | null }> {
     await this.waitForAuthInitialization();
+
+    if (this._currentUser.value) {
+      return { user: this._currentUser.value, error: null };
+    }
+
+    await this.recoverSessionFromUrl();
 
     if (this._currentUser.value) {
       return { user: this._currentUser.value, error: null };

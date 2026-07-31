@@ -82,9 +82,17 @@ export class LoginComponent implements OnInit {
     if (user) {
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
       this.router.navigate([returnUrl]);
+      return;
     }
 
     this.setMode(false);
+
+    const oauthError = this.route.snapshot.queryParams['error'];
+    if (oauthError === 'oauth_callback_failed') {
+      this.loginError.set(
+        'Sign-in completed but your session could not be established. Please try again.'
+      );
+    }
   }
 
   togglePasswordVisibility(): void {

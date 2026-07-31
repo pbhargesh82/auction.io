@@ -78,39 +78,63 @@ Open [Supabase → Authentication](https://supabase.com/dashboard/project/uodenq
    - Local only: `http://localhost:4200`
 
 If Site URL is `http://localhost:4200` while testing on develop Netlify, Google OAuth will redirect back to localhost after sign-in.
+
+### Site URL checklist (required for new Google accounts)
+
+Open [URL Configuration](https://supabase.com/dashboard/project/uodenqudkimgnjgxuqxo/auth/url-configuration) and confirm:
+
+| Setting | Develop testing value |
+|---|---|
+| **Site URL** | `https://auction-io-develop.netlify.app` |
+| **Redirect URLs** | All three callback URLs from the table above |
+
+If users appear in Supabase Authentication but are not logged in on the site, Site URL is almost certainly still set to localhost.
+
+### Google OAuth consent (required for all accounts)
+
+Open [Google Cloud Console → OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent):
+
+- **Testing** mode: only emails listed under **Test users** can sign in
+- **Published** app: any Google account can sign in
+
 ---
 
 ## Part 3 — App code (already implemented)
 
-[`src/app/services/supabase.service.ts`](../src/app/services/supabase.service.ts) uses a dynamic redirect:
+[`src/app/services/supabase.service.ts`](../src/app/services/supabase.service.ts):
 
-```typescript
-const redirectUrl = `${window.location.origin}/auth/callback`;
-```
-
-No per-environment `auth.redirectUrl` override is required for OAuth as long as each origin is in Supabase’s redirect allow-list.
+- Dynamic redirect: `window.location.origin + '/auth/callback'`
+- PKCE flow (`flowType: 'pkce'`)
+- OAuth hash recovery on app init (`recoverSessionFromUrl()`)
+- Redirects tokens landing on `/` or `/login` to `/auth/callback` via [`app.ts`](../src/app/app.ts)
 
 ---
 
 ## Verification
 
-1. Open the target site login page (e.g. `https://auction-io-develop.netlify.app/login`)
+**Test on** `https://auction-io-develop.netlify.app/login` — not localhost — unless `npm start` is running.
+
+1. Open the develop login page
 2. Click **Continue with Google**
 3. Google consent screen appears (no `deleted_client`)
-4. After approval → `/auth/callback` → `/home`
-5. User appears under Supabase **Authentication → Users**
+4. After approval → `https://auction-io-develop.netlify.app/auth/callback` → `/home`
+5. User appears under Supabase **Authentication → Users** and is logged in in the browser
 
 ### Common errors
 
 | Error | Fix |
 |---|---|
+| User in Supabase Auth but not logged in | Site URL wrong — session tokens never reached app origin. Set Site URL to your active deploy. |
+| Chrome interstitial / “prevented page load” | OAuth redirect to unreachable URL (usually localhost). Fix Supabase Site URL; test on develop Netlify URL |
+| Chrome bounce tracking warning (Issues tab) | Informational — Supabase is an intermediate OAuth hop. Ignore if login completes on develop |
 | `401: deleted_client` | Recreate OAuth client in GCP; update Supabase Google provider |
 | Redirect to wrong host | Add that origin’s `/auth/callback` to Supabase redirect URLs |
 | `redirect_uri_mismatch` (Google) | GCP redirect URI must be exactly the Supabase callback URL |
-| Access blocked (Testing) | Add the Google account under OAuth consent screen **Test users** |
-| Redirect to `localhost:4200` from develop/production | Supabase **Site URL** is still `http://localhost:4200`, or the deploy origin’s `/auth/callback` is missing from **Redirect URLs**. Set Site URL to your active deploy and add all callback URLs to the allow-list. |
-| Tokens in URL at `localhost:4200/#access_token=...` (no `/auth/callback`) | Same as above — Supabase fell back to Site URL. OAuth succeeded; fix Supabase URL config and retry. |
-| Safari “Can’t Connect to the Server” on localhost after Google | You started OAuth from develop but were redirected to localhost, or local `ng serve` is not running. Fix Supabase Site URL for develop; only use localhost when `npm start` is running. |
+| Access blocked (Testing) | Publish OAuth app or add the Google account under **Test users** |
+| Redirect to `localhost:4200` from develop/production | Supabase **Site URL** is still `http://localhost:4200`, or the deploy origin’s `/auth/callback` is missing from **Redirect URLs** |
+| Tokens in URL at `localhost:4200/#access_token=...` (no `/auth/callback`) | Same as above — Supabase fell back to Site URL. OAuth succeeded; fix Supabase URL config and retry |
+| Safari “Can’t Connect to the Server” on localhost after Google | OAuth redirected to localhost without `ng serve` running. Fix Supabase Site URL for develop |
+| “Sign-in completed but session could not be established” | OAuth callback timed out or redirect misconfigured. Check Site URL and redirect allow-list |
 
 ---
 
@@ -120,8 +144,9 @@ If OAuth breaks again:
 
 - [ ] New or existing GCP OAuth Web client with Supabase callback URI
 - [ ] Supabase Google provider Client ID + Secret updated (replace stale client if you see `deleted_client`)
-- [ ] All deploy origins in Supabase redirect allow-list
-- [ ] Test user added (if consent screen is in Testing mode)
+- [ ] **Site URL** set to active deploy (not localhost when testing develop)
+- [ ] **Redirect URLs** include develop, production, and localhost callbacks
+- [ ] Google OAuth app **published** (or test users added for each account)
 
 ### Known stale client (2026-07-31)
 

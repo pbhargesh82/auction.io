@@ -20,18 +20,18 @@ export class AuthCallbackComponent implements OnInit {
 
       if (error) {
         console.error('Auth callback error:', error);
-        this.router.navigate(['/login']);
+        this.router.navigate(['/login'], { queryParams: { error: 'oauth_callback_failed' } });
         return;
       }
 
       if (user) {
         this.router.navigate(['/home']);
       } else {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/login'], { queryParams: { error: 'oauth_callback_failed' } });
       }
     } catch (err) {
       console.error('Unexpected error in auth callback:', err);
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login'], { queryParams: { error: 'oauth_callback_failed' } });
     }
   }
 }

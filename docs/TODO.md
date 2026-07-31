@@ -467,6 +467,11 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
   - Google: reset loading on OAuth error; `waitForOAuthSession()` in auth callback
   - Docs: localhost redirect troubleshooting in `docs/GOOGLE_OAUTH_SETUP.md`
   - Manual: set Supabase Site URL to develop Netlify while testing develop deploy
+- [x] **OAuth new-account hardening**: PKCE flow, hash recovery, auth callback error UX ✅ (Completed: 2026-07-31)
+  - PKCE + `recoverSessionFromUrl()` in Supabase service; token redirect to `/auth/callback` from app root
+  - Login shows error when OAuth callback fails; 10s session wait timeout
+  - Docs: interstitial, bounce tracking, “user in Supabase but not logged in” troubleshooting
+  - Manual: Supabase Site URL + Google OAuth publish still required in dashboard
 
 ### Phase 1 - Foundation & Authentication
 - [x] **Day 1-4**: Complete login system with glassmorphism UI ✅ (Completed: 2024-01-15)
