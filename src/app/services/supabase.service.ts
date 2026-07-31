@@ -142,7 +142,10 @@ export class SupabaseService {
   async signUp(email: string, password: string) {
     const { data, error } = await this.supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
     });
     return { data, error };
   }
@@ -177,14 +180,38 @@ export class SupabaseService {
     return { data, error };
   }
 
-  // Handle OAuth callback
-  async handleAuthCallback() {
-    const { data, error } = await this.supabase.auth.getSession();
-    if (error) {
-      console.error('Error getting session:', error);
-      return { error };
+  async waitForOAuthSession(timeoutMs = 5000): Promise<{ user: User | null; error: Error | null }> {
+    await this.waitForAuthInitialization();
+
+    if (this._currentUser.value) {
+      return { user: this._currentUser.value, error: null };
     }
-    return { data };
+
+    const { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
+    if (sessionError) {
+      return { user: null, error: sessionError };
+    }
+    if (session?.user) {
+      return { user: session.user, error: null };
+    }
+
+    return new Promise((resolve) => {
+      let subscription: { unsubscribe: () => void } | undefined;
+
+      const timeout = setTimeout(() => {
+        subscription?.unsubscribe();
+        resolve({ user: null, error: new Error('OAuth session timeout') });
+      }, timeoutMs);
+
+      const { data } = this.supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          clearTimeout(timeout);
+          subscription?.unsubscribe();
+          resolve({ user: session.user, error: null });
+        }
+      });
+      subscription = data.subscription;
+    });
   }
 
   // Database methods

@@ -5,7 +5,7 @@ import { SupabaseService } from '../../services/supabase.service';
 @Component({
   selector: 'app-auth-callback',
   standalone: true,
-  template: `<div></div>`, // Empty template since we don't need any UI
+  template: `<div></div>`,
   styles: []
 })
 export class AuthCallbackComponent implements OnInit {
@@ -16,33 +16,22 @@ export class AuthCallbackComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      console.log('Handling auth callback...');
-      
-      // Wait for auth initialization
-      await this.supabaseService.waitForAuthInitialization();
-      
-      // Handle the OAuth callback
-      const { data, error } = await this.supabaseService.handleAuthCallback();
-      
+      const { user, error } = await this.supabaseService.waitForOAuthSession();
+
       if (error) {
         console.error('Auth callback error:', error);
         this.router.navigate(['/login']);
         return;
       }
 
-      // Check if user is authenticated
-      const user = this.supabaseService.currentUserValue;
       if (user) {
-        console.log('User authenticated successfully:', user.email);
-        // Redirect to home (My Auctions) after successful OAuth
         this.router.navigate(['/home']);
       } else {
-        console.log('No user found after auth callback');
         this.router.navigate(['/login']);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Unexpected error in auth callback:', err);
       this.router.navigate(['/login']);
     }
   }
-} 
+}

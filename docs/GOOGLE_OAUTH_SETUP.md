@@ -72,8 +72,12 @@ Open [Supabase → Authentication](https://supabase.com/dashboard/project/uodenq
 
 1. **URL Configuration → Redirect URLs**
 2. Add all URLs from the table above (local, develop, production)
-3. Set **Site URL** to your primary deploy (e.g. `https://auction-io.netlify.app` or develop URL)
+3. Set **Site URL** to the environment you are actively testing:
+   - Develop: `https://auction-io-develop.netlify.app`
+   - Production: `https://auction-io.netlify.app`
+   - Local only: `http://localhost:4200`
 
+If Site URL is `http://localhost:4200` while testing on develop Netlify, Google OAuth will redirect back to localhost after sign-in.
 ---
 
 ## Part 3 — App code (already implemented)
@@ -104,6 +108,9 @@ No per-environment `auth.redirectUrl` override is required for OAuth as long as 
 | Redirect to wrong host | Add that origin’s `/auth/callback` to Supabase redirect URLs |
 | `redirect_uri_mismatch` (Google) | GCP redirect URI must be exactly the Supabase callback URL |
 | Access blocked (Testing) | Add the Google account under OAuth consent screen **Test users** |
+| Redirect to `localhost:4200` from develop/production | Supabase **Site URL** is still `http://localhost:4200`, or the deploy origin’s `/auth/callback` is missing from **Redirect URLs**. Set Site URL to your active deploy and add all callback URLs to the allow-list. |
+| Tokens in URL at `localhost:4200/#access_token=...` (no `/auth/callback`) | Same as above — Supabase fell back to Site URL. OAuth succeeded; fix Supabase URL config and retry. |
+| Safari “Can’t Connect to the Server” on localhost after Google | You started OAuth from develop but were redirected to localhost, or local `ng serve` is not running. Fix Supabase Site URL for develop; only use localhost when `npm start` is running. |
 
 ---
 

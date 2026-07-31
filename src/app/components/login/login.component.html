@@ -213,6 +213,25 @@
           </div>
         }
 
+        <!-- Sign Up Success Message -->
+        @if (signupSuccess()) {
+          <div class="bg-[#232931] border border-[#4ECCA3]/50 rounded-xl p-3 mt-2">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-[#4ECCA3]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-bold text-[#4ECCA3]">Check your email</h3>
+                <div class="mt-0.5 text-sm text-[#EEEEEE]/80">
+                  {{ signupSuccess() }}
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
         <!-- Submit Button -->
         <button type="submit" [disabled]="!isFormValid() || loading()"
           class="w-full bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:bg-[#4ECCA3]/30 disabled:text-[#232931]/50 disabled:cursor-not-allowed text-[#232931] font-bold py-3.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm shadow-[0_0_20px_rgba(78,204,163,0.3)] hover:shadow-[0_0_25px_rgba(78,204,163,0.5)] disabled:shadow-none mt-6 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#393E46] focus:ring-[#4ECCA3] uppercase tracking-wider">

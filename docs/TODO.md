@@ -461,6 +461,11 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
 - [x] **Google OAuth fix (deleted_client)**: Dynamic OAuth redirect via `window.location.origin`; setup guide in `docs/GOOGLE_OAUTH_SETUP.md` ✅ (Completed: 2026-07-31)
   - Code: `signInWithGoogle()` uses origin-based `/auth/callback` for local, develop, and production
   - Manual: recreate GCP OAuth client and update Supabase Google provider (see setup doc)
+- [x] **Auth fixes (signup + OAuth redirect)**: Sign Up button reactivity, email confirmation UX, OAuth callback session wait ✅ (Completed: 2026-07-31)
+  - Sign Up: group-level password match validator; `formRevision` signal; success message when email confirmation required
+  - Google: reset loading on OAuth error; `waitForOAuthSession()` in auth callback
+  - Docs: localhost redirect troubleshooting in `docs/GOOGLE_OAUTH_SETUP.md`
+  - Manual: set Supabase Site URL to develop Netlify while testing develop deploy
 
 ### Phase 1 - Foundation & Authentication
 - [x] **Day 1-4**: Complete login system with glassmorphism UI ✅ (Completed: 2024-01-15)
