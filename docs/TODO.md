@@ -458,6 +458,9 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
 
 ### Cursor browser QA (agent)
 - [x] **Agent QA setup**: Added always-on `.cursor/rules/ai-coding-loop.mdc` + `ui-browser-qa.mdc` for `localhost:4200`; docs in `docs/QA_BROWSER.md`; Playwright/Jest deferred ✅ (Completed: 2026-07-23)
+- [x] **Google OAuth fix (deleted_client)**: Dynamic OAuth redirect via `window.location.origin`; setup guide in `docs/GOOGLE_OAUTH_SETUP.md` ✅ (Completed: 2026-07-31)
+  - Code: `signInWithGoogle()` uses origin-based `/auth/callback` for local, develop, and production
+  - Manual: recreate GCP OAuth client and update Supabase Google provider (see setup doc)
 
 ### Phase 1 - Foundation & Authentication
 - [x] **Day 1-4**: Complete login system with glassmorphism UI ✅ (Completed: 2024-01-15)

@@ -156,14 +156,7 @@ export class SupabaseService {
   }
 
   async signInWithGoogle() {
-    // Temporary workaround: Force localhost for local development
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const redirectUrl = isLocalhost
-      ? 'http://localhost:4200/auth/callback'
-      : environment.auth.redirectUrl;
-
-    console.log('Using redirect URL:', redirectUrl);
-    console.log('Current hostname:', window.location.hostname);
+    const redirectUrl = `${window.location.origin}/auth/callback`;
 
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
