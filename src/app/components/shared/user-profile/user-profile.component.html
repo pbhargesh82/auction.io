@@ -6,15 +6,13 @@
 <div class="relative">
   <!-- ── Profile Pill Button ────────────────────────────────────────── -->
   <button (click)="toggleMenu()"
-    class="profile-pill flex items-center gap-2 sm:gap-3 p-0 sm:p-1.5 sm:pr-3 rounded-full bg-transparent sm:bg-[#393E46] border border-transparent sm:border-[#EEEEEE]/10 hover:border-transparent sm:hover:border-[#4ECCA3]/40 transition-all duration-300 focus:outline-none ring-offset-[#232931]"
+    class="profile-pill flex items-center gap-2 sm:gap-3 p-0 rounded-full bg-transparent border-0 transition-all duration-300 focus:outline-none ring-offset-[#232931]"
     [class.ring-2]="menuOpen()" [class.ring-[#4ECCA3]]="menuOpen()" [class.ring-glow]="menuOpen()">
     
     <!-- Premium Gradient Avatar -->
-    <div class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#4ECCA3]/20 to-[#393E46] border border-[#4ECCA3]/30 text-[#4ECCA3] font-black shadow-inner-sm shrink-0">
-      <span class="text-xs sm:text-sm">
-        {{ userDisplayName().charAt(0).toUpperCase() }}
-      </span>
-    </div>
+    <span class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#4ECCA3]/20 to-[#393E46] border border-[#4ECCA3]/30 text-[#4ECCA3] font-black shadow-inner-sm shrink-0 text-xs sm:text-sm">
+      {{ userDisplayName().charAt(0).toUpperCase() }}
+    </span>
 
     <!-- Identity Labels (Hidden on very small mobile) -->
     <div class="hidden xs:flex flex-col items-start justify-center min-w-0 pr-1">
