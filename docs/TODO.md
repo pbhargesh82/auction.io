@@ -177,6 +177,7 @@
 - [x] **Day 28**: Mobile UI cleanup pass for workspace routes ✅ (Completed: 2026-07-27 — removed duplicate Auction Desk / Current Squads / Auction Settings titles; simplified Auction Players mobile action bar; removed Bid History revenue stat; tightened Sell Player side panel on mobile; cleaned workspace avatar button)
 - [x] **Day 28**: Mobile UI fixes round 2 ✅ (Completed: 2026-07-29 — teams search fix; auction desk status removal; unified side panels for Player Pool + Manage Teams; public auction player card scaling; shared side-panel mobile offset below workspace header; see docs/MOBILE_RESPONSIVENESS.md)
 - [x] **Day 28**: Remove decorative accent borders from cards ✅ (Completed: 2026-07-29 — removed left/top/bottom accent strips from home auction cards, user management mobile cards, auction player pool stat cards + mobile player cards, and auction desk main player card)
+- [x] **Public auction semantics fix** ✅ (Completed: 2026-07-31 — scope My Auctions to owner_id; clarify UI copy: public = shareable live link, not discoverable by all users)
 
 **Week 4 Deliverable**: 🚧 In Progress - Complete dashboard with analytics and mobile optimization
 

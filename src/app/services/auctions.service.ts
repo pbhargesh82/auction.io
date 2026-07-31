@@ -43,13 +43,25 @@ export class AuctionsService {
 
   /** Load all auctions owned by the current user. */
   async loadAuctions(): Promise<void> {
+    const user = this.supabase.currentUserValue;
+    if (!user) {
+      this.auctions.set([]);
+      return;
+    }
+
     this.loading.set(true);
     try {
       const { data, error } = await this.supabase.db
         .from('auctions')
         .select('*')
+        .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
-      if (!error) this.auctions.set((data ?? []) as Auction[]);
+      if (error) {
+        console.error('Failed to load auctions:', error.message);
+        this.auctions.set([]);
+      } else {
+        this.auctions.set((data ?? []) as Auction[]);
+      }
     } finally {
       this.loading.set(false);
     }
