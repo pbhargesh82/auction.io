@@ -1,7 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
-import { AuctionStateService } from '../services/auction-state.service';
 
 /**
  * Auction Workspace Guard — Phase 1.4
@@ -13,31 +12,27 @@ import { AuctionStateService } from '../services/auction-state.service';
  *  4. Pre-loads all auction data into AuctionStateService.
  *  5. Redirects to /home if anything fails.
  *
- * This keeps the child components (overview, teams, control, …) clean —
- * they can assume the auction is valid and data is pre-loaded.
+ * AuctionStateService is dynamically imported so the workspace realtime bundle
+ * stays out of the initial cold-start chunk.
  */
 export const auctionWorkspaceGuard: CanActivateFn = async (
   route: ActivatedRouteSnapshot
 ) => {
   const supabaseService = inject(SupabaseService);
-  const auctionStateService = inject(AuctionStateService);
   const router = inject(Router);
 
-  // ── 1. Ensure user is authenticated ───────────────────────────────────────
   const user = await supabaseService.waitForAuthInitialization();
   if (!user) {
     router.navigate(['/login'], { queryParams: { returnUrl: route.url.join('/') } });
     return false;
   }
 
-  // ── 2. Read route param ────────────────────────────────────────────────────
   const auctionId = route.paramMap.get('id');
   if (!auctionId) {
     router.navigate(['/home']);
     return false;
   }
 
-  // ── 3. Fetch auction and validate ownership ────────────────────────────────
   try {
     const { data: auction, error } = await supabaseService.db
       .from('auctions')
@@ -51,7 +46,6 @@ export const auctionWorkspaceGuard: CanActivateFn = async (
       return false;
     }
 
-    // ── 4. Ownership check (owner OR super_admin) ──────────────────────────
     const isOwner = auction.owner_id === user.id;
     const isAdmin = supabaseService.isAdminValue;
 
@@ -61,10 +55,8 @@ export const auctionWorkspaceGuard: CanActivateFn = async (
       return false;
     }
 
-    // ── 5. Pre-load auction data into AuctionStateService ─────────────────
-    // Non-blocking: kick off the load but don't await it so the page renders
-    // immediately while data arrives. AuctionStateService exposes a loading
-    // signal that child components can use to show skeletons.
+    const { AuctionStateService } = await import('../services/auction-state.service');
+    const auctionStateService = inject(AuctionStateService);
     auctionStateService.loadAllData(auctionId);
 
     return true;

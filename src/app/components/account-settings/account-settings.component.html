@@ -175,24 +175,69 @@
         <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-4 max-w-md">
           <div>
             <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="current-password">Current password</label>
-            <input id="current-password" type="password" formControlName="currentPassword" autocomplete="current-password"
-                   class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all">
+            <div class="relative">
+              <input id="current-password" [type]="hidePassword() ? 'password' : 'text'" formControlName="currentPassword" autocomplete="current-password"
+                     class="w-full px-4 py-3 pr-12 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all">
+              <button type="button" (click)="togglePasswordVisibility()" tabindex="-1" aria-label="Toggle password visibility"
+                      class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#EEEEEE]/40 hover:text-[#4ECCA3] transition-colors focus:outline-none">
+                @if (hidePassword()) {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+                }
+              </button>
+            </div>
             @if (passwordForm.get('currentPassword')?.hasError('required') && passwordForm.get('currentPassword')?.touched) {
             <p class="text-xs font-bold text-red-400 mt-2">Current password is required.</p>
             }
           </div>
           <div>
             <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="new-password">New password</label>
-            <input id="new-password" type="password" formControlName="newPassword" autocomplete="new-password"
-                   class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all">
+            <div class="relative">
+              <input id="new-password" [type]="hidePassword() ? 'password' : 'text'" formControlName="newPassword" autocomplete="new-password"
+                     class="w-full px-4 py-3 pr-12 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all">
+              <button type="button" (click)="togglePasswordVisibility()" tabindex="-1" aria-label="Toggle password visibility"
+                      class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#EEEEEE]/40 hover:text-[#4ECCA3] transition-colors focus:outline-none">
+                @if (hidePassword()) {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+                }
+              </button>
+            </div>
             @if (passwordForm.get('newPassword')?.hasError('minlength') && passwordForm.get('newPassword')?.touched) {
             <p class="text-xs font-bold text-red-400 mt-2">Password must be at least 8 characters.</p>
             }
           </div>
           <div>
             <label class="block text-sm font-bold text-[#EEEEEE]/80 mb-2" for="confirm-password">Confirm new password</label>
-            <input id="confirm-password" type="password" formControlName="confirmPassword" autocomplete="new-password"
-                   class="w-full px-4 py-3 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all">
+            <div class="relative">
+              <input id="confirm-password" [type]="hidePassword() ? 'password' : 'text'" formControlName="confirmPassword" autocomplete="new-password"
+                     class="w-full px-4 py-3 pr-12 bg-[#232931] border border-[#EEEEEE]/10 rounded-xl text-[#EEEEEE] focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] outline-none transition-all">
+              <button type="button" (click)="togglePasswordVisibility()" tabindex="-1" aria-label="Toggle password visibility"
+                      class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#EEEEEE]/40 hover:text-[#4ECCA3] transition-colors focus:outline-none">
+                @if (hidePassword()) {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+                }
+              </button>
+            </div>
             @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmPassword')?.touched) {
             <p class="text-xs font-bold text-red-400 mt-2">Passwords do not match.</p>
             }

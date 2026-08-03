@@ -66,6 +66,8 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    this.setMode(false);
+
     this.loginForm.valueChanges.subscribe(() => {
       this.formRevision.update(n => n + 1);
     });
@@ -75,23 +77,24 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  async ngOnInit() {
+  ngOnInit(): void {
+    const oauthError = this.route.snapshot.queryParams['error'];
+    if (oauthError === 'oauth_callback_failed') {
+      this.loginError.set(
+        'Sign-in completed but your session could not be established. Please try again.'
+      );
+    }
+
+    void this.redirectIfAlreadyLoggedIn();
+  }
+
+  private async redirectIfAlreadyLoggedIn(): Promise<void> {
     await this.supabaseService.waitForAuthInitialization();
     const user = this.supabaseService.currentUserValue;
 
     if (user) {
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
       this.router.navigate([returnUrl]);
-      return;
-    }
-
-    this.setMode(false);
-
-    const oauthError = this.route.snapshot.queryParams['error'];
-    if (oauthError === 'oauth_callback_failed') {
-      this.loginError.set(
-        'Sign-in completed but your session could not be established. Please try again.'
-      );
     }
   }
 

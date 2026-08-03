@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export type UserRole = 'super_admin' | 'user';
 
@@ -14,9 +13,9 @@ export class SupabaseService {
   private _currentUser: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
   private _userRole: BehaviorSubject<UserRole> = new BehaviorSubject<UserRole>('user');
   private _initialized = false;
+  private initPromise: Promise<void>;
 
   constructor() {
-    console.log('environment', environment);
     this.supabase = createClient(
       environment.supabase.url,
       environment.supabase.anonKey,
@@ -31,7 +30,7 @@ export class SupabaseService {
       }
     );
 
-    this.initializeAuth();
+    this.initPromise = this.initializeAuth();
   }
 
   private hasAuthTokensInUrl(): boolean {
@@ -61,24 +60,22 @@ export class SupabaseService {
 
     if (session?.user) {
       this._currentUser.next(session.user);
-      await this.updateUserRole(session.user);
+      void this.updateUserRole(session.user);
       this.stripAuthFromUrl();
     }
   }
 
-  private async initializeAuth() {
+  private async initializeAuth(): Promise<void> {
     await this.recoverSessionFromUrl();
 
     const { data: { session } } = await this.supabase.auth.getSession();
     this._currentUser.next(session?.user ?? null);
-    await this.updateUserRole(session?.user ?? null);
     this._initialized = true;
+    void this.updateUserRole(session?.user ?? null);
 
-    // Listen to auth changes
     this.supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session?.user?.email);
       this._currentUser.next(session?.user ?? null);
-      this.updateUserRole(session?.user ?? null);
+      void this.updateUserRole(session?.user ?? null);
     });
   }
 
@@ -153,19 +150,9 @@ export class SupabaseService {
     return this._userRole.value === 'super_admin';
   }
 
-  // Wait for auth initialization to complete
   async waitForAuthInitialization(): Promise<User | null> {
-    if (this._initialized) {
-      return this._currentUser.value;
-    }
-
-    // Wait for the first emission after initialization
-    return firstValueFrom(
-      this._currentUser.pipe(
-        filter(() => this._initialized),
-        take(1)
-      )
-    );
+    await this.initPromise;
+    return this._currentUser.value;
   }
 
   get isInitialized(): boolean {

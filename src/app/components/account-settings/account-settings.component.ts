@@ -39,6 +39,7 @@ export class AccountSettingsComponent implements OnInit {
   savingProfile = signal(false);
   savingPassword = signal(false);
   uploadingAvatar = signal(false);
+  hidePassword = signal(true);
 
   profileForm: FormGroup;
   passwordForm: FormGroup;
@@ -174,6 +175,10 @@ export class AccountSettingsComponent implements OnInit {
     } else {
       this.toast.error(result.error ?? 'Failed to remove avatar');
     }
+  }
+
+  togglePasswordVisibility(): void {
+    this.hidePassword.update(hidden => !hidden);
   }
 
   async changePassword(): Promise<void> {
