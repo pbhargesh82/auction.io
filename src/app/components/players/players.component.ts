@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PlayersService, Player, CreatePlayerData, UpdatePlayerData } from '../../services/players.service';
 import { TeamPlayersService } from '../../services/team-players.service';
-import { SupabaseService, UserRole } from '../../services/supabase.service';
+import { SupabaseService } from '../../services/supabase.service';
 import { ImageUploadService } from '../../services/image-upload.service';
-
 import { MatIconModule } from '@angular/material/icon';
 import { AvatarComponent } from '../shared/avatar/avatar.component';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
@@ -41,7 +40,8 @@ export class PlayersComponent implements OnInit {
   filterPosition = signal<string>('');
   filterStatus = signal<string>('');
   soldPlayerIds = signal<string[]>([]);
-  userRole = signal<UserRole>('user');
+  /** Owner-scoped pool: any authenticated user can manage their own players. */
+  canManagePool = signal(false);
 
   // Image upload signals
   photoPreview = signal<string | null>(null);
@@ -65,9 +65,6 @@ export class PlayersComponent implements OnInit {
     'Wicket-Keeper': ['Wicket-Keeper Batsman']
   };
   statuses = ['Available', 'Sold', 'Inactive'];
-
-  // Computed signal for admin status
-  isAdmin = computed(() => this.userRole() === 'super_admin');
 
   // Computed values
   filteredPlayers = computed(() => {
@@ -183,9 +180,9 @@ export class PlayersComponent implements OnInit {
     this.loading = this.playersService.loading;
     this.error = this.playersService.error;
 
-    // Subscribe to user role changes
-    this.supabaseService.userRole.subscribe(role => {
-      this.userRole.set(role);
+    // Player Pool is owner-scoped; any logged-in user can manage their own pool
+    this.supabaseService.currentUser.subscribe(user => {
+      this.canManagePool.set(!!user);
     });
 
     // Subscribe to form changes to update validity signal
