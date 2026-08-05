@@ -249,7 +249,7 @@
 - [x] **Auction History Sorting**: Added sorting functionality for time, price, and name with interactive controls ✅ (Completed: 2024-01-28)
 - [x] **Progress Tracking**: Visual progress indicators and statistics
 - [x] **Team Assignment**: Direct player assignment to teams with purchase price tracking
-- [x] **Reset Functionality**: Complete auction reset with data cleanup ✅ (Fixed: 2024-01-16)
+- [x] **Reset Functionality**: Complete auction reset with data cleanup ✅ (Fixed: 2024-01-16; Re-fixed: 2026-08-05 — Settings reset now sets status to `draft`, resets `auction_players`, clears history/assignments, keeps teams)
 - [x] **Navigation Integration**: Added auction routes and navigation menu items
 - [x] **Modern UI/UX**: Beautiful, responsive interface with Material Design and TailwindCSS
 - [x] **Error Handling**: Comprehensive error handling and user feedback
@@ -512,6 +512,7 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
 - [x] **Auction History Component**: Created separate auction history page with comprehensive transaction tracking ✅ (Completed: 2024-01-16)
 - [x] **Recent Activity Removal**: Removed recent activity section from auction control page for cleaner interface ✅ (Completed: 2024-01-16)
 - [x] **History Management**: Added clear history functionality and proper history cleanup on auction reset ✅ (Completed: 2024-01-16)
+- [x] **Completed Auction Reset Fix**: Settings Danger Zone reset now fully resets completed auctions — status → `draft`, `auction_players` → available, history cleared, team assignments/budgets zeroed, teams kept; shared via `AuctionsService.resetAuction(id)` ✅ (Completed: 2026-08-05)
 - [x] **Navigation Integration**: Added auction history menu item to sidebar navigation ✅ (Completed: 2024-01-16)
 - [x] **Type Compatibility Fix**: Fixed TeamWithPlayers and Team interface compatibility issues in team-card component ✅ (Completed: 2024-01-16)
 - [x] **User Role Management**: Implemented centralized frontend-only user role system using SupabaseService - users with email 'pbhargesh82@aol.com' are marked as admin, others as user ✅ (Completed: 2024-01-16)
