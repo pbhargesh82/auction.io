@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 
@@ -20,6 +20,7 @@ export const auctionWorkspaceGuard: CanActivateFn = async (
 ) => {
   const supabaseService = inject(SupabaseService);
   const router = inject(Router);
+  const injector = inject(Injector);
 
   const user = await supabaseService.waitForAuthInitialization();
   if (!user) {
@@ -56,8 +57,7 @@ export const auctionWorkspaceGuard: CanActivateFn = async (
     }
 
     const { AuctionStateService } = await import('../services/auction-state.service');
-    const auctionStateService = inject(AuctionStateService);
-    auctionStateService.loadAllData(auctionId);
+    injector.get(AuctionStateService).loadAllData(auctionId);
 
     return true;
 

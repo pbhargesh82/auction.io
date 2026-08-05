@@ -461,6 +461,11 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
 
 ## ✅ Recent Progress Updates
 
+### Bug fixes
+- [x] **Auction enter click regression**: Fixed `auctionWorkspaceGuard` calling `inject()` after `await` (NG0203), which silently cancelled navigation to `/auction/:id/overview` ✅ (Completed: 2026-08-05)
+  - Root cause: commit `19668be` dynamic import of `AuctionStateService` broke Angular injection context
+  - Fix: capture `Injector` synchronously, use `injector.get(AuctionStateService)` after dynamic import
+
 ### Cursor browser QA (agent)
 - [x] **Agent QA setup**: Added always-on `.cursor/rules/ai-coding-loop.mdc` + `ui-browser-qa.mdc` for `localhost:4200`; docs in `docs/QA_BROWSER.md`; Playwright/Jest deferred ✅ (Completed: 2026-07-23)
 - [x] **Google OAuth fix (deleted_client)**: Dynamic OAuth redirect via `window.location.origin`; setup guide in `docs/GOOGLE_OAUTH_SETUP.md` ✅ (Completed: 2026-07-31)
