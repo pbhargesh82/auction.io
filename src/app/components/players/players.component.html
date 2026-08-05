@@ -44,7 +44,7 @@
       </div>
 
       <!-- Add Player Button -->
-      @if (isAdmin()) {
+      @if (canManagePool()) {
       <button (click)="openCreateForm()"
         class="shrink-0 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 text-[#232931] font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(78,204,163,0.15)] hover:shadow-[0_0_25px_rgba(78,204,163,0.3)] focus:outline-none
                p-3 sm:py-3.5 sm:px-5 xl:px-6">
@@ -103,7 +103,7 @@
     @if (searchTerm() || filterCategory() || filterStatus()) {
     <button class="mt-6 text-sm font-bold text-[#4ECCA3] opacity-80 hover:opacity-100 uppercase tracking-widest transition-opacity"
       (click)="clearFilters()">Clear Filters</button>
-    } @else if (isAdmin()) {
+    } @else if (canManagePool()) {
     <button (click)="openCreateForm()"
       class="mt-6 bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 text-[#232931] font-bold py-3 px-6 rounded-xl text-sm uppercase tracking-wider transition-all focus:outline-none">
       Add First Player
@@ -143,7 +143,7 @@
             <th class="px-4 py-4 text-left hidden lg:table-cell">
               <span class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Added</span>
             </th>
-            @if (isAdmin()) {
+            @if (canManagePool()) {
             <th class="px-6 py-4 text-right">
               <span class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/40">Actions</span>
             </th>
@@ -191,7 +191,7 @@
             </td>
 
             <!-- Row Actions -->
-            @if (isAdmin()) {
+            @if (canManagePool()) {
             <td class="px-6 py-4">
               <div class="flex items-center justify-end gap-1">
                 <!-- Toggle Active -->
@@ -241,7 +241,7 @@
           <p class="text-[11px] text-[#EEEEEE]/40 truncate">{{ player.position || '—' }}{{ player.age ? ' · Age ' + player.age : '' }}</p>
           <div class="flex items-center justify-between mt-2">
             <span class="text-xs font-bold text-[#4ECCA3]">{{ formatCurrency(player.base_price) }}</span>
-            @if (isAdmin()) {
+            @if (canManagePool()) {
             <div class="flex items-center gap-1">
               <button (click)="togglePlayerStatus(player)" class="p-1.5 rounded-lg text-[#EEEEEE]/40 hover:text-[#4ECCA3] hover:bg-[#4ECCA3]/10 transition-colors focus:outline-none">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>

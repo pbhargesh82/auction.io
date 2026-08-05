@@ -515,5 +515,6 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
 - [x] **Navigation Integration**: Added auction history menu item to sidebar navigation ✅ (Completed: 2024-01-16)
 - [x] **Type Compatibility Fix**: Fixed TeamWithPlayers and Team interface compatibility issues in team-card component ✅ (Completed: 2024-01-16)
 - [x] **User Role Management**: Implemented centralized frontend-only user role system using SupabaseService - users with email 'pbhargesh82@aol.com' are marked as admin, others as user ✅ (Completed: 2024-01-16)
-- [x] **Role-Based UI**: Hidden action bars and management buttons for regular users in teams and players components ✅ (Completed: 2024-01-16)
+- [x] **Role-Based UI**: Hidden action bars and management buttons for regular users in teams and players components ✅ (Completed: 2024-01-16; Player Pool CRUD re-opened for all authenticated owners: 2026-08-05)
+- [x] **Player Pool Add Player Visibility**: `/player-pool` Add/Edit/Delete no longer gated on `super_admin`; uses `canManagePool` for any logged-in user (owner-scoped via `PlayersService`) ✅ (Completed: 2026-08-05)
 - [x] **Player Status Consistency**: Fixed discrepancy between dashboard and players screen by using consistent team_players table logic for sold players and available players calculation ✅ (Completed: 2024-01-16) 
