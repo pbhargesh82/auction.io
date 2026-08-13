@@ -30,11 +30,12 @@
       <!-- ── Action Bar / Dashboard ────────────────────────────────────────── -->
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 mb-6">
 
-        @if (hasControlActions()) {
+        <!-- Always show action row so Reset stays available (incl. completed auctions).
+             Reset was previously hidden with @if (false) and then removed entirely. -->
         <div class="xl:col-span-6 flex flex-row flex-wrap items-center justify-end gap-3">
           @if (remainingPlayers() === 0 && totalPlayers() > 0 && auctionStatus() !== 'completed') {
             <button (click)="initializeAuction()" [disabled]="loading()"
-              class="flex-1 sm:flex-none bg-[#EEEEEE]/10 hover:bg-[#EEEEEE]/15 active:bg-[#EEEEEE]/5 text-[#EEEEEE] disabled:opacity-50 font-black py-3 px-6 rounded-xl transition-all shadow-inner text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
+              class="flex-1 sm:flex-none bg-[#EEEEEE]/10 hover:bg-[#EEEEEE]/15 active:bg-[#EEEEEE]/5 text-[#EEEEEE] disabled:opacity-50 disabled:cursor-not-allowed font-black py-3 px-6 rounded-xl transition-all shadow-inner text-[11px] uppercase tracking-widest focus:outline-none flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path><path d="M9 12h6"></path><path d="M12 9v6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
               INIT
             </button>
@@ -53,11 +54,21 @@
               COMPLETE
             </button>
           }
+
+          <button type="button" (click)="resetAuction()" [disabled]="loading()"
+            id="reset-auction-control-btn"
+            aria-label="Reset auction"
+            class="flex-1 sm:flex-none border-2 border-red-400/70 text-red-300 hover:bg-red-500/15 hover:border-red-400 hover:text-red-200 active:bg-red-500/25 disabled:opacity-40 disabled:cursor-not-allowed font-black py-3 px-6 rounded-xl transition-all text-[11px] uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-red-400/40 flex items-center justify-center gap-2 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            Reset
+          </button>
         </div>
-        }
 
         <!-- Metrics Grid -->
-        <div class="grid grid-cols-3 gap-4" [class]="hasControlActions() ? 'xl:col-span-6' : 'xl:col-span-12'">
+        <div class="grid grid-cols-3 gap-4 xl:col-span-6">
           <!-- Total -->
           <div class="bg-[#393E46]/50 rounded-2xl border border-[#EEEEEE]/5 p-5 relative overflow-hidden group flex flex-col justify-center">
             <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
