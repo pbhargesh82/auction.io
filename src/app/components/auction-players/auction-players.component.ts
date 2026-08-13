@@ -169,7 +169,7 @@ export class AuctionPlayersComponent implements OnInit {
       // Build enriched list — retrieve sold info from auction_history
       const raw = (data ?? []) as any[];
       const soldPlayerIds = raw
-        .filter(r => (r.status || '').toUpperCase() === 'SOLD')
+        .filter(r => this.mapDbStatus(r.status) === 'SOLD')
         .map(r => r.player_id);
 
       let historyMap: Record<string, { team: string; price: number }> = {};
@@ -187,7 +187,7 @@ export class AuctionPlayersComponent implements OnInit {
       }
 
       const entries: AuctionPlayer[] = raw.map(r => {
-        const apStatus = ((r.status || 'pending') as string).toUpperCase() as AuctionStatus;
+        const apStatus = this.mapDbStatus(r.status);
         return {
           id:             r.id,
           auction_id:     r.auction_id,
@@ -285,7 +285,7 @@ export class AuctionPlayersComponent implements OnInit {
           auction_id:     this.auctionId(),
           player_id:      playerId,
           base_price:     player.base_price,
-          status:         'pending',
+          status:         'available',
         };
       });
 
@@ -367,6 +367,13 @@ export class AuctionPlayersComponent implements OnInit {
   }
 
   // ── Utils ─────────────────────────────────────────────────────────────────
+
+  /** Map DB auction_players.status → UI AuctionStatus (available ↔ PENDING). */
+  private mapDbStatus(status: string | null | undefined): AuctionStatus {
+    const raw = (status || 'available').toLowerCase();
+    if (raw === 'available') return 'PENDING';
+    return raw.toUpperCase() as AuctionStatus;
+  }
 
   onOverlayClick(e: MouseEvent, closeAll = false) {
     if ((e.target as HTMLElement).classList.contains('modal-backdrop')) {
