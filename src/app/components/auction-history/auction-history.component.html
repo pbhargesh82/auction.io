@@ -1,209 +1,294 @@
-<div class="p-4 lg:p-6 bg-gray-50  w-full max-w-full overflow-x-hidden">
-  <!-- Error State -->
-  @if (error()) {
-    <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-      <div class="flex items-center">
-        <mat-icon class="text-red-400 mr-3">error</mat-icon>
-        <div class="flex-1">
-          <h3 class="text-sm font-medium text-red-800">Error</h3>
-          <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
-        </div>
-        <button mat-icon-button (click)="clearError()" class="text-red-500 hover:text-red-700">
-          <mat-icon>close</mat-icon>
-        </button>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     AUCTION HISTORY — Premium Dark Redesign
+     Palette: #232931 (Canvas) · #393E46 (Surface) · #4ECCA3 (Accent) · #EEEEEE (Text)
+══════════════════════════════════════════════════════════════════════════ -->
+
+<div class="h-full min-h-0 bg-[#232931] text-[#EEEEEE] p-4 sm:p-5 lg:p-8 flex flex-col w-full overflow-hidden">
+
+  <!-- ── Action Bar ───────────────────────────────────────────────────── -->
+  <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6 bg-[#393E46] p-2 rounded-2xl border border-[#EEEEEE]/10 shadow-lg min-w-0 w-full shrink-0">
+
+    <!-- Search -->
+    <div class="relative w-full xl:w-96 group">
+      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors">
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
       </div>
+      <input type="text" [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)"
+        class="w-full pl-12 pr-4 py-3.5 rounded-xl outline-none transition-all duration-200 text-sm font-semibold bg-[#232931] border border-transparent text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] shadow-inner"
+        placeholder="Search players, teams, positions..." />
     </div>
+
+    <!-- Sort + Actions -->
+    <div class="flex flex-row justify-between w-full xl:w-auto items-center gap-3">
+
+      <!-- Sort Tabs -->
+      <div class="flex items-center gap-1 bg-[#232931] rounded-xl p-1 border border-[#EEEEEE]/5">
+        @for (opt of ([{v:'time',l:'Time'},{v:'price',l:'Price'},{v:'name',l:'Name'}]); track opt.v) {
+          <button (click)="onSortChange($any(opt.v))"
+            class="flex items-center gap-1 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+            [class]="sortBy() === opt.v ? 'bg-[#4ECCA3] text-[#232931]' : 'text-[#EEEEEE]/50 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5'">
+            @if (sortBy() === opt.v) {
+              <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                @if (sortDirection() === 'asc') { <polyline points="18 15 12 9 6 15"/> } @else { <polyline points="6 9 12 15 18 9"/> }
+              </svg>
+            }
+            {{ opt.l }}
+          </button>
+        }
+      </div>
+
+      <!-- Refresh -->
+      <button (click)="refreshData()" [disabled]="loading()"
+        class="w-full sm:w-auto px-5 py-3.5 rounded-xl text-xs font-bold text-[#EEEEEE]/60 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-all outline-none border border-transparent flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-30">
+        <svg class="w-4 h-4 shrink-0" [class.animate-spin]="loading()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        <span class="truncate">Refresh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Error Banner ─────────────────────────────────────────────────── -->
+  @if (error()) {
+  <div class="mb-5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-5 py-4 flex items-center gap-3 animate-fade-in-up shrink-0">
+    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p class="flex-1 text-sm font-bold">{{ error() }}</p>
+    <button (click)="clearError()" class="p-1 hover:text-red-300 transition-colors focus:outline-none">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
   }
 
-  <!-- Loading State -->
-  @if (loading()) {
-    <div class="flex items-center justify-center py-12">
-      <div class="text-center">
-        <mat-spinner class="mx-auto mb-4"></mat-spinner>
-        <p class="text-gray-600 ">Loading auction history...</p>
-      </div>
-    </div>
-  } @else {
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-      <!-- Total Transactions -->
-      <div class="bg-white  rounded-xl shadow-sm border border-gray-200  p-4 md:p-6">
-        <div class="flex items-center justify-between">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs md:text-sm font-medium text-gray-600 ">Total Transactions</p>
-            <p class="text-xl md:text-2xl font-bold text-gray-900  truncate">{{ formatNumber(totalTransactions()) }}</p>
-          </div>
-          <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center ml-3">
-            <mat-icon class="text-blue-600 text-lg md:text-xl">receipt_long</mat-icon>
-          </div>
-        </div>
-      </div>
+  <!-- ── Stat Cards ────────────────────────────────────────────────────── -->
+  @if (!loading()) {
+  <div class="grid grid-cols-3 gap-3 lg:gap-4 mb-6 shrink-0">
 
-      <!-- Sold Players -->
-      <div class="bg-white  rounded-xl shadow-sm border border-gray-200  p-4 md:p-6">
-        <div class="flex items-center justify-between">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs md:text-sm font-medium text-gray-600 ">Sold Players</p>
-            <p class="text-xl md:text-2xl font-bold text-green-600 truncate">{{ formatNumber(soldPlayers()) }}</p>
-          </div>
-          <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-lg flex items-center justify-center ml-3">
-            <mat-icon class="text-green-600 text-lg md:text-xl">check_circle</mat-icon>
-          </div>
-        </div>
-      </div>
-
-      <!-- Unsold Players -->
-      <div class="bg-white  rounded-xl shadow-sm border border-gray-200  p-4 md:p-6">
-        <div class="flex items-center justify-between">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs md:text-sm font-medium text-gray-600 ">Unsold Players</p>
-            <p class="text-xl md:text-2xl font-bold text-red-600 truncate">{{ formatNumber(unsoldPlayers()) }}</p>
-          </div>
-          <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-red-100 rounded-lg flex items-center justify-center ml-3">
-            <mat-icon class="text-red-600 text-lg md:text-xl">cancel</mat-icon>
-          </div>
-        </div>
-      </div>
-
-      <!-- Total Bids -->
-      <div class="bg-white  rounded-xl shadow-sm border border-gray-200  p-4 md:p-6">
-        <div class="flex items-center justify-between">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs md:text-sm font-medium text-gray-600 ">Total Bids</p>
-            <p class="text-xl md:text-2xl font-bold text-purple-600 truncate">{{ formatCurrency(totalRevenue()) }}</p>
-          </div>
-          <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-lg flex items-center justify-center ml-3">
-            <mat-icon class="text-purple-600 text-lg md:text-xl">payments</mat-icon>
-          </div>
-        </div>
-      </div>
+    <!-- Total -->
+    <div class="bg-[#393E46] p-4 rounded-xl border border-[#EEEEEE]/5 shadow-md flex flex-col items-center text-center">
+      <span class="text-xl lg:text-2xl font-black text-[#EEEEEE]">{{ totalTransactions() }}</span>
+      <span class="text-[10px] font-bold uppercase tracking-widest text-[#EEEEEE]/40 mt-1">Total</span>
     </div>
 
-    <!-- Transaction History -->
-    <div class="bg-white  rounded-xl shadow-sm border border-gray-200  overflow-hidden">
-      <div class="px-4 md:px-6 py-4 border-b border-gray-200 ">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 class="text-lg font-semibold text-gray-900 ">Transaction History</h2>
-            <p class="text-sm text-gray-600  mt-1">Detailed list of all auction transactions</p>
+    <!-- Sold -->
+    <div class="bg-[#393E46] p-4 rounded-xl border border-[#EEEEEE]/5 shadow-md flex flex-col items-center text-center">
+      <span class="text-xl lg:text-2xl font-black text-emerald-400">{{ soldPlayers() }}</span>
+      <span class="text-[10px] font-bold uppercase tracking-widest text-[#EEEEEE]/40 mt-1">Sold</span>
+    </div>
+
+    <!-- Unsold -->
+    <div class="bg-[#393E46] p-4 rounded-xl border border-[#EEEEEE]/5 shadow-md flex flex-col items-center text-center">
+      <span class="text-xl lg:text-2xl font-black text-red-400">{{ unsoldPlayers() }}</span>
+      <span class="text-[10px] font-bold uppercase tracking-widest text-[#EEEEEE]/40 mt-1">Unsold</span>
+    </div>
+
+  </div>
+  }
+
+  <!-- ── Main Table Area ──────────────────────────────────────────────── -->
+  <div class="flex-1 min-h-0 bg-[#393E46] rounded-2xl border border-[#EEEEEE]/5 overflow-hidden flex flex-col shadow-xl">
+
+    @if (loading()) {
+    <!-- Loading skeleton -->
+    <div class="animate-pulse p-6 space-y-4">
+      @for (n of [1,2,3,4,5,6]; track n) {
+      <div class="h-16 bg-[#EEEEEE]/5 rounded-xl w-full"></div>
+      }
+    </div>
+
+    } @else if (sortedAuctionHistory().length === 0) {
+    <!-- Empty State -->
+    <div class="flex-1 flex flex-col items-center justify-center py-20 text-center animate-fade-in">
+      <div class="w-20 h-20 rounded-3xl bg-[#232931] flex items-center justify-center mb-6 border border-[#EEEEEE]/5 shadow-xl">
+        <svg class="w-10 h-10 text-[#4ECCA3]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-black text-[#EEEEEE] tracking-tight">No history yet</h3>
+      <p class="text-sm text-[#EEEEEE]/40 mt-2 max-w-sm mx-auto font-medium">
+        @if (searchTerm()) { No results for "<span class="text-[#4ECCA3]">{{ searchTerm() }}</span>". Try clearing the search. }
+        @else { Auction transactions will appear here once bidding starts. }
+      </p>
+      @if (searchTerm()) {
+        <button (click)="searchTerm.set('')" class="mt-6 text-xs font-black text-[#4ECCA3] uppercase tracking-widest hover:text-[#4ECCA3]/80 transition-colors">Clear Search</button>
+      }
+    </div>
+
+    } @else {
+    <!-- Desktop Table -->
+    <div class="hidden sm:block flex-1 overflow-auto custom-scroll">
+      <table class="w-full text-left border-collapse min-w-[700px]">
+        <thead class="sticky top-0 z-10 bg-[#393E46]/95 backdrop-blur-md border-b border-[#EEEEEE]/10">
+          <tr>
+            <th class="pl-8 pr-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Player</th>
+            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Category</th>
+            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Status</th>
+            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Team</th>
+            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em] text-right">Price</th>
+            <th class="px-4 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em]">Date</th>
+            <th class="pl-4 pr-8 py-5 text-[10px] font-black text-[#EEEEEE]/40 uppercase tracking-[0.2em] text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#EEEEEE]/5">
+          @for (h of sortedAuctionHistory(); track h.id) {
+          <tr class="group/row hover:bg-[#232931]/50 transition-colors">
+
+            <!-- Player -->
+            <td class="pl-8 pr-4 py-4">
+              <div class="flex items-center gap-3">
+                <app-avatar [src]="h.player?.image_url" [fallbackText]="h.player?.name || '?'" shape="circle" size="md"></app-avatar>
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-[#EEEEEE] truncate group-hover/row:text-[#4ECCA3] transition-colors">{{ h.player?.name || 'Unknown Player' }}</p>
+                  <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5 truncate">{{ h.player?.position || '—' }}</p>
+                </div>
+              </div>
+            </td>
+
+            <!-- Category -->
+            <td class="px-4 py-4">
+              <span class="text-xs font-bold text-[#EEEEEE]/60">{{ h.player?.category || '—' }}</span>
+            </td>
+
+            <!-- Status -->
+            <td class="px-4 py-4">
+              <span class="px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-[0.15em] border"
+                [ngClass]="{
+                  'bg-emerald-400/10 text-emerald-400 border-emerald-400/20': h.status === 'SOLD',
+                  'bg-red-400/10 text-red-400 border-red-400/20': h.status === 'UNSOLD',
+                  'bg-amber-400/10 text-amber-400 border-amber-400/20': h.status !== 'SOLD' && h.status !== 'UNSOLD'
+                }">
+                {{ h.status }}
+              </span>
+            </td>
+
+            <!-- Team -->
+            <td class="px-4 py-4">
+              @if (h.team?.name) {
+              <div class="flex items-center gap-2">
+                <app-avatar [src]="h.team?.logo_url" [fallbackText]="h.team!.name" shape="square" size="sm"></app-avatar>
+                <span class="text-xs font-bold text-[#EEEEEE]/80 truncate">{{ h.team!.name }}</span>
+              </div>
+              } @else {
+              <span class="text-[#EEEEEE]/20 text-xs">—</span>
+              }
+            </td>
+
+            <!-- Price -->
+            <td class="px-4 py-4 text-right">
+              @if (h.final_price && h.status === 'SOLD') {
+              <span class="text-sm font-black text-[#4ECCA3]">{{ h._fmtFinalPrice }}</span>
+              } @else {
+              <span class="text-[#EEEEEE]/20 text-xs">—</span>
+              }
+            </td>
+
+            <!-- Date -->
+            <td class="pl-4 pr-4 py-4">
+              <span class="text-xs font-bold text-[#EEEEEE]/40">{{ h._fmtDate }}</span>
+            </td>
+
+            <!-- Action: Return to Pool -->
+            <td class="pl-2 pr-8 py-4 text-right">
+              @if (h.status === 'SOLD') {
+              <button (click)="resetPlayerToPool(h)" [disabled]="isResetting(h) || loading()"
+                title="Return to auction pool"
+                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-400/10 border border-amber-400/20 text-amber-400 hover:bg-amber-400 hover:text-[#232931] hover:border-amber-400 transition-all disabled:opacity-50 focus:outline-none">
+                @if (isResetting(h)) {
+                  <span class="animate-spin h-3.5 w-3.5 border-b-2 border-current rounded-full"></span>
+                } @else {
+                  <!-- Undo/Return icon -->
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38L2.5 8"/>
+                  </svg>
+                }
+              </button>
+              }
+            </td>
+
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <!-- Mobile Card List -->
+    <div class="sm:hidden flex-1 overflow-y-auto custom-scroll divide-y divide-[#EEEEEE]/5">
+      @for (h of sortedAuctionHistory(); track h.id) {
+      <div class="px-4 py-4 flex items-start gap-3 relative">
+
+        <!-- Status color bar -->
+        <div class="absolute inset-y-0 left-0 w-1"
+          [ngClass]="{
+            'bg-emerald-400': h.status === 'SOLD',
+            'bg-red-400': h.status === 'UNSOLD',
+            'bg-amber-400': h.status !== 'SOLD' && h.status !== 'UNSOLD'
+          }"></div>
+
+        <!-- Avatar -->
+        <app-avatar [src]="h.player?.image_url" [fallbackText]="h.player?.name || '?'" shape="circle" size="md"></app-avatar>
+
+        <!-- Info -->
+        <div class="flex-1 min-w-0 pl-2">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-[#EEEEEE] truncate">{{ h.player?.name || 'Unknown' }}</p>
+              <p class="text-[10px] font-bold text-[#EEEEEE]/40 uppercase tracking-widest mt-0.5 truncate">{{ h.player?.position || '—' }} {{ h.player?.category ? '· ' + h.player.category : '' }}</p>
+            </div>
+            <span class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest shrink-0"
+              [ngClass]="{
+                'bg-emerald-400/10 text-emerald-400': h.status === 'SOLD',
+                'bg-red-400/10 text-red-400': h.status === 'UNSOLD',
+                'bg-amber-400/10 text-amber-400': h.status !== 'SOLD' && h.status !== 'UNSOLD'
+              }">{{ h.status }}</span>
           </div>
-          
-          <!-- Sorting Controls -->
-          <div class="flex items-center gap-2">
-            <span class="text-xs md:text-sm font-medium text-gray-700 ">Sort by:</span>
-            <div class="flex bg-gray-100  rounded-lg p-1">
-              <button 
-                (click)="onSortChange('time')"
-                class="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-md text-xs md:text-sm font-medium transition-colors"
-                [class]="sortBy() === 'time' ? 'bg-white  text-blue-600 shadow-sm' : 'text-gray-600  hover:text-gray-900 '">
-                <mat-icon class="text-xs md:text-sm">{{ getSortIcon('time') }}</mat-icon>
-                Time
+
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-[#EEEEEE]/5">
+            @if (h.team?.name) {
+            <div class="flex items-center gap-1.5 min-w-0">
+              <app-avatar [src]="h.team?.logo_url" [fallbackText]="h.team!.name" shape="square" size="sm"></app-avatar>
+              <span class="text-[10px] font-bold text-[#EEEEEE]/60 truncate">{{ h.team!.name }}</span>
+            </div>
+            } @else {
+            <span class="text-[10px] font-bold text-[#EEEEEE]/20">No Team</span>
+            }
+            <div class="flex items-center gap-2 shrink-0 ml-2">
+              <div class="text-right">
+                @if (h.final_price && h.status === 'SOLD') {
+                <p class="text-sm font-black text-[#4ECCA3]">{{ h._fmtFinalPrice }}</p>
+                } @else {
+                <p class="text-xs text-[#EEEEEE]/20">—</p>
+                }
+                <p class="text-[9px] font-bold text-[#EEEEEE]/30 mt-0.5">{{ h._fmtDate }}</p>
+              </div>
+              <!-- Return to Pool (mobile) -->
+              @if (h.status === 'SOLD') {
+              <button (click)="resetPlayerToPool(h)" [disabled]="isResetting(h) || loading()"
+                title="Return to auction pool"
+                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-400/10 border border-amber-400/20 text-amber-400 hover:bg-amber-400 hover:text-[#232931] transition-all disabled:opacity-50 focus:outline-none">
+                @if (isResetting(h)) {
+                  <span class="animate-spin h-3.5 w-3.5 border-b-2 border-current rounded-full"></span>
+                } @else {
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38L2.5 8"/>
+                  </svg>
+                }
               </button>
-              <button 
-                (click)="onSortChange('price')"
-                class="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-md text-xs md:text-sm font-medium transition-colors"
-                [class]="sortBy() === 'price' ? 'bg-white  text-blue-600 shadow-sm' : 'text-gray-600  hover:text-gray-900 '">
-                <mat-icon class="text-xs md:text-sm">{{ getSortIcon('price') }}</mat-icon>
-                Price
-              </button>
-              <button 
-                (click)="onSortChange('name')"
-                class="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-md text-xs md:text-sm font-medium transition-colors"
-                [class]="sortBy() === 'name' ? 'bg-white  text-blue-600 shadow-sm' : 'text-gray-600  hover:text-gray-900 '">
-                <mat-icon class="text-xs md:text-sm">{{ getSortIcon('name') }}</mat-icon>
-                Name
-              </button>
+              }
             </div>
           </div>
         </div>
       </div>
-
-      @if (sortedAuctionHistory().length === 0) {
-        <div class="p-8 text-center">
-          <mat-icon class="text-6xl text-gray-400  mx-auto mb-4">history</mat-icon>
-          <h3 class="text-lg font-medium text-gray-900  mb-2">Auction hasn't started yet</h3>
-          <p class="text-gray-500 ">No auction transactions have been recorded in this workspace.</p>
-        </div>
-      } @else {
-        <!-- Table Container with Horizontal Scroll -->
-        <div class="w-full overflow-x-auto" style="max-width: 100vw;">
-          <table class="divide-y divide-gray-200" style="min-width: 800px; width: 100%;">
-            <thead class="bg-gray-50 ">
-              <tr>
-                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">
-                  Player
-                </th>
-                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">
-                  Position
-                </th>
-                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">
-                  Status
-                </th>
-                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">
-                  Team
-                </th>
-                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">
-                  Price
-                </th>
-                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">
-                  Date
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white  divide-y divide-gray-200">
-              @for (history of sortedAuctionHistory(); track history.id) {
-                <tr class="hover:bg-gray-50 :bg-slate-800  transition-colors">
-                  <td class="px-4 md:px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0 h-10 w-10">
-                        @if (history.player?.image_url) {
-                          <img class="h-10 w-10 rounded-full object-cover" [src]="history.player.image_url" [alt]="history.player.name">
-                        } @else {
-                          <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            <span class="text-sm font-medium text-gray-700 ">{{ history.player?.name?.charAt(0) || '?' }}</span>
-                          </div>
-                        }
-                      </div>
-                      <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900 ">{{ history.player?.name || 'Unknown Player' }}</div>
-                        <div class="text-sm text-gray-500 ">{{ history.player?.category || 'N/A' }}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 ">
-                    {{ history.player?.position || 'N/A' }}
-                  </td>
-                  <td class="px-4 md:px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [class]="getStatusColor(history.status)">
-                      {{ history.status }}
-                    </span>
-                  </td>
-                  <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 ">
-                    @if (history.team?.name) {
-                      <div class="flex items-center">
-                        <div class="w-3 h-3 rounded-full mr-2" [style.background-color]="history.team.primary_color"></div>
-                        {{ history.team.name }}
-                      </div>
-                    } @else {
-                      <span class="text-gray-500 ">-</span>
-                    }
-                  </td>
-                  <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 ">
-                    @if (history.final_price && history.status === 'SOLD') {
-                      <span class="font-semibold text-green-600">{{ formatCurrency(history.final_price) }}</span>
-                    } @else {
-                      <span class="text-gray-500 ">-</span>
-                    }
-                  </td>
-                  <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 ">
-                    {{ formatDate(history.auction_date) }}
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
       }
     </div>
-  }
-</div> 
+
+
+    <!-- Footer row count -->
+    <div class="px-6 py-3 border-t border-[#EEEEEE]/5 flex justify-end items-center shrink-0">
+      <span class="text-[9px] font-black uppercase tracking-widest text-[#EEEEEE]/30">{{ sortedAuctionHistory().length }} records</span>
+    </div>
+    }
+
+  </div>
+
+</div>

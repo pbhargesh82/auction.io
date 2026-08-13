@@ -4,7 +4,6 @@ import {
   Router,
   RouterOutlet,
   RouterLink,
-  RouterLinkActive,
   ActivatedRoute,
   NavigationEnd,
 } from '@angular/router';
@@ -15,7 +14,8 @@ import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { Auction } from '../../services/auctions.service';
 import { MatIconModule } from '@angular/material/icon';
-import { SidebarFooterComponent } from '../shared/sidebar-footer/sidebar-footer.component';
+import { UserProfileComponent } from '../shared/user-profile/user-profile.component';
+import { AppToastComponent } from '../shared/app-toast/app-toast.component';
 
 interface WorkspaceNavItem {
   label: string;
@@ -26,7 +26,7 @@ interface WorkspaceNavItem {
 @Component({
   selector: 'app-auction-workspace-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, SidebarFooterComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, MatIconModule, UserProfileComponent, AppToastComponent],
 
   templateUrl: './auction-workspace-layout.component.html',
   styleUrls: ['./auction-workspace-layout.component.css'],
@@ -43,6 +43,7 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
   user = signal<any>(null);
   userRole = signal<UserRole>('user');
   currentRoute = signal<string>('');
+  linkCopied = signal(false);
 
   // ── Computed ──────────────────────────────────────────────────────────────────
   appVersion = computed(() => this.versionService.getVersionWithPrefix());
@@ -174,6 +175,10 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
     return `${this.baseRoute()}/${segment}`;
   }
 
+  isActiveSegment(segment: string): boolean {
+    return this.currentRoute().includes(`/auction/${this.auctionId()}/${segment}`);
+  }
+
   toggleSidebar(): void {
     this.sidebarCollapsed.update(c => !c);
   }
@@ -210,6 +215,8 @@ export class AuctionWorkspaceLayoutComponent implements OnInit, OnDestroy {
     const url = `${window.location.origin}/view/${slug}`;
     try {
       await navigator.clipboard.writeText(url);
+      this.linkCopied.set(true);
+      setTimeout(() => this.linkCopied.set(false), 2000);
     } catch {
       // fallback: do nothing
     }

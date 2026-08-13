@@ -1,34 +1,36 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { AuctionStateService, TeamWithPlayers } from '../../services/auction-state.service';
-import { TeamCardComponent } from '../team-card/team-card.component';
+
+import { AuctionStateService } from '../../services/auction-state.service';
+import { TeamPlayersService } from '../../services/team-players.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-team-roster',
   standalone: true,
-  imports: [CommonModule, TeamCardComponent],
+  imports: [CommonModule, AvatarComponent],
   templateUrl: './team-roster.component.html',
-  styleUrls: ['./team-roster.component.css']
+  styleUrls: ['./team-roster.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class TeamRosterComponent implements OnInit {
   // Use centralized state service
-  teamsWithPlayers;
   loading;
   error;
 
   // Admin role signal
   isAdmin = signal(false);
 
-  // Fallback computed value for debugging
-  teamsWithPlayersDebug = computed(() => {
+  // Selling state for UX
+  sellingPlayer = signal<string | null>(null);
+
+  // All Teams with their Rosters
+  teamsWithRosters = computed(() => {
     const teams = this.auctionStateService.teams();
     const teamPlayers = this.auctionStateService.teamPlayers();
-    
-    console.log('🔍 Debug computed value:');
-    console.log('Teams:', teams);
-    console.log('Team players:', teamPlayers);
     
     return teams.map(team => ({
       ...team,
@@ -46,10 +48,11 @@ export class TeamRosterComponent implements OnInit {
 
   constructor(
     private auctionStateService: AuctionStateService,
+    private teamPlayersService: TeamPlayersService,
     private supabaseService: SupabaseService,
     private route: ActivatedRoute,
+    private toast: ToastService,
   ) {
-    this.teamsWithPlayers = this.auctionStateService.teamsWithPlayers;
     this.loading = this.auctionStateService.loading;
     this.error = this.auctionStateService.error;
 
@@ -60,10 +63,6 @@ export class TeamRosterComponent implements OnInit {
   }
 
   async ngOnInit() {
-    await this.auctionStateService.loadAllData(this.auctionId());
-  }
-
-  async refreshData() {
     await this.auctionStateService.loadAllData(this.auctionId());
   }
 
@@ -78,22 +77,63 @@ export class TeamRosterComponent implements OnInit {
     return '';
   }
 
-  // Handle player sold back event
-  async onPlayerSoldBack(_event: {teamId: string, playerId: string, refundAmount: number}) {
-    // Refresh data to show updated team budgets and player lists
-    await this.auctionStateService.loadAllData(this.auctionId());
+  // Sell player back to auction pool
+  async sellPlayerBack(player: any, teamName: string) {
+    if (!player.team_player_id) {
+      this.toast.error('Player data is incomplete');
+      return;
+    }
+
+    // Show confirmation dialog
+    const confirmed = confirm(
+      `Are you sure you want to sell ${player.name} back to the auction pool?\n\n` +
+      `This will:\n` +
+      `• Remove the player from ${teamName}\n` +
+      `• Refund ₹${this.formatNumber(player.purchase_price)} to the team budget\n` +
+      `• Make the player available for auction again\n\n` +
+      `This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    this.sellingPlayer.set(player.id);
+
+    try {
+      const { error } = await this.teamPlayersService.sellPlayerBackToPool(player.team_player_id);
+
+      if (error) {
+        throw error;
+      }
+
+      this.toast.success(`Successfully sold ${player.name} back to auction pool. Refunded ₹${this.formatNumber(player.purchase_price)}.`);
+
+      // Refresh data to show updated team budgets and player lists
+      await this.auctionStateService.loadAllData(this.auctionId());
+
+    } catch (error: any) {
+      this.toast.error(`Error: ${error.message}`);
+    } finally {
+      this.sellingPlayer.set(null);
+    }
   }
 
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
+  // Check if player is currently being sold back
+  isSellingPlayer(playerId: string): boolean {
+    return this.sellingPlayer() === playerId;
+  }
+
+  // Budget calculations
+  getBudgetPercentage(spent: number, cap: number): number {
+    if (!cap) return 0;
+    return (spent / cap) * 100;
+  }
+
+  getPlayerPercentage(count: number, max: number): number {
+    if (!max) return 0;
+    return (count / max) * 100;
   }
 
   formatNumber(num: number): string {
     return new Intl.NumberFormat('en-IN').format(num);
   }
-} 
+}

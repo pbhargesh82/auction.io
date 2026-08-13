@@ -1,50 +1,69 @@
-<div class="min-h-screen w-full bg-slate-50 relative flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
-  <!-- Subtle Premium Background Grid -->
-  <div class="absolute inset-0 z-0 overflow-hidden">
-    <div class="absolute inset-0" style="
-        background-color: #f8fafc;
-        background-image: 
-          linear-gradient(to right, rgba(148,163,184,0.1) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(148,163,184,0.1) 1px, transparent 1px);
-        background-size: 32px 32px;
-      "></div>
-    <!-- Soft glowing orbs for visual interest -->
-    <div class="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-indigo-400/20 rounded-full blur-[120px] mix-blend-multiply pointer-events-none animate-pulse" style="animation-duration: 8s;"></div>
-    <div class="absolute bottom-[20%] right-[20%] w-[400px] h-[400px] bg-fuchsia-400/20 rounded-full blur-[100px] mix-blend-multiply pointer-events-none animate-pulse" style="animation-duration: 10s; animation-delay: 2s;"></div>
+<div class="h-dvh max-h-dvh w-full bg-[#232931] relative overflow-y-auto overflow-x-hidden"
+     (mousemove)="onMouseMove($event)"
+     [style.--mouse-x.%]="mouseX()"
+     [style.--mouse-y.%]="mouseY()">
+     
+  <!-- Interactive Immersive Background -->
+  <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    
+    <!-- Deep large architectural base using Surface Color to break up the flat Canvas #232931 -->
+    <div class="absolute top-[-20%] right-[-20%] w-[150vw] h-[150vw] sm:w-[80vw] sm:h-[80vw] min-w-[600px] min-h-[600px] bg-[#393E46] opacity-40 rounded-full blur-[80px] sm:blur-[120px] animate-pulse"
+         style="animation-duration: 20s;"></div>
+
+    <!-- Expressive Accent Blob (Top Left) -->
+    <div class="absolute top-[-10%] left-[-20vw] w-[120vw] h-[120vw] sm:w-[50vw] sm:h-[50vw] min-w-[400px] min-h-[400px] rounded-full blur-[80px] sm:blur-[100px] mix-blend-screen animate-pulse"
+         style="background: radial-gradient(circle, rgba(78,204,163,0.35) 0%, rgba(78,204,163,0) 70%); animation-duration: 15s;"></div>
+         
+    <!-- Expressive Accent Blob (Bottom Right) -->
+    <div class="absolute bottom-[-10%] right-[-10vw] w-[140vw] h-[140vw] sm:w-[60vw] sm:h-[60vw] min-w-[450px] min-h-[450px] rounded-full blur-[90px] sm:blur-[120px] mix-blend-screen animate-pulse"
+         style="background: radial-gradient(circle, rgba(78,204,163,0.3) 0%, rgba(78,204,163,0) 70%); animation-duration: 12s; animation-delay: 3s;"></div>
+
+    <!-- Mouse Follower Blob - Enhanced visibility -->
+    <div class="absolute w-[100vw] h-[100vw] sm:w-[50vw] sm:h-[50vw] min-w-[300px] min-h-[300px] rounded-full blur-[60px] sm:blur-[100px] mix-blend-screen transition-transform duration-1000 ease-out"
+         style="background: radial-gradient(circle, rgba(78,204,163,0.25) 0%, rgba(78,204,163,0) 70%); transform: translate(calc(var(--mouse-x) * 1vw - 50%), calc(var(--mouse-y) * 1vh - 50%)); left: 0; top: 0;"></div>
   </div>
 
-  <div class="w-full max-w-sm sm:max-w-md relative z-10 animate-fade-in-up">
-    <!-- Premium Login Card -->
-    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white p-5 sm:p-6 lg:p-8 transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)]">
+  <div class="relative z-10 min-h-dvh flex flex-col justify-center p-4 sm:p-6 lg:p-8">
+  <div class="w-full max-w-sm sm:max-w-md mx-auto animate-fade-in-up">
+    <!-- Premium Login Card (Surface) -->
+    <div class="bg-[#393E46]/90 backdrop-blur-xl rounded-3xl shadow-[0_8px_40px_rgba(35,41,49,0.8)] border border-[#EEEEEE]/10 p-6 sm:p-8 transition-all duration-300 hover:shadow-[0_8px_50px_rgba(78,204,163,0.15)] relative overflow-hidden">
 
-      <!-- Header -->
-      <div class="text-center mb-5">
-        <div class="inline-flex items-center justify-center p-2.5 sm:p-3 bg-slate-900 rounded-2xl shadow-md mb-3 transform hover:scale-105 transition-transform duration-300 cursor-default">
-          <img src="/logo.png" alt="Auction.io Logo" class="h-8 w-auto">
+      <!-- Glowing edge top -->
+      <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#4ECCA3]/50 to-transparent"></div>
+
+      <!-- Tabular Header -->
+      <div class="relative bg-[#232931] p-1 rounded-xl mb-8 border border-[#EEEEEE]/5 shadow-inner">
+        <!-- Background Pill -->
+        <div class="absolute top-1 bottom-1 transition-all duration-300 ease-out bg-[#393E46] rounded-lg shadow-md border border-[#EEEEEE]/5"
+             style="width: calc(50% - 0.25rem);"
+             [style.left]="isSignUp() ? '50%' : '0.25rem'">
         </div>
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">
-          @if (isSignUp()) {
-            Create an account
-          } @else {
-            Welcome back
-          }
-        </h2>
-        <p class="text-slate-500 text-sm mt-1 font-medium">
-          @if (isSignUp()) {
-            Join Auction.io to get started
-          } @else {
-            Sign in to continue to your dashboard
-          }
-        </p>
+        
+        <div class="flex relative z-10 w-full">
+          <button type="button" (click)="setMode(false)"
+                  class="w-1/2 py-2.5 text-sm font-bold tracking-wide transition-colors duration-300 focus:outline-none rounded-lg"
+                  [class.text-[#4ECCA3]]="!isSignUp()"
+                  [class.text-[#EEEEEE]]="isSignUp()"
+                  [class.opacity-60]="isSignUp()">
+            Log In
+          </button>
+          <button type="button" (click)="setMode(true)"
+                  class="w-1/2 py-2.5 text-sm font-bold tracking-wide transition-colors duration-300 focus:outline-none rounded-lg"
+                  [class.text-[#4ECCA3]]="isSignUp()"
+                  [class.text-[#EEEEEE]]="!isSignUp()"
+                  [class.opacity-60]="!isSignUp()">
+            Sign Up
+          </button>
+        </div>
       </div>
 
       <!-- Google Sign-In Button -->
-      <div class="mb-5">
+      <div class="mb-6">
         <button type="button" (click)="signInWithGoogle()" [disabled]="loading()"
-          class="w-full bg-white hover:bg-slate-50 active:bg-slate-100 disabled:bg-slate-50 disabled:opacity-70 disabled:cursor-not-allowed text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 text-sm shadow-sm border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-200">
+          class="w-full bg-[#232931] hover:bg-[#232931]/80 active:bg-[#232931]/60 disabled:bg-[#232931]/50 disabled:opacity-70 disabled:cursor-not-allowed text-[#EEEEEE] font-semibold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 text-sm shadow-sm border border-[#EEEEEE]/10 hover:border-[#4ECCA3]/40 focus:outline-none focus:ring-2 focus:ring-[#4ECCA3]/50">
           
           @if (loading()) {
-            <svg class="animate-spin w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin w-5 h-5 text-[#4ECCA3]" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor"
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
@@ -52,11 +71,11 @@
             </svg>
             <span>Connecting...</span>
           } @else {
-            <svg class="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+            <svg class="w-5 h-5 opacity-90" viewBox="0 0 24 24">
+              <path fill="#EEEEEE" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#EEEEEE" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#EEEEEE" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+              <path fill="#EEEEEE" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
             <span>Continue with Google</span>
           }
@@ -64,70 +83,68 @@
       </div>
 
       <!-- Divider -->
-      <div class="relative mb-5">
+      <div class="relative mb-6">
         <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-slate-200"></div>
+          <div class="w-full border-t border-[#EEEEEE]/10"></div>
         </div>
         <div class="relative flex justify-center text-xs">
-          <span class="px-4 bg-white text-slate-400 font-medium tracking-wider uppercase">
-            @if (isSignUp()) {
-              or sign up with email
-            } @else {
-              or sign in with email
-            }
+          <span class="px-3 bg-[#393E46] text-[#EEEEEE]/50 font-semibold tracking-wider uppercase">
+            Or continue with email
           </span>
         </div>
       </div>
 
       <!-- Login/Signup Form -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-3.5">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
 
         <!-- Email Field -->
         <div class="group relative">
-          <label for="email" class="block text-sm font-semibold text-slate-700 mb-1 ml-1 transition-colors group-focus-within:text-indigo-600">
+          <label for="email" class="block text-[11px] font-bold text-[#EEEEEE]/70 mb-1.5 ml-1 transition-colors group-focus-within:text-[#4ECCA3] uppercase tracking-wider">
             Email
           </label>
           <div class="relative flex items-center">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
               </svg>
             </div>
             <input id="email" type="email" formControlName="email" placeholder="name@company.com"
-              style="-webkit-text-fill-color: #0f172a !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; background-color: #f8fafc !important;"
-              class="w-full pl-11 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all duration-200 text-sm shadow-sm font-medium">
+              class="w-full pl-11 pr-4 py-3 rounded-xl outline-none transition-all duration-200 text-sm font-medium
+                     bg-[#232931] border border-[#EEEEEE]/10 text-[#EEEEEE] placeholder-[#EEEEEE]/30
+                     focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] focus:bg-[#232931]/80">
           </div>
 
           @if (emailControl()?.hasError('required') && emailControl()?.touched) {
-            <p class="mt-1 text-xs text-red-500 font-medium ml-1 animate-fade-in-up">Email is required</p>
+            <p class="mt-1.5 text-xs text-red-400 font-medium ml-1 animate-fade-in-up">Email is required</p>
           }
           @if (emailControl()?.hasError('email') && emailControl()?.touched) {
-            <p class="mt-1 text-xs text-red-500 font-medium ml-1 animate-fade-in-up">Please enter a valid email</p>
+            <p class="mt-1.5 text-xs text-red-400 font-medium ml-1 animate-fade-in-up">Please enter a valid email</p>
           }
         </div>
 
         <!-- Password Field -->
         <div class="group relative">
-          <div class="flex justify-between items-center mb-1 ml-1">
-            <label for="password" class="block text-sm font-semibold text-slate-700 transition-colors group-focus-within:text-indigo-600">
+          <div class="flex justify-between items-end mb-1.5 ml-1">
+            <label for="password" class="block text-[11px] font-bold text-[#EEEEEE]/70 transition-colors group-focus-within:text-[#4ECCA3] uppercase tracking-wider">
               Password
             </label>
             @if (!isSignUp()) {
-              <a href="#" class="text-xs font-medium text-indigo-600 hover:text-indigo-500 transition-colors mr-1">Forgot password?</a>
+              <a href="#" class="text-[11px] font-bold tracking-wide text-[#4ECCA3]/80 hover:text-[#4ECCA3] transition-colors uppercase">Forgot?</a>
             }
           </div>
           <div class="relative flex items-center">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <input id="password" [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
               placeholder="••••••••"
-              style="-webkit-text-fill-color: #0f172a !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; background-color: #f8fafc !important;"
-              class="w-full pl-11 pr-12 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all duration-200 text-sm shadow-sm font-medium tracking-wide">
+              class="w-full pl-11 pr-12 py-3 rounded-xl outline-none transition-all duration-200 text-sm font-medium tracking-widest
+                     bg-[#232931] border border-[#EEEEEE]/10 text-[#EEEEEE] placeholder-[#EEEEEE]/30
+                     focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] focus:bg-[#232931]/80">
             <button type="button" (click)="togglePasswordVisibility()" tabindex="-1"
-              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-indigo-600 transition-colors focus:outline-none">
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#EEEEEE]/40 hover:text-[#4ECCA3] transition-colors focus:outline-none">
               @if (hidePassword()) {
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -142,43 +159,44 @@
           </div>
 
           @if (passwordControl()?.hasError('required') && passwordControl()?.touched) {
-            <p class="mt-1 text-xs text-red-500 font-medium ml-1 animate-fade-in-up">Password is required</p>
+            <p class="mt-1.5 text-xs text-red-400 font-medium ml-1 animate-fade-in-up">Password is required</p>
           }
           @if (passwordControl()?.hasError('minlength') && passwordControl()?.touched) {
-            <p class="mt-1 text-xs text-red-500 font-medium ml-1 animate-fade-in-up">Password must be at least 6 characters</p>
+            <p class="mt-1.5 text-xs text-red-400 font-medium ml-1 animate-fade-in-up">Password must be at least 6 characters</p>
           }
         </div>
 
         <!-- Confirm Password Field (Sign Up Only) -->
         @if (isSignUp()) {
           <div class="group relative animate-fade-in-up">
-            <label for="confirmPassword" class="block text-sm font-semibold text-slate-700 mb-1 ml-1 transition-colors group-focus-within:text-indigo-600">
+            <label for="confirmPassword" class="block text-[11px] font-bold text-[#EEEEEE]/70 mb-1.5 ml-1 transition-colors group-focus-within:text-[#4ECCA3] uppercase tracking-wider">
               Confirm Password
             </label>
             <div class="relative flex items-center">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#EEEEEE]/40 group-focus-within:text-[#4ECCA3] transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
               <input id="confirmPassword" [type]="hidePassword() ? 'password' : 'text'" formControlName="confirmPassword"
                 placeholder="••••••••"
-                style="-webkit-text-fill-color: #0f172a !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; background-color: #f8fafc !important;"
-                class="w-full pl-11 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all duration-200 text-sm shadow-sm font-medium tracking-wide">
+                class="w-full pl-11 pr-4 py-3 rounded-xl outline-none transition-all duration-200 text-sm font-medium tracking-widest
+                       bg-[#232931] border border-[#EEEEEE]/10 text-[#EEEEEE] placeholder-[#EEEEEE]/30
+                       focus:border-[#4ECCA3] focus:ring-1 focus:ring-[#4ECCA3] focus:bg-[#232931]/80">
             </div>
 
             @if (confirmPasswordControl()?.hasError('required') && confirmPasswordControl()?.touched) {
-              <p class="mt-1 text-xs text-red-500 font-medium ml-1 animate-fade-in-up">Please confirm your password</p>
+              <p class="mt-1.5 text-xs text-red-400 font-medium ml-1 animate-fade-in-up">Please confirm your password</p>
             }
             @if (passwordMatchError()) {
-              <p class="mt-1 text-xs text-red-500 font-medium ml-1 animate-fade-in-up">{{ passwordMatchError() }}</p>
+              <p class="mt-1.5 text-xs text-red-400 font-medium ml-1 animate-fade-in-up">{{ passwordMatchError() }}</p>
             }
           </div>
         }
 
         <!-- Error Message -->
         @if (loginError()) {
-          <div class="bg-red-50 border border-red-100 rounded-xl p-3 animate-shake">
+          <div class="bg-[#232931] border border-red-500/50 rounded-xl p-3 animate-shake mt-2">
             <div class="flex">
               <div class="flex-shrink-0">
                 <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -186,9 +204,28 @@
                 </svg>
               </div>
               <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">Authentication Error</h3>
-                <div class="mt-0.5 text-sm text-red-700">
+                <h3 class="text-sm font-bold text-red-400">Authentication Error</h3>
+                <div class="mt-0.5 text-sm text-red-300">
                   {{ loginError() }}
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Sign Up Success Message -->
+        @if (signupSuccess()) {
+          <div class="bg-[#232931] border border-[#4ECCA3]/50 rounded-xl p-3 mt-2">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-[#4ECCA3]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-bold text-[#4ECCA3]">Check your email</h3>
+                <div class="mt-0.5 text-sm text-[#EEEEEE]/80">
+                  {{ signupSuccess() }}
                 </div>
               </div>
             </div>
@@ -197,46 +234,28 @@
 
         <!-- Submit Button -->
         <button type="submit" [disabled]="!isFormValid() || loading()"
-          class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 active:from-indigo-800 active:to-indigo-700 disabled:from-slate-400 disabled:to-slate-300 disabled:cursor-not-allowed text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm shadow-[0_4px_14px_0_rgb(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] disabled:shadow-none mt-5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          class="w-full bg-[#4ECCA3] hover:bg-[#4ECCA3]/90 active:bg-[#4ECCA3]/80 disabled:bg-[#4ECCA3]/30 disabled:text-[#232931]/50 disabled:cursor-not-allowed text-[#232931] font-bold py-3.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm shadow-[0_0_20px_rgba(78,204,163,0.3)] hover:shadow-[0_0_25px_rgba(78,204,163,0.5)] disabled:shadow-none mt-6 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#393E46] focus:ring-[#4ECCA3] uppercase tracking-wider">
           
           @if (loading()) {
-            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin -ml-1 mr-2 h-5 w-5" [class.text-[#232931]]="!(!isFormValid() || loading())" [class.text-[#EEEEEE]]="!isFormValid() || loading()" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span>{{ isSignUp() ? 'Creating account...' : 'Signing in...' }}</span>
+            <span>{{ isSignUp() ? 'Creating account...' : 'Logging in...' }}</span>
           } @else {
-            <span>{{ isSignUp() ? 'Create Account' : 'Sign In' }}</span>
+            <span>{{ isSignUp() ? 'Create Account' : 'Log In' }}</span>
             <svg class="w-5 h-5 opacity-90 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
           }
         </button>
       </form>
-
-      <!-- Toggle Sign In/Sign Up -->
-      <div class="mt-6 pt-5 border-t border-slate-100 flex flex-col items-center justify-center space-y-2">
-        <p class="text-slate-500 text-sm">
-          @if (isSignUp()) {
-            Already have an account?
-          } @else {
-            Don't have an account?
-          }
-        </p>
-        <button type="button" (click)="toggleSignUpMode()" [disabled]="loading()"
-          class="text-indigo-600 hover:text-indigo-700 disabled:text-slate-400 disabled:cursor-not-allowed text-sm font-semibold transition-colors duration-200">
-          @if (isSignUp()) {
-            Sign in instead
-          } @else {
-            Create an account
-          }
-        </button>
-      </div>
     </div>
+  </div>
   </div>
 
   <!-- Footer links / info -->
-  <div class="absolute bottom-4 w-full text-center text-xs text-slate-400 font-medium">
-    &copy; {{ currentYear || '2024' }} Auction.io. All rights reserved.
+  <div class="pointer-events-none absolute bottom-4 left-0 right-0 w-full text-center text-xs text-[#EEEEEE]/30 font-bold tracking-wider uppercase z-10">
+    &copy; {{ currentYear || '2024' }} Auction.io
   </div>
 </div>

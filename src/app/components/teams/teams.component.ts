@@ -14,14 +14,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { TeamCardComponent } from '../team-card/team-card.component';
+import { ToastService } from '../../services/toast.service';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 
 @Component({
   selector: 'app-teams',
@@ -35,16 +35,17 @@ import { TeamCardComponent } from '../team-card/team-card.component';
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
-    MatSnackBarModule,
     MatCheckboxModule,
     MatCardModule,
     MatProgressSpinnerModule,
     MatChipsModule,
     MatTooltipModule,
-    TeamCardComponent
+    AvatarComponent,
+    SidePanelComponent
   ],
   templateUrl: './teams.component.html',
-  styleUrls: ['./teams.component.css']
+  styleUrls: ['./teams.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class TeamsComponent implements OnInit {
   // Signals for reactive state management
@@ -92,7 +93,7 @@ export class TeamsComponent implements OnInit {
     private supabaseService: SupabaseService,
     private imageUploadService: ImageUploadService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar,
+    private toast: ToastService,
     private route: ActivatedRoute,
   ) {
     // Initialize form with enhanced fields
@@ -212,12 +213,12 @@ export class TeamsComponent implements OnInit {
       if (result.success && result.url) {
         this.logoPreview.set(result.url);
         this.teamForm.patchValue({ logo_url: result.url });
-        this.snackBar.open('Logo uploaded successfully', 'Close', { duration: 3000 });
+        this.toast.success('Logo uploaded successfully');
       } else {
-        this.snackBar.open(`Upload failed: ${result.error}`, 'Close', { duration: 5000 });
+        this.toast.error(`Upload failed: ${result.error}`);
       }
     } catch (err: any) {
-      this.snackBar.open(`Upload error: ${err.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Upload error: ${err.message}`);
     } finally {
       this.uploadingLogo.set(false);
     }
@@ -240,39 +241,19 @@ export class TeamsComponent implements OnInit {
       if (editingTeam) {
         // Update existing team
         const { error } = await this.teamsService.updateTeam(editingTeam.id, formData as UpdateTeamData);
-        if (error) {
-          this.snackBar.open(`Error updating team: ${error.message}`, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-          return;
-        }
-        this.snackBar.open('Team updated successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.toast.success('Team updated successfully!');
       } else {
-        // Create new team — pass explicit auctionId from route
         const { error } = await this.teamsService.createTeam(formData as CreateTeamData, this.auctionId());
         if (error) {
-          this.snackBar.open(`Error creating team: ${error.message}`, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.toast.error(`Error creating team: ${error.message}`);
           return;
         }
-        this.snackBar.open('Team created successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.toast.success('Team created successfully!');
       }
 
       this.closeForm();
     } catch (error: any) {
-      this.snackBar.open(`Error: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error: ${error.message}`);
     } finally {
       this.formSubmitting.set(false);
     }
@@ -286,19 +267,15 @@ export class TeamsComponent implements OnInit {
 
     const { error } = await this.teamsService.deleteTeam(team.id);
     if (error) {
-      this.snackBar.open(`Error deleting team: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error deleting team: ${error.message}`);
+    } else {
+      this.toast.success(`Team "${team.name}" deleted`);
     }
   }
 
   // View team details
   viewTeam(team: Team | TeamWithPlayers) {
-    // In a real app, you might navigate to a detail view
-    this.snackBar.open(`Viewing team: ${team.name}`, 'Close', {
-      duration: 2000
-    });
+    this.toast.success(`Viewing team: ${team.name}`);
   }
 
   // Edit team - wrapper around openEditForm for template
@@ -317,14 +294,9 @@ export class TeamsComponent implements OnInit {
     const { error } = await this.teamsService.updateTeam(team.id, { is_active: newStatus });
 
     if (error) {
-      this.snackBar.open(`Error updating team status: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error updating team status: ${error.message}`);
     } else {
-      this.snackBar.open(`Team ${newStatus ? 'activated' : 'deactivated'} successfully`, 'Close', {
-        duration: 2000
-      });
+      this.toast.success(`Team ${newStatus ? 'activated' : 'deactivated'} successfully`);
     }
   }
 
@@ -335,8 +307,13 @@ export class TeamsComponent implements OnInit {
 
   // Handle search input
   onSearch(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.searchTerm.set(input.value);
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+  }
+
+  // Clear all filters
+  clearFilters() {
+    this.searchTerm.set('');
   }
 
   // Handle primary color input

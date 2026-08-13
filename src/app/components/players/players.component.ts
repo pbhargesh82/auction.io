@@ -1,26 +1,14 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PlayersService, Player, CreatePlayerData, UpdatePlayerData } from '../../services/players.service';
 import { TeamPlayersService } from '../../services/team-players.service';
-import { SupabaseService, UserRole } from '../../services/supabase.service';
+import { SupabaseService } from '../../services/supabase.service';
 import { ImageUploadService } from '../../services/image-upload.service';
-
-// Angular Material imports
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-players',
@@ -28,22 +16,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatTableModule,
-    MatButtonModule,
+    FormsModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatCheckboxModule,
-    MatCardModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatSelectModule
+    AvatarComponent,
+    SidePanelComponent
   ],
   templateUrl: './players.component.html',
-  styleUrls: ['./players.component.css']
+  styleUrls: ['./players.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class PlayersComponent implements OnInit {
   // Signals for reactive state management
@@ -60,7 +40,8 @@ export class PlayersComponent implements OnInit {
   filterPosition = signal<string>('');
   filterStatus = signal<string>('');
   soldPlayerIds = signal<string[]>([]);
-  userRole = signal<UserRole>('user');
+  /** Owner-scoped pool: any authenticated user can manage their own players. */
+  canManagePool = signal(false);
 
   // Image upload signals
   photoPreview = signal<string | null>(null);
@@ -74,6 +55,7 @@ export class PlayersComponent implements OnInit {
   formSubmitting = signal(false);
   formValid = signal(false);
 
+  // Toast notification
   // Predefined options
   categories = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper'];
   specializations: { [key: string]: string[] } = {
@@ -83,9 +65,6 @@ export class PlayersComponent implements OnInit {
     'Wicket-Keeper': ['Wicket-Keeper Batsman']
   };
   statuses = ['Available', 'Sold', 'Inactive'];
-
-  // Computed signal for admin status
-  isAdmin = computed(() => this.userRole() === 'super_admin');
 
   // Computed values
   filteredPlayers = computed(() => {
@@ -181,8 +160,8 @@ export class PlayersComponent implements OnInit {
     private teamPlayersService: TeamPlayersService,
     private supabaseService: SupabaseService,
     private imageUploadService: ImageUploadService,
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private toast: ToastService,
+    private fb: FormBuilder
   ) {
     // Initialize form with enhanced fields
     this.playerForm = this.fb.group({
@@ -201,9 +180,9 @@ export class PlayersComponent implements OnInit {
     this.loading = this.playersService.loading;
     this.error = this.playersService.error;
 
-    // Subscribe to user role changes
-    this.supabaseService.userRole.subscribe(role => {
-      this.userRole.set(role);
+    // Player Pool is owner-scoped; any logged-in user can manage their own pool
+    this.supabaseService.currentUser.subscribe(user => {
+      this.canManagePool.set(!!user);
     });
 
     // Subscribe to form changes to update validity signal
@@ -312,12 +291,12 @@ export class PlayersComponent implements OnInit {
       if (result.success && result.url) {
         this.photoPreview.set(result.url);
         this.playerForm.patchValue({ image_url: result.url });
-        this.snackBar.open('Photo uploaded successfully', 'Close', { duration: 3000 });
+        this.toast.success('Photo uploaded successfully');
       } else {
-        this.snackBar.open(`Upload failed: ${result.error}`, 'Close', { duration: 5000 });
+        this.toast.error(`Upload failed: ${result.error}`);
       }
     } catch (err: any) {
-      this.snackBar.open(`Upload error: ${err.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Upload error: ${err.message}`);
     } finally {
       this.uploadingPhoto.set(false);
     }
@@ -369,40 +348,25 @@ export class PlayersComponent implements OnInit {
         // Update existing player
         const { error } = await this.playersService.updatePlayer(editingPlayer.id, dbData as UpdatePlayerData);
         if (error) {
-          this.snackBar.open(`Error updating player: ${error.message}`, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.toast.error(`Error updating player: ${error.message}`);
           return;
         }
-        this.snackBar.open('Player updated successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.toast.success('Player updated successfully!');
       } else {
         // Create new player
         const { error } = await this.playersService.createPlayer(dbData as CreatePlayerData);
         if (error) {
-          this.snackBar.open(`Error creating player: ${error.message}`, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.toast.error(`Error creating player: ${error.message}`);
           return;
         }
-        this.snackBar.open('Player created successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.toast.success('Player created successfully!');
       }
 
       this.closeForm();
       // Restore scroll position after successful submission
       this.restoreScrollPosition();
     } catch (error: any) {
-      this.snackBar.open(`Error: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error: ${error.message}`);
     } finally {
       this.formSubmitting.set(false);
     }
@@ -416,30 +380,18 @@ export class PlayersComponent implements OnInit {
 
     const { error } = await this.playersService.deletePlayer(player.id);
     if (error) {
-      this.snackBar.open(`Error deleting player: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error deleting player: ${error.message}`);
     } else {
-      this.snackBar.open('Player deleted successfully!', 'Close', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
+      this.toast.success('Player deleted successfully!');
     }
   }
 
   async togglePlayerStatus(player: Player) {
     const { error } = await this.playersService.togglePlayerStatus(player.id);
     if (error) {
-      this.snackBar.open(`Error toggling player status: ${error.message}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.toast.error(`Error toggling player status: ${error.message}`);
     } else {
-      this.snackBar.open(`Player ${player.is_active ? 'deactivated' : 'activated'} successfully!`, 'Close', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
+      this.toast.success(`Player ${player.is_active ? 'deactivated' : 'activated'} successfully!`);
     }
   }
 
@@ -480,10 +432,7 @@ export class PlayersComponent implements OnInit {
     }
 
     this.selectedPlayers.set(new Set());
-    this.snackBar.open(`${selectedIds.length} players deleted successfully!`, 'Close', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
+    this.toast.success(`${selectedIds.length} players deleted successfully!`);
   }
 
   // Sorting and filtering
@@ -560,4 +509,5 @@ export class PlayersComponent implements OnInit {
   clearError() {
     this.playersService.clearError();
   }
-} 
+
+}

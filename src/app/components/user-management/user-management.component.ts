@@ -3,20 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsersService, UserWithRole } from '../../services/users.service';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { ToastService } from '../../services/toast.service';
 
-// Angular Material imports
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
     selector: 'app-user-management',
@@ -24,21 +15,13 @@ import { MatMenuModule } from '@angular/material/menu';
     imports: [
         CommonModule,
         FormsModule,
-        MatTableModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSelectModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSnackBarModule,
-        MatCardModule,
-        MatProgressSpinnerModule,
-        MatChipsModule,
-        MatTooltipModule,
-        MatMenuModule
+        SidePanelComponent,
+        AvatarComponent,
+        MatIconModule
     ],
     templateUrl: './user-management.component.html',
-    styleUrls: ['./user-management.component.css']
+    styleUrls: ['./user-management.component.css'],
+    host: { class: 'block h-full w-full min-h-0' }
 })
 export class UserManagementComponent implements OnInit {
     // Signals for reactive state management
@@ -75,22 +58,10 @@ export class UserManagementComponent implements OnInit {
         );
     });
 
-    // Statistics
-    stats = computed(() => {
-        const users = this.users();
-        return {
-            total: users.length,
-            superAdmins: users.filter(u => u.role === 'super_admin').length,
-            regularUsers: users.filter(u => u.role === 'user').length,
-            banned: users.filter(u => u.is_banned).length,
-            active: users.filter(u => !u.is_banned).length
-        };
-    });
-
     constructor(
         public usersService: UsersService,
         private supabaseService: SupabaseService,
-        private snackBar: MatSnackBar
+        private toast: ToastService
     ) {
         // Use service signals directly
         this.users = this.usersService.users;
@@ -112,8 +83,10 @@ export class UserManagementComponent implements OnInit {
         const { error } = await this.usersService.getUsers();
         if (error) {
             console.error('Error loading users:', error);
+            this.toast.error('Failed to load users');
         }
     }
+
 
     // Invite form methods
     openInviteForm() {
@@ -130,10 +103,7 @@ export class UserManagementComponent implements OnInit {
     async submitInvite() {
         const email = this.inviteEmail().trim();
         if (!email || !email.includes('@')) {
-            this.snackBar.open('Please enter a valid email address', 'Close', {
-                duration: 3000,
-                panelClass: ['error-snackbar']
-            });
+            this.toast.error('Please enter a valid email address');
             return;
         }
 
@@ -145,28 +115,19 @@ export class UserManagementComponent implements OnInit {
         });
 
         if (success) {
-            this.snackBar.open(`Invitation sent to ${email}`, 'Close', {
-                duration: 3000,
-                panelClass: ['success-snackbar']
-            });
+            this.toast.success(`Invitation sent to ${email}`);
             this.closeInviteForm();
         } else {
-            this.snackBar.open(`Error inviting user: ${error?.message || 'Unknown error'}`, 'Close', {
-                duration: 5000,
-                panelClass: ['error-snackbar']
-            });
+            this.toast.error(`Error inviting user: ${error?.message || 'Unknown error'}`);
         }
 
         this.inviteLoading.set(false);
     }
 
-    async onRoleChange(user: UserWithRole, newRole: 'super_admin' | 'user') {
+    async onRoleChange(user: UserWithRole, newRole: any) {
         // Prevent self-demotion from super_admin
         if (user.user_id === this.currentUserId() && user.role === 'super_admin' && newRole !== 'super_admin') {
-            this.snackBar.open('You cannot remove your own admin privileges', 'Close', {
-                duration: 5000,
-                panelClass: ['error-snackbar']
-            });
+            this.toast.error('You cannot remove your own admin privileges');
             return;
         }
 
@@ -175,15 +136,9 @@ export class UserManagementComponent implements OnInit {
         const { success, error } = await this.usersService.updateUserRole(user.user_id, newRole);
 
         if (success) {
-            this.snackBar.open(`Role updated to ${newRole} successfully`, 'Close', {
-                duration: 3000,
-                panelClass: ['success-snackbar']
-            });
+            this.toast.success(`Role updated to ${newRole} successfully`);
         } else {
-            this.snackBar.open(`Error updating role: ${error?.message || 'Unknown error'}`, 'Close', {
-                duration: 5000,
-                panelClass: ['error-snackbar']
-            });
+            this.toast.error(`Error updating role: ${error?.message || 'Unknown error'}`);
         }
 
         this.updatingUserId.set(null);
@@ -192,10 +147,7 @@ export class UserManagementComponent implements OnInit {
     async toggleUserBan(user: UserWithRole) {
         // Prevent self-ban
         if (user.user_id === this.currentUserId()) {
-            this.snackBar.open('You cannot ban yourself', 'Close', {
-                duration: 3000,
-                panelClass: ['error-snackbar']
-            });
+            this.toast.error('You cannot ban yourself');
             return;
         }
 
@@ -209,15 +161,9 @@ export class UserManagementComponent implements OnInit {
         const { success, error } = await this.usersService.toggleUserBan(user.user_id, !user.is_banned);
 
         if (success) {
-            this.snackBar.open(`User ${user.is_banned ? 'unbanned' : 'banned'} successfully`, 'Close', {
-                duration: 3000,
-                panelClass: ['success-snackbar']
-            });
+            this.toast.success(`User ${user.is_banned ? 'unbanned' : 'banned'} successfully`);
         } else {
-            this.snackBar.open(`Error: ${error?.message || 'Unknown error'}`, 'Close', {
-                duration: 5000,
-                panelClass: ['error-snackbar']
-            });
+            this.toast.error(`Error: ${error?.message || 'Unknown error'}`);
         }
 
         this.updatingUserId.set(null);
@@ -226,10 +172,7 @@ export class UserManagementComponent implements OnInit {
     async deleteUser(user: UserWithRole) {
         // Prevent self-delete
         if (user.user_id === this.currentUserId()) {
-            this.snackBar.open('You cannot delete your own account', 'Close', {
-                duration: 3000,
-                panelClass: ['error-snackbar']
-            });
+            this.toast.error('You cannot delete your own account');
             return;
         }
 
@@ -242,15 +185,9 @@ export class UserManagementComponent implements OnInit {
         const { success, error } = await this.usersService.deleteUser(user.user_id);
 
         if (success) {
-            this.snackBar.open(`User deleted successfully`, 'Close', {
-                duration: 3000,
-                panelClass: ['success-snackbar']
-            });
+            this.toast.success(`User deleted successfully`);
         } else {
-            this.snackBar.open(`Error deleting user: ${error?.message || 'Unknown error'}`, 'Close', {
-                duration: 5000,
-                panelClass: ['error-snackbar']
-            });
+            this.toast.error(`Error deleting user: ${error?.message || 'Unknown error'}`);
         }
 
         this.updatingUserId.set(null);
@@ -269,17 +206,6 @@ export class UserManagementComponent implements OnInit {
         return this.usersService.getRoleConfig(role);
     }
 
-    getProviderIcon(provider: string): string {
-        switch (provider) {
-            case 'google':
-                return 'g_translate';
-            case 'github':
-                return 'code';
-            default:
-                return 'email';
-        }
-    }
-
     getProviderLabel(provider: string): string {
         return this.usersService.getProviderLabel(provider);
     }
@@ -292,4 +218,3 @@ export class UserManagementComponent implements OnInit {
         return userId === this.currentUserId();
     }
 }
-

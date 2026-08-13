@@ -4,13 +4,15 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuctionsService } from '../../services/auctions.service';
 import { Auction } from '../../services/auctions.service';
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, SidePanelComponent],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class HomeComponent implements OnInit {
   // ── State ────────────────────────────────────────────────────────────────────
@@ -22,8 +24,6 @@ export class HomeComponent implements OnInit {
   submitting    = signal(false);
   deletingId    = signal<string | null>(null);
   copiedId      = signal<string | null>(null);
-  toastMessage  = signal<string | null>(null);
-  toastType     = signal<'success' | 'error'>('success');
 
   // ── Form ─────────────────────────────────────────────────────────────────────
   auctionForm: FormGroup;
@@ -61,6 +61,7 @@ export class HomeComponent implements OnInit {
     private auctionsSvc: AuctionsService,
     private fb: FormBuilder,
     private router: Router,
+    private toast: ToastService,
   ) {
     this.auctionForm = this.fb.group({
       name:                 ['', [Validators.required, Validators.minLength(3)]],
@@ -129,13 +130,6 @@ export class HomeComponent implements OnInit {
     this.duplicating.set(false);
   }
 
-  onOverlayClick(event: MouseEvent) {
-    // Only close if clicking directly on the backdrop, not on the modal card
-    if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
-      this.closeModal();
-    }
-  }
-
   // ── Submit ────────────────────────────────────────────────────────────────────
   async submitForm() {
     if (this.auctionForm.invalid) {
@@ -148,13 +142,13 @@ export class HomeComponent implements OnInit {
     try {
       if (this.isEditing()) {
         const { error } = await this.auctionsSvc.updateAuction(this.editingAuction()!.id, v);
-        if (error) { this.toast('Failed to update: ' + error.message, 'error'); return; }
-        this.toast('Auction updated successfully!');
+        if (error) { this.toast.error('Failed to update: ' + error.message); return; }
+        this.toast.success('Auction updated successfully!');
       } else {
         // Create or Duplicate (both just create with given values)
         const { error } = await this.auctionsSvc.createAuction(v);
-        if (error) { this.toast('Failed to create: ' + error.message, 'error'); return; }
-        this.toast(this.duplicating() ? 'Auction duplicated!' : 'Auction created!');
+        if (error) { this.toast.error('Failed to create: ' + error.message); return; }
+        this.toast.success(this.duplicating() ? 'Auction duplicated!' : 'Auction created!');
       }
       this.closeModal();
     } finally {
@@ -169,8 +163,8 @@ export class HomeComponent implements OnInit {
     this.deletingId.set(auction.id);
     try {
       const { error } = await this.auctionsSvc.deleteAuction(auction.id);
-      if (error) { this.toast('Failed to delete: ' + error.message, 'error'); }
-      else { this.toast('Auction deleted.'); }
+      if (error) { this.toast.error('Failed to delete: ' + error.message); }
+      else { this.toast.success('Auction deleted.'); }
     } finally {
       this.deletingId.set(null);
     }
@@ -183,10 +177,10 @@ export class HomeComponent implements OnInit {
     try {
       await navigator.clipboard.writeText(url);
       this.copiedId.set(auction.id);
-      this.toast('Share link copied!');
+      this.toast.success('Share link copied!');
       setTimeout(() => this.copiedId.set(null), 2000);
     } catch {
-      this.toast('Could not copy link.', 'error');
+      this.toast.error('Could not copy link.');
     }
   }
 
@@ -215,12 +209,4 @@ export class HomeComponent implements OnInit {
   }
 
   trackByAuction(_: number, a: Auction) { return a.id; }
-
-  private toastTimer: any;
-  private toast(msg: string, type: 'success' | 'error' = 'success') {
-    clearTimeout(this.toastTimer);
-    this.toastMessage.set(msg);
-    this.toastType.set(type);
-    this.toastTimer = setTimeout(() => this.toastMessage.set(null), 3500);
-  }
 }

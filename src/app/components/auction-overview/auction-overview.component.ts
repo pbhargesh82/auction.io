@@ -1,6 +1,7 @@
 import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { Subscription } from 'rxjs';
 
 import { AuctionStateService } from '../../services/auction-state.service';
@@ -22,9 +23,10 @@ interface HistoryEntry {
 @Component({
   selector: 'app-auction-overview',
   standalone: true,
-  imports: [CommonModule, RouterModule, TeamCardComponent],
+  imports: [CommonModule, RouterModule, TeamCardComponent, MatIconModule],
   templateUrl: './auction-overview.component.html',
   styleUrls: ['./auction-overview.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class AuctionOverviewComponent implements OnInit, OnDestroy {
   // ── IDs & auction meta ────────────────────────────────────────────────────

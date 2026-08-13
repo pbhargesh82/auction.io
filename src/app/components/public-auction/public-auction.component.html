@@ -1,230 +1,390 @@
-<div class="p-4 lg:p-6 lg:px-8 bg-gray-50 min-h-screen">
-  
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PUBLIC AUCTION VIEW — Premium Broadcast Redesign
+     Palette: #232931 (Canvas) · #393E46 (Surface) · #4ECCA3 (Accent) · #EEEEEE (Text)
+══════════════════════════════════════════════════════════════════════════ -->
+
+<div
+  class="h-dvh max-h-dvh xl:h-screen bg-[#232931] text-[#EEEEEE] overflow-x-hidden overflow-y-auto xl:overflow-hidden flex flex-col font-sans selection:bg-[#4ECCA3]/30 selection:text-[#EEEEEE]">
+
   <!-- Loading State -->
   @if (loading()) {
-    <div class="flex flex-col items-center justify-center py-32">
-      <mat-spinner diameter="48" class="mb-6"></mat-spinner>
-      <p class="text-gray-500 animate-pulse font-bold tracking-widest uppercase text-sm">Connecting to Floor...</p>
+  <div class="flex-1 flex flex-col items-center justify-center relative">
+    <!-- Glow background -->
+    <div class="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+      <div class="w-[500px] h-[500px] bg-[#4ECCA3] blur-[150px] rounded-full"></div>
     </div>
+
+    <svg class="animate-spin h-16 w-16 text-[#4ECCA3] mb-6 drop-shadow-[0_0_15px_rgba(78,204,163,0.5)]"
+      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+      <path class="opacity-100" fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+      </path>
+    </svg>
+    <p class="text-[#EEEEEE]/40 font-black tracking-[0.3em] uppercase text-sm animate-pulse">Establishing Link...</p>
+  </div>
   }
-  
+
   <!-- Error State -->
   @if (error()) {
-    <div class="max-w-md mx-auto mt-12 bg-white border border-red-100 rounded-2xl p-8 text-center shadow-sm">
-      <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-         <mat-icon class="text-3xl">error_outline</mat-icon>
+  <div class="flex-1 flex items-center justify-center p-6 relative">
+    <!-- Error glow -->
+    <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+      <div class="w-[500px] h-[500px] bg-red-500 blur-[150px] rounded-full"></div>
+    </div>
+
+    <div
+      class="max-w-md w-full bg-[#393E46]/80 backdrop-blur-xl border border-red-500/20 rounded-3xl p-10 text-center shadow-[0_0_50px_rgba(239,68,68,0.1)] relative z-10">
+      <div
+        class="w-20 h-20 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-500/20">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
       </div>
-      <h3 class="text-xl font-black text-gray-900 mb-2">Connection Error</h3>
-      <p class="text-sm text-gray-500 mb-6">{{ error() }}</p>
-      <button routerLink="/login" class="w-full py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors">
-        Back to Home
+      <h3 class="text-3xl font-black text-[#EEEEEE] mb-3 tracking-tight">Signal Lost</h3>
+      <p class="text-sm font-bold text-[#EEEEEE]/50 mb-8">{{ error() }}</p>
+      <button routerLink="/home"
+        class="w-full py-4 bg-[#232931] text-[#EEEEEE] border border-[#EEEEEE]/10 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#EEEEEE]/10 hover:border-[#EEEEEE]/30 transition-all focus:outline-none">
+        Return to Hub
       </button>
     </div>
+  </div>
   }
 
   @if (auction() && !loading() && !error()) {
-    
-    <!-- Unified Top Dashboard Header -->
-    <div class="mb-6 flex flex-col md:flex-row items-start justify-between bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8 gap-6">
-      <!-- Left: Title (Small), Stats (HUGE) -->
-      <div class="flex-1 w-full">
-        <!-- Compact Title -->
-        <div class="flex items-center gap-3 mb-4">
-          <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight leading-none">{{ auction()?.name }}</h1>
-          <div [ngClass]="getStatusClass(auction()?.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-            {{ auction()?.status }}
-          </div>
+
+  <!-- ── Dynamic Header ─────────────────────────────────────────────── -->
+  <header
+    class="flex-shrink-0 flex items-center justify-between px-6 py-5 lg:px-10 lg:py-6 border-b border-[#EEEEEE]/5 bg-[#232931]/90 backdrop-blur-md relative z-50">
+
+    <!-- Left: Branding & Status -->
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-3">
+        <!-- Live Indicator (only pulse if active) -->
+        @if (auction()?.status === 'active') {
+        <div class="relative flex h-3.5 w-3.5">
+          <span class="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+          <span
+            class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)]"></span>
         </div>
-        
-        <!-- MASSIVE Stats for the audience -->
-        <div class="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl">
-          <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
-             <div class="text-[10px] sm:text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">Total Players</div>
-             <div class="text-4xl sm:text-5xl font-black text-gray-900 tracking-tighter">{{ auctionStateService.totalPlayers() }}</div>
-          </div>
-          <div class="bg-green-50 p-4 rounded-2xl border border-green-100">
-             <div class="text-[10px] sm:text-xs text-green-700 font-bold uppercase tracking-widest mb-1">Sold</div>
-             <div class="text-4xl sm:text-5xl font-black text-green-700 tracking-tighter">{{ auctionStateService.soldPlayers().length }}</div>
-          </div>
-          <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-             <div class="text-[10px] sm:text-xs text-blue-700 font-bold uppercase tracking-widest mb-1">Remaining</div>
-             <div class="text-4xl sm:text-5xl font-black text-blue-700 tracking-tighter">{{ auctionStateService.remainingPlayers() }}</div>
-          </div>
+        <span class="text-xs font-black text-red-500 tracking-[0.2em] uppercase">Live</span>
+        } @else {
+        <div [ngClass]="getStatusClass(auction()?.status)"
+          class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.15em]">
+          {{ auction()?.status }}
+        </div>
+        }
+      </div>
+
+      <!-- Divider -->
+      <div class="w-px h-6 bg-[#EEEEEE]/10 hidden sm:block"></div>
+
+      <h1 class="text-2xl sm:text-3xl font-black text-[#EEEEEE] tracking-tighter hidden sm:block">
+        {{ auction()?.name }}
+      </h1>
+    </div>
+
+    <!-- Right: Global Stats & QR -->
+    <div class="flex items-center gap-8">
+
+      <!-- Compact Global Stats -->
+      <div class="hidden xl:flex items-center gap-8 mr-4">
+        <div class="flex flex-col items-center justify-center text-center">
+          <div class="text-[9px] text-[#EEEEEE]/40 font-black uppercase tracking-[0.2em] mb-1">Players</div>
+          <div class="text-xl font-black text-[#EEEEEE] leading-none">{{ auctionStateService.totalPlayers() }}</div>
+        </div>
+        <div class="flex flex-col items-center justify-center text-center">
+          <div class="text-[9px] text-emerald-400/60 font-black uppercase tracking-[0.2em] mb-1">Sold</div>
+          <div class="text-xl font-black text-emerald-400 leading-none">{{ auctionStateService.soldPlayers().length }}</div>
+        </div>
+        <div class="flex flex-col items-center justify-center text-center">
+          <div class="text-[9px] text-amber-400/60 font-black uppercase tracking-[0.2em] mb-1">Remaining</div>
+          <div class="text-xl font-black text-amber-400 leading-none">{{ auctionStateService.remainingPlayers() }}</div>
         </div>
       </div>
-      
-      <!-- Right: Clean Follow Live QR -->
+
+      <!-- QR Code Minimalist -->
       @if (currentUrl()) {
-        <div class="flex items-center gap-4 bg-gray-50 rounded-2xl border border-gray-200 p-4 shrink-0 w-full md:w-auto">
-          <div class="flex-1 text-right">
-             <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Join from mobile</div>
-             <h3 class="text-xl font-black text-gray-900 leading-none">Scan to Follow</h3>
-          </div>
-          <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-200 shrink-0">
-             <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + currentUrl()" class="w-16 h-16 sm:w-20 sm:h-20 object-cover" alt="QR">
-          </div>
+      <div class="flex items-center gap-4 group cursor-pointer" (click)="showLargeQr.set(true)"
+        title="Click to enlarge QR Code">
+        <div class="text-right hidden md:block flex flex-col justify-center">
+          <div class="text-[9px] text-[#EEEEEE]/40 uppercase tracking-[0.2em] font-black mb-1">Follow Live</div>
+          <div class="text-xl font-black text-[#EEEEEE]/80 group-hover:text-[#4ECCA3] transition-colors leading-none">Scan QR</div>
         </div>
+        <div class="bg-[#EEEEEE] p-1.5 rounded-xl shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+          <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=' + currentUrl()"
+            class="w-9 h-9 sm:w-11 sm:h-11 mix-blend-multiply" alt="QR">
+        </div>
+      </div>
       }
     </div>
+  </header>
 
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6">
-      
-      <!-- Action Center (Left) -->
-      <div class="space-y-6">
-        
-        <!-- Live Bidding Card -->
-        @if (auctionStateService.currentPlayer()) {
-          <div class="relative overflow-hidden bg-white rounded-[2rem] shadow-sm border border-gray-200">
-            <!-- Live Indicator Badge -->
-            <div class="absolute top-0 left-0 p-6 z-10 hidden sm:block">
-              <div class="flex items-center gap-2 bg-red-50 px-4 py-2 rounded-full border border-red-100">
-                <span class="flex h-3 w-3 relative shrink-0">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-                <span class="text-xs font-black text-red-600 tracking-widest uppercase">Live Auction</span>
-              </div>
+  <!-- ── Main Broadcast Grid ────────────────────────────────────────── -->
+  <main class="flex-1 min-h-0 flex flex-col xl:flex-row overflow-y-auto xl:overflow-hidden relative custom-scroll">
+
+    <!-- Background dramatic lighting -->
+    <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
+      <div class="w-[80vw] h-[80vw] bg-[#4ECCA3] blur-[200px] rounded-full"></div>
+    </div>
+
+    <!-- LEFT: Hero Stage (Current Player) -->
+    <section class="flex-none xl:flex-1 p-4 sm:p-6 lg:p-10 flex flex-col justify-center relative z-10 xl:overflow-y-auto custom-scroll min-h-0 xl:min-h-0">
+
+      @if (auctionStateService.currentPlayer()) {
+      <div
+        class="w-full max-w-5xl mx-auto animate-fade-in-up glow-box-accent rounded-2xl sm:rounded-[3rem] bg-[#393E46]/60 backdrop-blur-3xl border border-[#EEEEEE]/10 overflow-hidden relative">
+
+        <!-- Deco grid -->
+        <div class="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style="background-image: linear-gradient(#EEEEEE 1px, transparent 1px), linear-gradient(90deg, #EEEEEE 1px, transparent 1px); background-size: 40px 40px;">
+        </div>
+
+        <!-- "On The Block" Badge -->
+        <div
+          class="absolute top-0 right-0 bg-[#4ECCA3] text-[#232931] px-4 py-2 sm:px-8 sm:py-3 rounded-bl-2xl sm:rounded-bl-3xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.3em] shadow-lg z-20">
+          On The Block
+        </div>
+
+        <div class="p-4 sm:p-8 lg:p-16 flex flex-col lg:flex-row gap-4 sm:gap-8 lg:gap-10 items-center lg:items-stretch relative z-10">
+
+          <!-- Hero Portrait -->
+          <div
+            class="w-36 h-36 sm:w-56 sm:h-56 lg:w-80 lg:h-80 xl:w-[26rem] xl:h-[26rem] rounded-full sm:rounded-[2.5rem] bg-[#232931] border-4 border-[#EEEEEE]/5 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl relative">
+            <!-- Inner glow ring -->
+            <div
+              class="absolute inset-0 border border-[#4ECCA3]/20 rounded-full sm:rounded-[2.5rem] pointer-events-none">
             </div>
 
-            <div class="relative p-6 sm:p-12 sm:pt-16 flex flex-col md:flex-row gap-8 items-center z-10">
-              <!-- Player Portrait (Straightened) -->
-              <div class="w-48 h-48 sm:w-64 sm:h-64 rounded-2xl bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-200 shrink-0">
-                @if (auctionStateService.currentPlayer()?.image_url) {
-                  <img [src]="auctionStateService.currentPlayer()?.image_url" class="w-full h-full object-cover">
-                } @else {
-                  <mat-icon class="text-8xl text-gray-300">person</mat-icon>
-                }
-              </div>
-              
-              <!-- Player Details -->
-              <div class="flex-1 text-center md:text-left space-y-6 w-full">
-                <!-- Mobile Live Badge -->
-                <div class="flex justify-center sm:hidden mb-2">
-                   <div class="inline-flex items-center gap-2 bg-red-50 px-3 py-1.5 rounded-full border border-red-100">
-                     <span class="relative flex h-2 w-2 shrink-0"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span>
-                     <span class="text-[10px] font-black text-red-600 uppercase tracking-widest">Live</span>
-                   </div>
-                </div>
+            @if (auctionStateService.currentPlayer()?.image_url) {
+            <img [src]="auctionStateService.currentPlayer()?.image_url" class="w-full h-full object-cover">
+            } @else {
+            <svg class="w-1/3 h-1/3 text-[#EEEEEE]/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            }
+          </div>
 
-                <div class="space-y-4">
-                  <!-- Better fallback if name is somehow missing -->
-                  <h2 class="text-4xl sm:text-6xl font-black text-gray-900 tracking-tighter leading-tight">
-                     {{ auctionStateService.currentPlayer()?.name || 'Unnamed Player' }}
-                  </h2>
-                  <div class="flex flex-wrap justify-center md:justify-start gap-2">
-                    <span class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-bold uppercase">{{ auctionStateService.currentPlayer()?.position || 'Unknown Role' }}</span>
-                    <span class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-bold uppercase">{{ auctionStateService.currentPlayer()?.category || 'Unknown Category' }}</span>
-                    @if (auctionStateService.currentPlayer()?.nationality) {
-                       <span class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-bold uppercase">{{ auctionStateService.currentPlayer()?.nationality }}</span>
-                    }
-                  </div>
-                </div>
-                
-                <div class="inline-block mt-4">
-                  <div class="text-sm text-gray-500 font-bold uppercase tracking-widest mb-1 text-left">Current Base Price</div>
-                  <div class="text-5xl sm:text-7xl font-black text-gray-900 tracking-tighter">
-                     ₹{{ formatNumber(auctionStateService.currentPlayer()?.base_price) }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        } @else {
-          <div class="bg-white p-16 rounded-[2rem] shadow-sm border border-gray-200 text-center flex flex-col items-center">
-            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-               <mat-icon class="text-3xl text-gray-400">hourglass_empty</mat-icon>
-            </div>
-            <h3 class="text-2xl font-black text-gray-900 tracking-tight mb-2">Waiting for next player...</h3>
-            <p class="text-gray-500 font-medium">The auction host is currently organizing the floor.</p>
-          </div>
-        }
+          <!-- Player Data & Bidding Status -->
+          <div class="flex-1 flex flex-col justify-center text-center lg:text-left w-full">
 
-        <!-- Recent Transactions -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2">
-               <mat-icon class="text-[18px] w-[18px] h-[18px]">history</mat-icon>
-               Recent Transactions
-             </h3>
-          </div>
-          
-          @if (auctionStateService.auctionHistory().length > 0) {
-            <div class="divide-y divide-gray-100">
-              @for (item of auctionStateService.auctionHistory().slice(0, 4); track item.id) {
-                <div class="p-4 px-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                  <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-bold overflow-hidden shrink-0">
-                      @if (item.player?.image_url) {
-                          <img [src]="item.player?.image_url" class="w-full h-full object-cover">
-                      } @else {
-                          {{ item.player?.name?.charAt(0) || 'P' }}
-                      }
-                    </div>
-                    <div>
-                      <div class="text-base font-bold text-gray-900 tracking-tight">{{ item.player?.name || 'Unnamed Player' }}</div>
-                      <div class="flex items-center gap-1.5 text-xs text-gray-500 uppercase">
-                        <span>{{ item.status }}</span>
-                        @if (item.status === 'SOLD') {
-                           <span class="text-gray-300">•</span>
-                           <span class="font-bold">{{ item.team?.short_name || item.team?.name }}</span>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div class="text-right pl-4">
-                    @if (item.status === 'SOLD') {
-                      <div class="text-lg font-black text-green-700">₹{{ formatNumber(item.final_price) }}</div>
-                    } @else {
-                      <div class="text-xs font-bold text-red-600 uppercase">{{ item.status }}</div>
-                    }
-                  </div>
-                </div>
+            <!-- Metadata Chips -->
+            <div class="flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3 mb-3 sm:mb-6">
+              <span
+                class="px-3 py-1.5 sm:px-5 sm:py-2 bg-[#232931] text-[#EEEEEE]/80 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] border border-[#EEEEEE]/10 shadow-inner">
+                {{ auctionStateService.currentPlayer()?.position || 'ROLE N/A' }}
+              </span>
+              <span
+                class="px-3 py-1.5 sm:px-5 sm:py-2 bg-[#232931] text-[#EEEEEE]/80 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] border border-[#EEEEEE]/10 shadow-inner">
+                {{ auctionStateService.currentPlayer()?.category || 'CAT N/A' }}
+              </span>
+              @if (auctionStateService.currentPlayer()?.nationality) {
+              <span
+                class="px-3 py-1.5 sm:px-5 sm:py-2 bg-[#232931] text-[#EEEEEE]/80 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] border border-[#EEEEEE]/10 shadow-inner">
+                {{ auctionStateService.currentPlayer()?.nationality }}
+              </span>
               }
             </div>
-          } @else {
-             <div class="p-10 text-center text-gray-400">
-               No transactions have been recorded yet.
-             </div>
-          }
-        </div>
-      </div>
 
-      <!-- Team Standings (Right) - Extremely Compact -->
-      <div class="space-y-4">
-        <h3 class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest pl-2">
-           <mat-icon class="text-[18px] w-[18px] h-[18px]">leaderboard</mat-icon>
-           Standings
-        </h3>
-        
-        <div class="space-y-3">
-          @for (team of auctionStateService.teamsWithPlayers(); track team.id) {
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 transition-all">
-              
-              <!-- Clean Minimal Header -->
-              <div class="flex items-center gap-3 mb-3">
-                <!-- Color Indicator dot instead of heavy logo styling -->
-                <div class="w-3 h-3 rounded-full shrink-0" [style.background-color]="team.primary_color"></div>
-                <div class="flex-1 overflow-hidden">
-                  <h4 class="text-sm font-bold text-gray-900 truncate">{{ team.name }}</h4>
-                </div>
-                <div class="text-xs font-black text-gray-900">
-                  {{ team.players_count }}/{{ auction()?.max_players_per_team }}
-                </div>
+            <!-- Massive Name -->
+            <h2
+              class="text-2xl sm:text-4xl xl:text-[4.5rem] font-black text-[#EEEEEE] tracking-tighter leading-[1.1] mb-4 sm:mb-8 drop-shadow-lg line-clamp-3">
+              {{ auctionStateService.currentPlayer()?.name || 'Unnamed Player' }}
+            </h2>
+
+            <!-- Base Price (Massive Focus) -->
+            <div class="inline-flex flex-col lg:items-start items-center max-w-full overflow-hidden">
+              <div
+                class="flex items-center gap-3 text-[#EEEEEE]/40 font-black uppercase tracking-[0.2em] text-[10px] sm:text-[11px] mb-2">
+                <svg class="w-4 h-4 text-[#4ECCA3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                  </path>
+                </svg>
+                Base Price
               </div>
-              
-              <!-- Budget -->
-              <div class="flex justify-between items-end mb-1">
-                 <span class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Remaining</span>
-                 <span class="text-sm text-gray-900 font-bold">₹{{ formatNumber(team.budget_remaining) }}</span>
+              <div
+                class="text-3xl sm:text-5xl xl:text-[5.5rem] font-black text-[#4ECCA3] tracking-tighter glow-text-accent leading-none truncate max-w-full w-full">
+                ₹{{ formatNumber(auctionStateService.currentPlayer()?.base_price) }}
               </div>
-              <mat-progress-bar mode="determinate" [value]="(team.budget_remaining / (auction()?.budget_per_team || 1)) * 100" 
-                                class="h-1.5 rounded-full"></mat-progress-bar>
             </div>
+
+          </div>
+        </div>
+      </div>
+      } @else {
+      <!-- Empty / Waiting Stage -->
+      <div
+        class="w-full max-w-4xl mx-auto border border-[#EEEEEE]/5 rounded-[3rem] bg-[#393E46]/30 backdrop-blur-sm p-16 sm:p-32 text-center flex flex-col items-center shadow-2xl relative overflow-hidden">
+        <div
+          class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiMzOTNlNDYiIGZpbGwtb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')] opacity-20">
+        </div>
+
+        <div
+          class="w-32 h-32 rounded-full border border-[#EEEEEE]/10 flex items-center justify-center mb-10 bg-[#232931]/80 relative z-10 shadow-inner">
+          <svg class="w-12 h-12 text-[#4ECCA3]/60 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-4xl sm:text-6xl font-black text-[#EEEEEE] tracking-tighter mb-4 relative z-10 drop-shadow-md">
+          The Floor is Open</h3>
+        <p class="text-lg text-[#EEEEEE]/40 font-bold tracking-wide relative z-10">Waiting for the auctioneer to present
+          the next player.</p>
+      </div>
+      }
+    </section>
+
+    <!-- RIGHT: Standings & History (Sidebar) -->
+    <aside
+      class="w-full xl:w-[420px] bg-[#393E46]/40 backdrop-blur-xl border-t xl:border-t-0 border-l-0 xl:border-l border-[#EEEEEE]/5 flex flex-col z-20 shrink-0 min-h-0 sm:min-h-[400px] xl:min-h-0">
+
+      <!-- Standings Board -->
+      <div class="flex-1 flex flex-col min-h-0 border-b border-[#EEEEEE]/5">
+        <div class="px-6 py-5 border-b border-[#EEEEEE]/5 bg-[#232931]/50 flex justify-between items-center shrink-0">
+          <h3 class="text-[10px] font-black text-[#EEEEEE]/50 uppercase tracking-[0.2em] flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#EEEEEE]/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+            </svg>
+            Team Standings
+          </h3>
+          <div class="text-[9px] font-black text-[#EEEEEE]/30 uppercase tracking-widest">{{
+            auctionStateService.teamsWithPlayers().length }} Teams</div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scroll p-4 space-y-3 mask-fade-bottom">
+          @for (team of auctionStateService.teamsWithPlayers(); track team.id) {
+          <div
+            class="bg-[#232931] rounded-2xl border border-[#EEEEEE]/5 p-4 relative overflow-hidden group hover:border-[#EEEEEE]/20 transition-all duration-300">
+
+            <!-- Team color glow -->
+            <div
+              class="absolute -top-10 -right-10 w-20 h-20 blur-2xl opacity-20 rounded-full pointer-events-none group-hover:opacity-40 transition-opacity"
+              [style.background-color]="team.primary_color || '#4ECCA3'"></div>
+
+            <div class="flex items-start justify-between gap-3 mb-4 relative z-10">
+              <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-2 h-2 rounded-full shrink-0 shadow-[0_0_5px_currentColor]"
+                  [style.color]="team.primary_color || '#EEEEEE'"
+                  [style.background-color]="team.primary_color || '#EEEEEE'"></div>
+                <h4 class="text-[13px] font-black text-[#EEEEEE] uppercase tracking-wide truncate">{{ team.name }}</h4>
+              </div>
+              <div
+                class="text-[10px] font-black text-[#EEEEEE]/60 bg-[#393E46] px-2 py-0.5 rounded uppercase tracking-widest shrink-0 border border-[#EEEEEE]/5">
+                {{ team.players_count }}/{{ auction()?.max_players_per_team }}
+              </div>
+            </div>
+
+            <div class="relative z-10">
+              <div class="flex justify-between items-end mb-2">
+                <span class="text-[9px] text-[#EEEEEE]/40 uppercase font-black tracking-[0.2em]">Budget</span>
+                <span class="text-sm text-[#EEEEEE] font-black tracking-tight">₹{{ formatNumber(team.budget_remaining)
+                  }}</span>
+              </div>
+
+              <!-- Custom Progress Bar -->
+              <div class="w-full bg-[#393E46] h-1.5 rounded-full overflow-hidden border border-[#EEEEEE]/5">
+                <div class="h-full rounded-full transition-all duration-1000 ease-out"
+                  [style.width.%]="(team.budget_remaining / (auction()?.budget_per_team || 1)) * 100"
+                  [style.background-color]="team.primary_color || '#4ECCA3'">
+                </div>
+              </div>
+            </div>
+          </div>
           }
         </div>
       </div>
 
-    </div>
+      <!-- Recent Transactions -->
+      <div class="h-[320px] shrink-0 flex flex-col bg-[#232931]/30">
+        <div class="px-6 py-5 border-b border-[#EEEEEE]/5 bg-[#232931]/50 shrink-0">
+          <h3 class="text-[10px] font-black text-[#EEEEEE]/50 uppercase tracking-[0.2em] flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#EEEEEE]/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Recent Activity
+          </h3>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scroll mask-fade-bottom">
+          @if (auctionStateService.auctionHistory().length > 0) {
+          <div class="divide-y divide-[#EEEEEE]/5">
+            @for (item of auctionStateService.auctionHistory().slice(0, 5); track item.id) {
+            <div class="px-6 py-4 flex flex-col gap-2 hover:bg-[#EEEEEE]/[0.02] transition-colors animate-fade-in-up">
+
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-black text-[#EEEEEE] truncate tracking-tight">{{ item.player?.name || 'Unknown'
+                  }}</div>
+                @if (item.status === 'SOLD') {
+                <div class="text-[13px] font-black text-emerald-400 shrink-0 ml-2">₹{{ formatNumber(item.final_price) }}
+                </div>
+                } @else {
+                <div
+                  class="text-[9px] font-black text-red-500 uppercase tracking-widest bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 shrink-0 ml-2">
+                  UNSOLD</div>
+                }
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div class="text-[10px] font-bold uppercase tracking-widest text-[#EEEEEE]/40 truncate">
+                  {{ item.player?.position || 'ROLE N/A' }}
+                </div>
+                @if (item.status === 'SOLD') {
+                <div
+                  class="text-[10px] font-black uppercase tracking-widest text-[#EEEEEE]/60 truncate ml-2 text-right">
+                  {{ item.team?.short_name || item.team?.name }}
+                </div>
+                }
+              </div>
+
+            </div>
+            }
+          </div>
+          } @else {
+          <div
+            class="p-10 text-center text-[#EEEEEE]/30 text-[10px] uppercase tracking-[0.2em] font-black h-full flex items-center justify-center">
+            Awaiting First Bid
+          </div>
+          }
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
   }
+
+  <!-- QR Code Fullscreen Overlay -->
+  @if (showLargeQr()) {
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-[#232931]/95 backdrop-blur-xl animate-fade-in-up"
+    (click)="showLargeQr.set(false)">
+    <div
+      class="bg-[#EEEEEE] p-8 rounded-[2rem] shadow-[0_0_100px_rgba(78,204,163,0.2)] transform transition-transform hover:scale-[1.02]"
+      (click)="$event.stopPropagation()">
+      <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + currentUrl()"
+        class="w-64 h-64 sm:w-[400px] sm:h-[400px] mix-blend-multiply" alt="Large QR">
+      <p class="text-center text-[#232931] font-black uppercase tracking-[0.2em] mt-6 text-sm">Scan to Join Live</p>
+    </div>
+
+    <!-- Close button -->
+    <button
+      class="absolute top-8 right-8 w-14 h-14 bg-[#393E46]/80 text-[#EEEEEE]/80 rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-2xl backdrop-blur-md focus:outline-none border border-[#EEEEEE]/10 hover:border-red-400"
+      (click)="showLargeQr.set(false)">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  </div>
+  }
+
 </div>

@@ -4,7 +4,11 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
+import { Auction } from '../../services/auctions.service';
 import { Player } from '../../services/players.service';
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { ToastService } from '../../services/toast.service';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -21,6 +25,10 @@ export interface AuctionPlayer {
   // joined from team_players / auction_history
   sold_team_name?: string;
   sold_price?: number;
+  // precomputed UI fields
+  _fmtBasePrice?: string;
+  _fmtSoldPrice?: string;
+  _statusLabel?: string;
 }
 
 type StatusFilter = 'all' | AuctionStatus;
@@ -30,9 +38,10 @@ type StatusFilter = 'all' | AuctionStatus;
 @Component({
   selector: 'app-auction-players',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SidePanelComponent, AvatarComponent],
   templateUrl: './auction-players.component.html',
   styleUrls: ['./auction-players.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class AuctionPlayersComponent implements OnInit {
   // ── Core state ────────────────────────────────────────────────────────────
@@ -57,9 +66,9 @@ export class AuctionPlayersComponent implements OnInit {
   searchTerm    = signal('');
   statusFilter  = signal<StatusFilter>('all');
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
-  toast         = signal<{ msg: string; type: 'ok' | 'err' } | null>(null);
-  private toastTimer: any;
+  // ── Responsive ────────────────────────────────────────────────────────────
+  isMobile      = signal(false);
+  canEditAuctionPool = signal(false);
 
   // ── Computed ──────────────────────────────────────────────────────────────
   filtered = computed(() => {
@@ -115,6 +124,7 @@ export class AuctionPlayersComponent implements OnInit {
     private route: ActivatedRoute,
     private supabase: SupabaseService,
     private fb: FormBuilder,
+    private toast: ToastService,
   ) {
     this.editForm = this.fb.group({
       base_price: [100_000, [Validators.required, Validators.min(1000)]],
@@ -122,13 +132,22 @@ export class AuctionPlayersComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      const mql = window.matchMedia('(max-width: 767px)');
+      this.isMobile.set(mql.matches);
+      mql.addEventListener('change', e => this.isMobile.set(e.matches));
+    }
+
     let r: ActivatedRoute | null = this.route;
     while (r) {
       const id = r.snapshot.paramMap.get('id');
       if (id) { this.auctionId.set(id); break; }
       r = r.parent;
     }
-    if (this.auctionId()) this.loadAuctionPlayers();
+    if (this.auctionId()) {
+      this.resolveAuctionOwnership();
+      this.loadAuctionPlayers();
+    }
   }
 
   // ── Data loading ──────────────────────────────────────────────────────────
@@ -145,12 +164,12 @@ export class AuctionPlayersComponent implements OnInit {
         .eq('auction_id', this.auctionId())
         .order('created_at', { ascending: true });
 
-      if (error) { this.showToast(error.message, 'err'); return; }
+      if (error) { this.toast.error(error.message); return; }
 
       // Build enriched list — retrieve sold info from auction_history
       const raw = (data ?? []) as any[];
       const soldPlayerIds = raw
-        .filter(r => (r.status || '').toUpperCase() === 'SOLD')
+        .filter(r => this.mapDbStatus(r.status) === 'SOLD')
         .map(r => r.player_id);
 
       let historyMap: Record<string, { team: string; price: number }> = {};
@@ -167,21 +186,48 @@ export class AuctionPlayersComponent implements OnInit {
         });
       }
 
-      const entries: AuctionPlayer[] = raw.map(r => ({
-        id:             r.id,
-        auction_id:     r.auction_id,
-        player_id:      r.player_id,
-        base_price:     r.base_price,
-        auction_status: ((r.status || 'pending') as string).toUpperCase() as AuctionStatus,
-        player:         Array.isArray(r.player) ? r.player[0] : r.player,
-        sold_team_name: historyMap[r.player_id]?.team,
-        sold_price:     historyMap[r.player_id]?.price,
-      }));
+      const entries: AuctionPlayer[] = raw.map(r => {
+        const apStatus = this.mapDbStatus(r.status);
+        return {
+          id:             r.id,
+          auction_id:     r.auction_id,
+          player_id:      r.player_id,
+          base_price:     r.base_price,
+          auction_status: apStatus,
+          player:         Array.isArray(r.player) ? r.player[0] : r.player,
+          sold_team_name: historyMap[r.player_id]?.team,
+          sold_price:     historyMap[r.player_id]?.price,
+          _fmtBasePrice:  this.formatCurrency(r.base_price),
+          _fmtSoldPrice:  historyMap[r.player_id]?.price ? this.formatCurrency(historyMap[r.player_id].price) : '',
+          _statusLabel:   this.statusMeta(apStatus).label
+        };
+      });
 
       this.auctionPlayers.set(entries);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private async resolveAuctionOwnership() {
+    const user = this.supabase.currentUserValue;
+    if (!user || !this.auctionId()) {
+      this.canEditAuctionPool.set(false);
+      return;
+    }
+
+    const { data, error } = await this.supabase.db
+      .from('auctions')
+      .select('owner_id')
+      .eq('id', this.auctionId())
+      .single();
+
+    if (error || !data) {
+      this.canEditAuctionPool.set(false);
+      return;
+    }
+
+    this.canEditAuctionPool.set((data as Pick<Auction, 'owner_id'>).owner_id === user.id);
   }
 
   // ── Pool modal ────────────────────────────────────────────────────────────
@@ -199,7 +245,11 @@ export class AuctionPlayersComponent implements OnInit {
         .eq('owner_id', user!.id)
         .eq('is_active', true)
         .order('name', { ascending: true });
-      if (!error) this.poolPlayers.set((data ?? []) as Player[]);
+      if (!error) {
+        const p = (data ?? []) as Player[];
+        p.forEach(x => (x as any)._fmtBasePrice = this.formatCurrency(x.base_price));
+        this.poolPlayers.set(p);
+      }
     } finally {
       this.poolLoading.set(false);
     }
@@ -235,7 +285,7 @@ export class AuctionPlayersComponent implements OnInit {
           auction_id:     this.auctionId(),
           player_id:      playerId,
           base_price:     player.base_price,
-          status:         'pending',
+          status:         'available',
         };
       });
 
@@ -243,9 +293,9 @@ export class AuctionPlayersComponent implements OnInit {
         .from('auction_players')
         .insert(rows);
 
-      if (error) { this.showToast(error.message, 'err'); }
+      if (error) { this.toast.error(error.message); }
       else {
-        this.showToast(`${ids.length} player${ids.length > 1 ? 's' : ''} added!`);
+        this.toast.success(`${ids.length} player${ids.length > 1 ? 's' : ''} added!`);
         this.closeModal();
         await this.loadAuctionPlayers();
       }
@@ -283,9 +333,9 @@ export class AuctionPlayersComponent implements OnInit {
         .update({ base_price: this.editForm.value.base_price })
         .eq('id', this.editingAP()!.id);
 
-      if (error) { this.showToast(error.message, 'err'); }
+      if (error) { this.toast.error(error.message); }
       else {
-        this.showToast('Base price updated.');
+        this.toast.success('Base price updated.');
         this.closeEdit();
         await this.loadAuctionPlayers();
       }
@@ -306,9 +356,9 @@ export class AuctionPlayersComponent implements OnInit {
         .from('auction_players')
         .delete()
         .eq('id', ap.id);
-      if (error) { this.showToast(error.message, 'err'); }
+      if (error) { this.toast.error(error.message); }
       else {
-        this.showToast('Player removed from auction.');
+        this.toast.success('Player removed from auction.');
         this.auctionPlayers.update(list => list.filter(a => a.id !== ap.id));
       }
     } finally {
@@ -316,46 +366,14 @@ export class AuctionPlayersComponent implements OnInit {
     }
   }
 
-  // ── Bulk actions ──────────────────────────────────────────────────────────
-
-  async removeUnsold() {
-    const unsold = this.auctionPlayers().filter(ap => ap.auction_status === 'UNSOLD');
-    if (!unsold.length) { this.showToast('No unsold players to remove.'); return; }
-    if (!confirm(`Remove ${unsold.length} unsold player(s) from auction?`)) return;
-    this.saving.set(true);
-    try {
-      const ids = unsold.map(ap => ap.id);
-      const { error } = await this.supabase.db
-        .from('auction_players').delete().in('id', ids);
-      if (error) { this.showToast(error.message, 'err'); }
-      else {
-        this.showToast(`${ids.length} unsold player(s) removed.`);
-        await this.loadAuctionPlayers();
-      }
-    } finally { this.saving.set(false); }
-  }
-
-  async resetStatuses() {
-    if (!confirm('Reset all non-sold player statuses back to PENDING?')) return;
-    this.saving.set(true);
-    try {
-      const resetIds = this.auctionPlayers()
-        .filter(ap => ap.auction_status !== 'SOLD')
-        .map(ap => ap.id);
-      if (!resetIds.length) { this.showToast('Nothing to reset.'); return; }
-      const { error } = await this.supabase.db
-        .from('auction_players')
-        .update({ status: 'pending' })
-        .in('id', resetIds);
-      if (error) { this.showToast(error.message, 'err'); }
-      else {
-        this.showToast('Statuses reset to PENDING.');
-        await this.loadAuctionPlayers();
-      }
-    } finally { this.saving.set(false); }
-  }
-
   // ── Utils ─────────────────────────────────────────────────────────────────
+
+  /** Map DB auction_players.status → UI AuctionStatus (available ↔ PENDING). */
+  private mapDbStatus(status: string | null | undefined): AuctionStatus {
+    const raw = (status || 'available').toLowerCase();
+    if (raw === 'available') return 'PENDING';
+    return raw.toUpperCase() as AuctionStatus;
+  }
 
   onOverlayClick(e: MouseEvent, closeAll = false) {
     if ((e.target as HTMLElement).classList.contains('modal-backdrop')) {
@@ -384,9 +402,4 @@ export class AuctionPlayersComponent implements OnInit {
   trackAP(_: number, ap: AuctionPlayer) { return ap.id; }
   trackPlayer(_: number, p: Player)     { return p.id; }
 
-  private showToast(msg: string, type: 'ok' | 'err' = 'ok') {
-    clearTimeout(this.toastTimer);
-    this.toast.set({ msg, type });
-    this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
-  }
 }

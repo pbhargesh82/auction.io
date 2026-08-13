@@ -7,10 +7,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
+import { ToastService } from '../../services/toast.service';
 import { AuctionService, AuctionConfig } from '../../services/auction.service';
 import { TeamRosterComponent } from '../team-roster/team-roster.component';
 
@@ -45,7 +44,7 @@ export class AuctionConfigComponent implements OnInit {
   constructor(
     private auctionService: AuctionService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar,
+    private toast: ToastService,
     private dialog: MatDialog
   ) {
     this.configForm = this.fb.group({
@@ -68,7 +67,7 @@ export class AuctionConfigComponent implements OnInit {
     
     if (error) {
       this.error.set(error.message);
-      this.snackBar.open(`Error loading auction config: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error loading auction config: ${error.message}`);
     } else if (data) {
       this.auctionConfig.set(data);
       this.configForm.patchValue({
@@ -98,9 +97,9 @@ export class AuctionConfigComponent implements OnInit {
       
       if (error) {
         this.error.set(error.message);
-        this.snackBar.open(`Error updating auction config: ${error.message}`, 'Close', { duration: 5000 });
+        this.toast.error(`Error updating auction config: ${error.message}`);
       } else {
-        this.snackBar.open('Auction configuration updated successfully!', 'Close', { duration: 3000 });
+        this.toast.success('Auction configuration updated successfully!');
       }
     } else {
       // Create new config
@@ -108,9 +107,9 @@ export class AuctionConfigComponent implements OnInit {
       
       if (error) {
         this.error.set(error.message);
-        this.snackBar.open(`Error creating auction config: ${error.message}`, 'Close', { duration: 5000 });
+        this.toast.error(`Error creating auction config: ${error.message}`);
       } else {
-        this.snackBar.open('Auction configuration created successfully!', 'Close', { duration: 3000 });
+        this.toast.success('Auction configuration created successfully!');
       }
     }
     this.loading.set(false);

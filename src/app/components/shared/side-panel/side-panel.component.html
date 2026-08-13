@@ -1,0 +1,41 @@
+@if (isOpen) {
+<div
+  class="fixed inset-0 z-[9999] flex justify-end modal-backdrop bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+  (click)="onOverlayClick($event)" role="dialog" aria-modal="true">
+
+  <div
+    class="bg-[#232931] border-l border-[#EEEEEE]/10 w-full max-w-md h-dvh max-h-dvh flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.5)] animate-slide-in-right relative"
+    (click)="$event.stopPropagation()">
+
+    <!-- Panel Header -->
+    <div class="flex items-center justify-between px-5 sm:px-8 pt-[max(0.75rem,env(safe-area-inset-top))] pb-4 border-b border-[#EEEEEE]/5 bg-[#232931] shrink-0">
+      <div>
+        <h2 class="text-xl font-black text-[#EEEEEE] tracking-wide">{{ title }}</h2>
+        @if (subtitle) {
+        <!-- <p class="text-[10px] font-bold text-[#4ECCA3] uppercase tracking-widest mt-1">{{ subtitle }}</p> -->
+        }
+      </div>
+      <button type="button"
+        class="p-2 -mr-2 rounded-xl text-[#EEEEEE]/40 hover:text-[#EEEEEE] hover:bg-[#EEEEEE]/5 transition-colors focus:outline-none"
+        (click)="closePanel.emit()" aria-label="Close">
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Panel Body -->
+    <div class="flex flex-col flex-1 min-h-0 overflow-y-auto px-5 sm:px-8 py-5 sm:py-6 custom-scroll">
+      <ng-content select="[panel-body]"></ng-content>
+    </div>
+
+    <!-- Panel Footer (Sticky Bottom) -->
+    <div class="px-5 sm:px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-[#EEEEEE]/5 bg-[#232931] flex shrink-0">
+      <ng-content select="[panel-footer]"></ng-content>
+    </div>
+
+  </div>
+</div>
+}

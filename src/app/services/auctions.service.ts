@@ -32,6 +32,7 @@ export interface Auction {
  *   • createAuction(partial) → { data, error }
  *   • updateAuction(id, partial) → { error }
  *   • deleteAuction(id) → { error }
+ *   • resetAuction(id) → { error }
  *   • getPublicAuction(slug) → { data, error }  (no-auth)
  */
 @Injectable({ providedIn: 'root' })
@@ -43,13 +44,25 @@ export class AuctionsService {
 
   /** Load all auctions owned by the current user. */
   async loadAuctions(): Promise<void> {
+    const user = this.supabase.currentUserValue;
+    if (!user) {
+      this.auctions.set([]);
+      return;
+    }
+
     this.loading.set(true);
     try {
       const { data, error } = await this.supabase.db
         .from('auctions')
         .select('*')
+        .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
-      if (!error) this.auctions.set((data ?? []) as Auction[]);
+      if (error) {
+        console.error('Failed to load auctions:', error.message);
+        this.auctions.set([]);
+      } else {
+        this.auctions.set((data ?? []) as Auction[]);
+      }
     } finally {
       this.loading.set(false);
     }
@@ -113,6 +126,85 @@ export class AuctionsService {
 
     if (!error) await this.loadAuctions();
     return { error: error as unknown as Error };
+  }
+
+  /**
+   * Fully reset one auction's progress while keeping teams and the player pool.
+   *
+   * - Sets status to `draft` and clears current-player pointers
+   * - Resets auction_players to available (clears sold price / team)
+   * - Removes team_players assignments and zeros team budgets/counts
+   * - Deletes auction_history for this auction
+   */
+  async resetAuction(auctionId: string): Promise<{ error: Error | null }> {
+    if (!auctionId) {
+      return { error: new Error('Auction ID is required') };
+    }
+
+    try {
+      const { error: auctionError } = await this.supabase.db
+        .from('auctions')
+        .update({
+          status: 'draft',
+          current_player_id: null,
+          current_player_position: 0,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', auctionId);
+      if (auctionError) throw auctionError;
+
+      const { error: playersError } = await this.supabase.db
+        .from('auction_players')
+        .update({
+          status: 'available',
+          sold_price: null,
+          assigned_team_id: null,
+        })
+        .eq('auction_id', auctionId);
+      if (playersError) throw playersError;
+
+      const { data: teams, error: teamsLoadError } = await this.supabase.db
+        .from('teams')
+        .select('id')
+        .eq('auction_id', auctionId);
+      if (teamsLoadError) throw teamsLoadError;
+
+      const teamIds = (teams ?? []).map((t: { id: string }) => t.id);
+      if (teamIds.length > 0) {
+        const { error: teamPlayersError } = await this.supabase.db
+          .from('team_players')
+          .delete()
+          .in('team_id', teamIds);
+        if (teamPlayersError) throw teamPlayersError;
+
+        const { error: teamsResetError } = await this.supabase.db
+          .from('teams')
+          .update({ budget_spent: 0, players_count: 0 })
+          .in('id', teamIds);
+        if (teamsResetError) throw teamsResetError;
+      }
+
+      // Also clear any team_players rows scoped by auction_id (if column present)
+      const { error: scopedTeamPlayersError } = await this.supabase.db
+        .from('team_players')
+        .delete()
+        .eq('auction_id', auctionId);
+      if (scopedTeamPlayersError && scopedTeamPlayersError.code !== '42703') {
+        throw scopedTeamPlayersError;
+      }
+
+      const { error: historyError } = await this.supabase.db
+        .from('auction_history')
+        .delete()
+        .eq('auction_id', auctionId);
+      if (historyError) throw historyError;
+
+      await this.loadAuctions();
+      return { error: null };
+    } catch (err: any) {
+      console.error('Failed to reset auction:', err);
+      return { error: err instanceof Error ? err : new Error(err?.message || 'Failed to reset auction') };
+    }
   }
 
   /**

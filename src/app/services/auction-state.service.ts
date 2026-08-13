@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { AuctionsService } from './auctions.service';
 import { BehaviorSubject } from 'rxjs';
 
 export interface AuctionState {
@@ -147,7 +148,10 @@ export class AuctionStateService {
     return total > 0 ? Math.round((sold / total) * 100) : 0;
   });
 
-  constructor(private supabase: SupabaseService) {
+  constructor(
+    private supabase: SupabaseService,
+    private auctionsService: AuctionsService
+  ) {
     // Subscriptions are now managed via loadAllData or manual calls
   }
 
@@ -561,90 +565,15 @@ export class AuctionStateService {
     this._error.set(null);
 
     try {
-      // Get current auction config
       const { data: config } = await this.loadAuctionConfig();
-      if (!config) {
+      if (!config?.id) {
         throw new Error('No auction config found');
       }
 
-      // 1. Reset auction status
-      const { error: configError } = await this.supabase.db
-        .from('auctions')
-        .update({
-          status: 'draft',
-          current_player_id: null,
-          current_player_position: 0
-        })
-        .eq('id', config.id);
+      const { error } = await this.auctionsService.resetAuction(config.id);
+      if (error) throw error;
 
-      // Fallback for legacy auction_config
-      if (configError && configError.code === '42P01') {
-        const { error: legacyConfigError } = await this.supabase.db
-          .from('auction_config')
-          .update({
-            status: 'DRAFT',
-            current_player_id: null,
-            current_player_position: 0
-          })
-          .eq('id', config.id);
-        if (legacyConfigError) throw legacyConfigError;
-      } else if (configError) {
-        throw configError;
-      }
-
-      // 2. Reset auction_players status to 'available'
-      const { error: apError } = await this.supabase.db
-        .from('auction_players')
-        .update({
-          status: 'available',
-          sold_price: null,
-          assigned_team_id: null
-        })
-        .eq('auction_id', config.id);
-        
-      if (apError && apError.code !== '42P01') throw apError;
-
-      // Reset legacy players to PENDING status
-      const { error: playersError } = await this.supabase.db
-        .from('players')
-        .update({
-          auction_status: 'PENDING',
-          is_sold: false
-        })
-        .not('id', 'is', null);
-
-      if (playersError) throw playersError;
-
-      // 3. Clear auction history
-      const { error: historyError } = await this.supabase.db
-        .from('auction_history')
-        .delete()
-        .not('id', 'is', null);
-
-      if (historyError) throw historyError;
-
-      // 4. Clear team players
-      const { error: teamPlayersError } = await this.supabase.db
-        .from('team_players')
-        .delete()
-        .not('id', 'is', null);
-
-      if (teamPlayersError) throw teamPlayersError;
-
-      // 5. Reset team budgets
-      const { error: teamsError } = await this.supabase.db
-        .from('teams')
-        .update({
-          budget_spent: 0,
-          players_count: 0
-        })
-        .not('id', 'is', null);
-
-      if (teamsError) throw teamsError;
-
-      // Reload all data
-      await this.loadAllData();
-
+      await this.loadAllData(config.id);
     } catch (error: any) {
       this._error.set(error.message);
       throw error;

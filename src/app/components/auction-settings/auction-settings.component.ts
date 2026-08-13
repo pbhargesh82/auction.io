@@ -4,7 +4,8 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
-import { Auction } from '../../services/auctions.service';
+import { ToastService } from '../../services/toast.service';
+import { Auction, AuctionsService } from '../../services/auctions.service';
 
 @Component({
   selector: 'app-auction-settings',
@@ -12,6 +13,7 @@ import { Auction } from '../../services/auctions.service';
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './auction-settings.component.html',
   styleUrls: ['./auction-settings.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class AuctionSettingsComponent implements OnInit {
   // ── State ─────────────────────────────────────────────────────────────────
@@ -21,7 +23,6 @@ export class AuctionSettingsComponent implements OnInit {
   saving       = signal(false);
   resetting    = signal(false);
   deleting     = signal(false);
-  saveSuccess  = signal(false);
   slugCopied   = signal(false);
 
   // ── Form ──────────────────────────────────────────────────────────────────
@@ -47,6 +48,8 @@ export class AuctionSettingsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private supabase: SupabaseService,
+    private auctionsService: AuctionsService,
+    private toast: ToastService,
     private fb: FormBuilder
   ) {
     this.settingsForm = this.fb.group({
@@ -110,7 +113,6 @@ export class AuctionSettingsComponent implements OnInit {
       return;
     }
     this.saving.set(true);
-    this.saveSuccess.set(false);
     try {
       const v = this.settingsForm.value;
       const { data, error } = await this.supabase.db
@@ -129,10 +131,11 @@ export class AuctionSettingsComponent implements OnInit {
         .select()
         .single();
 
-      if (!error && data) {
+      if (error) {
+        this.toast.error(error.message);
+      } else if (data) {
         this.auction.set(data as Auction);
-        this.saveSuccess.set(true);
-        setTimeout(() => this.saveSuccess.set(false), 3000);
+        this.toast.success('Auction settings saved');
       }
     } finally {
       this.saving.set(false);
@@ -154,44 +157,19 @@ export class AuctionSettingsComponent implements OnInit {
 
   async resetAuction() {
     if (!confirm(
-      `Reset "${this.auction()?.name}"?\n\nThis will:\n• Clear all team budgets\n• Remove all player assignments\n• Delete all auction history\n\nThis cannot be undone.`
+      `Reset "${this.auction()?.name}"?\n\nThis will:\n• Set status back to Draft\n• Reset all player statuses in this auction\n• Clear all team budgets and assignments\n• Delete all auction history\n\nTeams and the player pool stay. This cannot be undone.`
     )) return;
 
     this.resetting.set(true);
     try {
-      // Delete team_players for teams in this auction
-      const teamIds = (await this.supabase.db
-        .from('teams')
-        .select('id')
-        .eq('auction_id', this.auctionId())
-      ).data?.map((t: any) => t.id) ?? [];
-
-      if (teamIds.length > 0) {
-        await this.supabase.db
-          .from('team_players')
-          .delete()
-          .in('team_id', teamIds);
-
-        // Reset team budgets
-        await this.supabase.db
-          .from('teams')
-          .update({ budget_spent: 0, players_count: 0 })
-          .in('id', teamIds);
+      const { error } = await this.auctionsService.resetAuction(this.auctionId());
+      if (error) {
+        this.toast.error(`Failed to reset auction: ${error.message}`);
+        return;
       }
 
-      // Clear auction history for this auction
-      await this.supabase.db
-        .from('auction_history')
-        .delete()
-        .eq('auction_id', this.auctionId());
-
-      // Reset player auction statuses
-      await this.supabase.db
-        .from('players')
-        .update({ auction_status: 'PENDING', is_sold: false })
-        .eq('auction_id', this.auctionId());
-
-      alert('Auction reset successfully.');
+      await this.loadAuction();
+      this.toast.success('Auction reset successfully.');
     } finally {
       this.resetting.set(false);
     }
@@ -203,7 +181,7 @@ export class AuctionSettingsComponent implements OnInit {
       `Type the auction name to confirm deletion:\n\n"${name}"\n\nThis will permanently delete the auction and ALL its data.`
     );
     if (typed !== name) {
-      if (typed !== null) alert('Name did not match — deletion cancelled.');
+      if (typed !== null) this.toast.error('Name did not match — deletion cancelled.');
       return;
     }
 
@@ -217,7 +195,7 @@ export class AuctionSettingsComponent implements OnInit {
       if (!error) {
         this.router.navigate(['/home']);
       } else {
-        alert('Failed to delete auction: ' + error.message);
+        this.toast.error('Failed to delete auction: ' + error.message);
       }
     } finally {
       this.deleting.set(false);

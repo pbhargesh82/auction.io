@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export type UserRole = 'super_admin' | 'user';
 
@@ -14,9 +13,9 @@ export class SupabaseService {
   private _currentUser: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
   private _userRole: BehaviorSubject<UserRole> = new BehaviorSubject<UserRole>('user');
   private _initialized = false;
+  private initPromise: Promise<void>;
 
   constructor() {
-    console.log('environment', environment);
     this.supabase = createClient(
       environment.supabase.url,
       environment.supabase.anonKey,
@@ -25,26 +24,58 @@ export class SupabaseService {
           storage: window.localStorage,
           autoRefreshToken: true,
           persistSession: true,
-          detectSessionInUrl: true // Enable automatic session detection from URL
+          detectSessionInUrl: true,
+          flowType: 'pkce'
         }
       }
     );
 
-    this.initializeAuth();
+    this.initPromise = this.initializeAuth();
   }
 
-  private async initializeAuth() {
-    // Get the current session on initialization
+  private hasAuthTokensInUrl(): boolean {
+    const hash = window.location.hash;
+    const search = window.location.search;
+    return (
+      hash.includes('access_token=') ||
+      hash.includes('error=') ||
+      search.includes('code=')
+    );
+  }
+
+  private stripAuthFromUrl(): void {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+
+  private async recoverSessionFromUrl(): Promise<void> {
+    if (!this.hasAuthTokensInUrl()) {
+      return;
+    }
+
+    const { data: { session }, error } = await this.supabase.auth.getSession();
+    if (error) {
+      console.error('OAuth URL recovery error:', error);
+      return;
+    }
+
+    if (session?.user) {
+      this._currentUser.next(session.user);
+      void this.updateUserRole(session.user);
+      this.stripAuthFromUrl();
+    }
+  }
+
+  private async initializeAuth(): Promise<void> {
+    await this.recoverSessionFromUrl();
+
     const { data: { session } } = await this.supabase.auth.getSession();
     this._currentUser.next(session?.user ?? null);
-    this.updateUserRole(session?.user ?? null);
     this._initialized = true;
+    void this.updateUserRole(session?.user ?? null);
 
-    // Listen to auth changes
     this.supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session?.user?.email);
       this._currentUser.next(session?.user ?? null);
-      this.updateUserRole(session?.user ?? null);
+      void this.updateUserRole(session?.user ?? null);
     });
   }
 
@@ -119,19 +150,9 @@ export class SupabaseService {
     return this._userRole.value === 'super_admin';
   }
 
-  // Wait for auth initialization to complete
   async waitForAuthInitialization(): Promise<User | null> {
-    if (this._initialized) {
-      return this._currentUser.value;
-    }
-
-    // Wait for the first emission after initialization
-    return firstValueFrom(
-      this._currentUser.pipe(
-        filter(() => this._initialized),
-        take(1)
-      )
-    );
+    await this.initPromise;
+    return this._currentUser.value;
   }
 
   get isInitialized(): boolean {
@@ -142,7 +163,10 @@ export class SupabaseService {
   async signUp(email: string, password: string) {
     const { data, error } = await this.supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
     });
     return { data, error };
   }
@@ -156,14 +180,7 @@ export class SupabaseService {
   }
 
   async signInWithGoogle() {
-    // Temporary workaround: Force localhost for local development
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const redirectUrl = isLocalhost
-      ? 'http://localhost:4200/auth/callback'
-      : environment.auth.redirectUrl;
-
-    console.log('Using redirect URL:', redirectUrl);
-    console.log('Current hostname:', window.location.hostname);
+    const redirectUrl = `${window.location.origin}/auth/callback`;
 
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -184,14 +201,44 @@ export class SupabaseService {
     return { data, error };
   }
 
-  // Handle OAuth callback
-  async handleAuthCallback() {
-    const { data, error } = await this.supabase.auth.getSession();
-    if (error) {
-      console.error('Error getting session:', error);
-      return { error };
+  async waitForOAuthSession(timeoutMs = 10000): Promise<{ user: User | null; error: Error | null }> {
+    await this.waitForAuthInitialization();
+
+    if (this._currentUser.value) {
+      return { user: this._currentUser.value, error: null };
     }
-    return { data };
+
+    await this.recoverSessionFromUrl();
+
+    if (this._currentUser.value) {
+      return { user: this._currentUser.value, error: null };
+    }
+
+    const { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
+    if (sessionError) {
+      return { user: null, error: sessionError };
+    }
+    if (session?.user) {
+      return { user: session.user, error: null };
+    }
+
+    return new Promise((resolve) => {
+      let subscription: { unsubscribe: () => void } | undefined;
+
+      const timeout = setTimeout(() => {
+        subscription?.unsubscribe();
+        resolve({ user: null, error: new Error('OAuth session timeout') });
+      }, timeoutMs);
+
+      const { data } = this.supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          clearTimeout(timeout);
+          subscription?.unsubscribe();
+          resolve({ user: session.user, error: null });
+        }
+      });
+      subscription = data.subscription;
+    });
   }
 
   // Database methods

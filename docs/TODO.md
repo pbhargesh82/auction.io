@@ -60,6 +60,10 @@
 - [x] **Day 7**: Implement automatic redirect for already authenticated users ✅ (Completed: 2024-01-15)
 - [x] **Day 7**: Fix production environment configuration for Netlify deployment ✅ (Completed: 2024-01-15)
 - [x] **Day 7**: Update build scripts to use production configuration ✅ (Completed: 2024-01-15)
+- [x] **Account Settings**: Create `user_profiles` table migration with RLS and signup trigger ✅ (Completed: 2026-07-31)
+- [x] **Account Settings**: Add ProfileService and Account Settings page at `/settings` ✅ (Completed: 2026-07-31)
+- [x] **Account Settings**: Profile form (display name, full name, avatar, bio, phone) + password update for email users ✅ (Completed: 2026-07-31)
+- [x] **Account Settings**: Wire profile dropdown and sidebar navigation; remove Preferences stub ✅ (Completed: 2026-07-31)
 
 ### Priority 5: Dashboard Foundation ⭐
 - [x] **Day 7**: Create dashboard component with modern Angular patterns ✅ (Completed: 2024-01-15)
@@ -170,10 +174,14 @@
 - [ ] **Day 25**: Add export functionality (PDF/Excel) for results
 
 ### Priority 3: Mobile Optimization ⭐
-- [ ] **Day 26**: Make dashboard responsive for mobile devices
+- [x] **Day 26**: Make dashboard responsive for mobile devices ✅ (Completed: 2026-07-23 — viewport shell + Option A / Player Pool scroll contract)
 - [ ] **Day 26**: Optimize charts for small screens
-- [ ] **Day 27**: Add touch-friendly interactions and gestures
-- [ ] **Day 28**: Test mobile experience and fix UI issues
+- [x] **Day 27**: Add touch-friendly interactions and gestures ✅ (Completed: 2026-07-23 — mobile cards, drawers full-bleed, touch scroll panes)
+- [x] **Day 28**: Test mobile experience and fix UI issues ✅ (Completed: 2026-07-23 — login/public live QA; host height chain + table/list scroll fixes; see docs/MOBILE_RESPONSIVENESS.md)
+- [x] **Day 28**: Mobile UI cleanup pass for workspace routes ✅ (Completed: 2026-07-27 — removed duplicate Auction Desk / Current Squads / Auction Settings titles; simplified Auction Players mobile action bar; removed Bid History revenue stat; tightened Sell Player side panel on mobile; cleaned workspace avatar button)
+- [x] **Day 28**: Mobile UI fixes round 2 ✅ (Completed: 2026-07-29 — teams search fix; auction desk status removal; unified side panels for Player Pool + Manage Teams; public auction player card scaling; shared side-panel mobile offset below workspace header; see docs/MOBILE_RESPONSIVENESS.md)
+- [x] **Day 28**: Remove decorative accent borders from cards ✅ (Completed: 2026-07-29 — removed left/top/bottom accent strips from home auction cards, user management mobile cards, auction player pool stat cards + mobile player cards, and auction desk main player card)
+- [x] **Public auction semantics fix** ✅ (Completed: 2026-07-31 — scope My Auctions to owner_id; clarify UI copy: public = shareable live link, not discoverable by all users)
 
 **Week 4 Deliverable**: 🚧 In Progress - Complete dashboard with analytics and mobile optimization
 
@@ -241,7 +249,7 @@
 - [x] **Auction History Sorting**: Added sorting functionality for time, price, and name with interactive controls ✅ (Completed: 2024-01-28)
 - [x] **Progress Tracking**: Visual progress indicators and statistics
 - [x] **Team Assignment**: Direct player assignment to teams with purchase price tracking
-- [x] **Reset Functionality**: Complete auction reset with data cleanup ✅ (Fixed: 2024-01-16)
+- [x] **Reset Functionality**: Complete auction reset with data cleanup ✅ (Fixed: 2024-01-16; Re-fixed: 2026-08-05 — Settings reset now sets status to `draft`, resets `auction_players`, clears history/assignments, keeps teams)
 - [x] **Navigation Integration**: Added auction routes and navigation menu items
 - [x] **Modern UI/UX**: Beautiful, responsive interface with Material Design and TailwindCSS
 - [x] **Error Handling**: Comprehensive error handling and user feedback
@@ -259,13 +267,13 @@
 - [ ] **Day 29**: Add loading states and skeleton screens
 - [ ] **Day 30**: Create smooth transitions and micro-animations
 - [ ] **Day 30**: Implement dark/light theme toggle
-- [ ] **Day 31**: Add toast notifications and snackbars
+- [x] **Day 31**: Add toast notifications and snackbars ✅ (Completed: 2026-07-31 — unified ToastService + AppToastComponent across all forms)
 - [ ] **Day 31**: Create confirmation dialogs for destructive actions
 
 ### Priority 2: Performance & PWA ⭐
 - [ ] **Day 32**: Configure service worker for PWA functionality
 - [ ] **Day 32**: Add app manifest and install prompts
-- [ ] **Day 33**: Optimize bundle size and implement lazy loading
+- [x] **Day 33**: Optimize bundle size and implement lazy loading ✅ (Completed: 2026-08-03 — route `loadComponent` lazy chunks, non-blocking auth init, bootstrap loader, font cleanup; initial bundle ~548 KB raw / ~130 KB gzipped vs ~1.05 MB before)
 - [ ] **Day 33**: Add comprehensive error handling and boundaries
 
 ### Priority 3: Deployment & Launch ⭐
@@ -281,8 +289,9 @@
 ## 🔧 Post-MVP Improvements
 
 ### Immediate Technical Debt
-- [ ] Add comprehensive unit tests with Jest
-- [ ] Implement E2E tests with Cypress
+- [x] Cursor browser QA rules (`ai-coding-loop` + `ui-browser-qa`) + [docs/QA_BROWSER.md](QA_BROWSER.md) ✅ (Completed: 2026-07-23)
+- [ ] Playwright E2E (deferred — mirror named flows in `ui-browser-qa` when needed)
+- [ ] Unit tests (Karma/Jasmine today; Jest migration deferred)
 - [x] Setup TypeScript strict mode
 - [ ] Configure ESLint and Prettier
 - [ ] Add Husky pre-commit hooks
@@ -444,13 +453,34 @@ npm run build && netlify deploy --prod --dir=dist/auction-io
 - [ ] Success and error feedback
 - [ ] Proper navigation and routing
 - [ ] State management and data persistence
-- [ ] Unit tests (added later)
+- [ ] Unit tests (deferred; UI gated by Cursor browser QA — see docs/QA_BROWSER.md)
 
 This roadmap provides a clear, day-by-day plan with specific deliverables, risk mitigation, and success criteria to ensure a successful project completion!
 
 ---
 
 ## ✅ Recent Progress Updates
+
+### Bug fixes
+- [x] **Auction enter click regression**: Fixed `auctionWorkspaceGuard` calling `inject()` after `await` (NG0203), which silently cancelled navigation to `/auction/:id/overview` ✅ (Completed: 2026-08-05)
+  - Root cause: commit `19668be` dynamic import of `AuctionStateService` broke Angular injection context
+  - Fix: capture `Injector` synchronously, use `injector.get(AuctionStateService)` after dynamic import
+
+### Cursor browser QA (agent)
+- [x] **Agent QA setup**: Added always-on `.cursor/rules/ai-coding-loop.mdc` + `ui-browser-qa.mdc` for `localhost:4200`; docs in `docs/QA_BROWSER.md`; Playwright/Jest deferred ✅ (Completed: 2026-07-23)
+- [x] **Google OAuth fix (deleted_client)**: Dynamic OAuth redirect via `window.location.origin`; setup guide in `docs/GOOGLE_OAUTH_SETUP.md` ✅ (Completed: 2026-07-31)
+  - Code: `signInWithGoogle()` uses origin-based `/auth/callback` for local, develop, and production
+  - Manual: recreate GCP OAuth client and update Supabase Google provider (see setup doc)
+- [x] **Auth fixes (signup + OAuth redirect)**: Sign Up button reactivity, email confirmation UX, OAuth callback session wait ✅ (Completed: 2026-07-31)
+  - Sign Up: group-level password match validator; `formRevision` signal; success message when email confirmation required
+  - Google: reset loading on OAuth error; `waitForOAuthSession()` in auth callback
+  - Docs: localhost redirect troubleshooting in `docs/GOOGLE_OAUTH_SETUP.md`
+  - Manual: set Supabase Site URL to develop Netlify while testing develop deploy
+- [x] **OAuth new-account hardening**: PKCE flow, hash recovery, auth callback error UX ✅ (Completed: 2026-07-31)
+  - PKCE + `recoverSessionFromUrl()` in Supabase service; token redirect to `/auth/callback` from app root
+  - Login shows error when OAuth callback fails; 10s session wait timeout
+  - Docs: interstitial, bounce tracking, “user in Supabase but not logged in” troubleshooting
+  - Manual: Supabase Site URL + Google OAuth publish still required in dashboard
 
 ### Phase 1 - Foundation & Authentication
 - [x] **Day 1-4**: Complete login system with glassmorphism UI ✅ (Completed: 2024-01-15)
@@ -482,8 +512,11 @@ This roadmap provides a clear, day-by-day plan with specific deliverables, risk 
 - [x] **Auction History Component**: Created separate auction history page with comprehensive transaction tracking ✅ (Completed: 2024-01-16)
 - [x] **Recent Activity Removal**: Removed recent activity section from auction control page for cleaner interface ✅ (Completed: 2024-01-16)
 - [x] **History Management**: Added clear history functionality and proper history cleanup on auction reset ✅ (Completed: 2024-01-16)
+- [x] **Completed Auction Reset Fix**: Settings Danger Zone reset now fully resets completed auctions — status → `draft`, `auction_players` → available, history cleared, team assignments/budgets zeroed, teams kept; shared via `AuctionsService.resetAuction(id)` ✅ (Completed: 2026-08-05)
 - [x] **Navigation Integration**: Added auction history menu item to sidebar navigation ✅ (Completed: 2024-01-16)
 - [x] **Type Compatibility Fix**: Fixed TeamWithPlayers and Team interface compatibility issues in team-card component ✅ (Completed: 2024-01-16)
 - [x] **User Role Management**: Implemented centralized frontend-only user role system using SupabaseService - users with email 'pbhargesh82@aol.com' are marked as admin, others as user ✅ (Completed: 2024-01-16)
-- [x] **Role-Based UI**: Hidden action bars and management buttons for regular users in teams and players components ✅ (Completed: 2024-01-16)
+- [x] **Role-Based UI**: Hidden action bars and management buttons for regular users in teams and players components ✅ (Completed: 2024-01-16; Player Pool CRUD re-opened for all authenticated owners: 2026-08-05)
+- [x] **Player Pool Add Player Visibility**: `/player-pool` Add/Edit/Delete no longer gated on `super_admin`; uses `canManagePool` for any logged-in user (owner-scoped via `PlayersService`) ✅ (Completed: 2026-08-05)
+- [x] **Add from Pool Insert Fix**: Auction Players modal insert failed silently (CHECK constraint) because it wrote `status: 'pending'`; now uses `available` and maps DB→UI statuses correctly ✅ (Completed: 2026-08-13)
 - [x] **Player Status Consistency**: Fixed discrepancy between dashboard and players screen by using consistent team_players table logic for sold players and available players calculation ✅ (Completed: 2024-01-16) 

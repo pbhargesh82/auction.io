@@ -1,0 +1,45 @@
+@reference "tailwindcss";
+
+/* User Profile Component Premium Styles */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Recessed Shadow effect */
+.shadow-inner-sm {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown glass effect */
+.dropdown-surface {
+  background: rgba(57, 62, 70, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Active ring glow */
+.ring-glow {
+  box-shadow: 0 0 15px rgba(78, 204, 163, 0.15);
+}
+
+/* Custom button hover behavior */
+.profile-action-btn:hover .icon-bg {
+  background-color: #232931;
+}
+
+/* Responsive Pill containment */
+.profile-pill {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

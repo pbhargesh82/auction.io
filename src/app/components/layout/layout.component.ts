@@ -1,11 +1,12 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, NavigationEnd, RouterModule } from '@angular/router';
 import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { VersionService } from '../../services/version.service';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs/operators';
-import { SidebarFooterComponent } from '../shared/sidebar-footer/sidebar-footer.component';
+import { UserProfileComponent } from '../shared/user-profile/user-profile.component';
+import { AppToastComponent } from '../shared/app-toast/app-toast.component';
 
 interface MenuItem {
   label: string;
@@ -18,7 +19,13 @@ interface MenuItem {
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, SidebarFooterComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatIconModule,
+    UserProfileComponent,
+    AppToastComponent
+  ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
 })
@@ -73,6 +80,11 @@ export class LayoutComponent {
       icon: 'manage_accounts',
       route: '/user-management',
       requiresAdmin: true
+    },
+    {
+      label: 'Account Settings',
+      icon: 'settings',
+      route: '/settings'
     }
   ];
 

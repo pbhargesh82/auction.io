@@ -1,28 +1,26 @@
-/* Clean minimal styles - no unnecessary complexity */
+/* Clean minimal styles respecting design palette */
 
-/* Fix autocomplete styling to match normal state */
+/* Update autocomplete styles to match dark (#232931) canvas background */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.2) inset !important;
-  -webkit-text-fill-color: white !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  background-color: rgba(255, 255, 255, 0.2) !important;
+  -webkit-box-shadow: 0 0 0 1000px #232931 inset !important;
+  box-shadow: 0 0 0 1000px #232931 inset !important;
+  -webkit-text-fill-color: #eeeeee !important;
+  border-color: rgba(238, 238, 238, 0.1) !important;
+  background-color: #232931 !important;
   transition: background-color 5000s ease-in-out 0s;
+  color: #eeeeee !important;
 }
 
 /* Ensure autocomplete styling matches focus state */
 input:-webkit-autofill:focus {
-  border-color: rgb(129, 140, 248) !important; /* indigo-400 */
-  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.5) !important;
+  border-color: #4ecca3 !important;
+  box-shadow: 0 0 0 1px #4ecca3, 0 0 0 30px #232931 inset !important;
 }
 
-/* Override any browser-specific autocomplete styling */
-input[type="email"]:-webkit-autofill,
-input[type="password"]:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.2) inset !important;
-  -webkit-text-fill-color: white !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  background-color: rgba(255, 255, 255, 0.2) !important;
-} 
+/* Ensure placeholder visibility */
+input::placeholder {
+  color: rgba(238, 238, 238, 0.3) !important;
+}

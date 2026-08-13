@@ -1,26 +1,17 @@
-import { Component, OnInit, signal, computed, effect, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+
+import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
 
 import { AuctionService, AuctionConfig } from '../../services/auction.service';
 import { PlayersService, Player } from '../../services/players.service';
 import { TeamsService, Team } from '../../services/teams.service';
 import { AuctionStateService } from '../../services/auction-state.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-auction-control',
@@ -28,22 +19,13 @@ import { SupabaseService } from '../../services/supabase.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatTableModule,
-    MatIconModule,
-    MatDialogModule,
-    MatChipsModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    RouterModule
+    RouterModule,
+    SidePanelComponent,
+    AvatarComponent
   ],
   templateUrl: './auction-control.component.html',
-  styleUrls: ['./auction-control.component.css']
+  styleUrls: ['./auction-control.component.css'],
+  host: { class: 'block h-full w-full min-h-0' }
 })
 export class AuctionControlComponent implements OnInit {
   // Reactive signals
@@ -59,8 +41,9 @@ export class AuctionControlComponent implements OnInit {
   // Form
   sellForm: FormGroup;
 
-  // Template reference
-  @ViewChild('sellDialogTemplate', { static: true }) sellDialogTemplate!: TemplateRef<any>;
+  // Side Panel state
+  showSellPanel = signal<boolean>(false);
+  selectedTeamForSale = signal<Team | null>(null);
 
   // Computed values
   auctionStatus = computed(() => this.auctionStateService.auctionConfig()?.status ?? 'draft');
@@ -83,6 +66,15 @@ export class AuctionControlComponent implements OnInit {
     return this.auctionStateService.players().filter(p => p.auction_status === 'PENDING').length;
   });
 
+  /** True when INIT / START / COMPLETE controls should render (hide empty wrapper when completed). */
+  hasControlActions = computed(() => {
+    const status = this.auctionStatus();
+    if (status === 'draft' || status === 'active') return true;
+    return status !== 'completed'
+      && this.remainingPlayers() === 0
+      && this.totalPlayers() > 0;
+  });
+
   progressPercentage = computed(() => {
     if (this.totalPlayers() === 0) return 0;
     return Math.round((this.soldPlayers() / this.totalPlayers()) * 100);
@@ -101,10 +93,9 @@ export class AuctionControlComponent implements OnInit {
     private teamsService: TeamsService,
     private auctionStateService: AuctionStateService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
     private route: ActivatedRoute,
-    private supabase: SupabaseService
+    private supabase: SupabaseService,
+    private toast: ToastService
   ) {
     this.sellForm = this.fb.group({
       team_id: ['', [Validators.required]],
@@ -158,7 +149,7 @@ export class AuctionControlComponent implements OnInit {
     
     if (error) {
       this.error.set(error.message);
-      this.snackBar.open(`Error loading auction config: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error loading auction config: ${error.message}`);
     } else if (data) {
       this.auctionConfig.set(data);
       await this.loadCurrentPlayer();
@@ -172,7 +163,7 @@ export class AuctionControlComponent implements OnInit {
     
     if (error) {
       this.error.set(error.message);
-      this.snackBar.open(`Error loading teams: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error loading teams: ${error.message}`);
     } else if (data) {
       this.teams.set(data);
     }
@@ -203,13 +194,13 @@ export class AuctionControlComponent implements OnInit {
       if (!error) {
         // Refresh full state
         await this.auctionStateService.loadAllData(this.auctionId());
-        this.snackBar.open(`Auction marked as ${status}`, 'Close', { duration: 3000 });
+        this.toast.success(`Auction marked as ${status}`);
       } else {
         throw error;
       }
     } catch (e: any) {
       this.error.set(e.message);
-      this.snackBar.open(`Error updating status: ${e.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error updating status: ${e.message}`);
     } finally {
       this.loading.set(false);
     }
@@ -225,7 +216,7 @@ export class AuctionControlComponent implements OnInit {
     this.loading.set(true);
     try {
       await this.auctionStateService.resetAuction();
-      this.snackBar.open('Auction reset successfully! All data has been cleared.', 'Close', { duration: 3000 });
+      this.toast.success('Auction reset successfully! All data has been cleared.');
 
       // Refresh all data using centralized service
       await this.auctionStateService.loadAllData(this.auctionId());
@@ -237,7 +228,7 @@ export class AuctionControlComponent implements OnInit {
       
     } catch (error: any) {
       this.error.set(error.message);
-      this.snackBar.open(`Error resetting auction: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error resetting auction: ${error.message}`);
     } finally {
       this.loading.set(false);
     }
@@ -254,7 +245,7 @@ export class AuctionControlComponent implements OnInit {
       }
 
       if (!players || players.length === 0) {
-        this.snackBar.open('No players found. Please add players first.', 'Close', { duration: 5000 });
+        this.toast.error('No players found. Please add players first.');
         return;
       }
 
@@ -264,14 +255,14 @@ export class AuctionControlComponent implements OnInit {
         .map(p => p.id);
 
       if (activePlayerIds.length === 0) {
-        this.snackBar.open('No active players found. Please activate some players first.', 'Close', { duration: 5000 });
+        this.toast.error('No active players found. Please activate some players first.');
         return;
       }
 
       // Add all active players to auction (set to PENDING status)
       await this.auctionStateService.addPlayersToAuction(activePlayerIds);
       
-      this.snackBar.open(`Successfully added ${activePlayerIds.length} players to the auction!`, 'Close', { duration: 3000 });
+      this.toast.success(`Successfully added ${activePlayerIds.length} players to the auction!`);
       
       // Refresh data
       await this.auctionStateService.loadAllData(this.auctionId());
@@ -283,7 +274,7 @@ export class AuctionControlComponent implements OnInit {
       
     } catch (error: any) {
       this.error.set(error.message);
-      this.snackBar.open(`Error initializing auction: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error initializing auction: ${error.message}`);
     } finally {
       this.loading.set(false);
     }
@@ -307,37 +298,33 @@ export class AuctionControlComponent implements OnInit {
         'UNSOLD'
       );
       
-      this.snackBar.open('Player marked as unsold!', 'Close', { duration: 3000 });
+      this.toast.success('Player marked as unsold!');
       
       // Update local signals
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
       this.teams.set(this.auctionStateService.teams());
     } catch (error: any) {
       this.error.set(error.message);
-      this.snackBar.open(`Error marking player unsold: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error marking player unsold: ${error.message}`);
     } finally {
       this.loading.set(false);
     }
   }
 
   openSellDialog(team?: Team) {
-    if (team) {
-      this.sellForm.patchValue({
-        team_id: team.id,
-        price: this.currentPlayer()?.base_price || 0
-      });
-    }
-
-    const dialogRef = this.dialog.open(this.sellDialogTemplate, {
-      width: '500px',
-      data: { team }
+    this.selectedTeamForSale.set(team || null);
+    this.sellForm.patchValue({
+      team_id: team ? team.id : '',
+      price: this.currentPlayer()?.base_price || 0,
+      notes: ''
     });
+    this.showSellPanel.set(true);
+  }
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.sellPlayer();
-      }
-    });
+  closeSellDialog() {
+    this.showSellPanel.set(false);
+    this.selectedTeamForSale.set(null);
+    this.sellForm.reset();
   }
 
   async sellPlayer() {
@@ -374,32 +361,19 @@ export class AuctionControlComponent implements OnInit {
       });
       
       this.triggerSoldAnimation();
-      this.snackBar.open('Player sold successfully!', 'Close', { 
-        duration: 3000,
-        panelClass: ['bg-green-600', 'text-white']
-      });
+      this.toast.success('Player sold successfully!');
       this.sellForm.reset();
       
       // Update local signals
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
       this.teams.set(this.auctionStateService.teams());
       
-      this.dialog.closeAll();
+      this.closeSellDialog();
     } catch (error: any) {
       this.error.set(error.message);
-      this.snackBar.open(`Error selling player: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error selling player: ${error.message}`);
     } finally {
       this.loading.set(false);
-    }
-  }
-
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'DRAFT': return 'status-draft';
-      case 'ACTIVE': return 'status-active';
-      case 'PAUSED': return 'status-paused';
-      case 'COMPLETED': return 'status-completed';
-      default: return 'status-draft';
     }
   }
 
@@ -441,7 +415,7 @@ export class AuctionControlComponent implements OnInit {
       // Set the selected player as current
       await this.auctionStateService.updatePlayerAuctionStatus(player.id, 'CURRENT');
       
-      this.snackBar.open(`Started auction for ${player.name}!`, 'Close', { duration: 3000 });
+      this.toast.success(`Started auction for ${player.name}!`);
       
       // Update local signals
       this.currentPlayer.set(this.auctionStateService.currentPlayer());
@@ -450,7 +424,7 @@ export class AuctionControlComponent implements OnInit {
       
     } catch (error: any) {
       this.error.set(error.message);
-      this.snackBar.open(`Error starting player auction: ${error.message}`, 'Close', { duration: 5000 });
+      this.toast.error(`Error starting player auction: ${error.message}`);
     } finally {
       this.loading.set(false);
     }
