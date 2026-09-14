@@ -349,6 +349,9 @@ export class AuctionControlComponent implements OnInit {
         status: 'SOLD',
         notes: formData.notes || undefined,
         auction_id: this.auctionId(),
+        // auction_history is protected by an owner_id RLS policy. Keep this in
+        // step with the other auction-scoped records created by the client.
+        owner_id: this.supabase.currentUserValue?.id,
       });
 
       // Assign player to team — include auction_id
