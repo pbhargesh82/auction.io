@@ -4,7 +4,6 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { TeamsService, Team, CreateTeamData, UpdateTeamData } from '../../services/teams.service';
 import { TeamWithPlayers } from '../team-card/team-card.component';
-import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { ImageUploadService } from '../../services/image-upload.service';
 
 // Angular Material imports
@@ -55,7 +54,6 @@ export class TeamsComponent implements OnInit {
   showForm = signal(false);
   editingTeam = signal<Team | TeamWithPlayers | null>(null);
   searchTerm = signal('');
-  userRole = signal<UserRole>('user');
 
   // Image upload signals
   logoPreview = signal<string | null>(null);
@@ -80,8 +78,6 @@ export class TeamsComponent implements OnInit {
 
   isFormValid = computed(() => this.formValid());
 
-  // Computed signal for admin status
-  isAdmin = computed(() => this.userRole() === 'super_admin');
 
 
   // Table configuration
@@ -90,7 +86,6 @@ export class TeamsComponent implements OnInit {
 
   constructor(
     private teamsService: TeamsService,
-    private supabaseService: SupabaseService,
     private imageUploadService: ImageUploadService,
     private fb: FormBuilder,
     private toast: ToastService,
@@ -112,11 +107,6 @@ export class TeamsComponent implements OnInit {
     this.teams = this.teamsService.teams;
     this.loading = this.teamsService.loading;
     this.error = this.teamsService.error;
-
-    // Subscribe to user role changes
-    this.supabaseService.userRole.subscribe(role => {
-      this.userRole.set(role);
-    });
 
     // Subscribe to form changes to update validity signal
     this.teamForm.statusChanges.subscribe(() => {
