@@ -152,6 +152,56 @@ export class PlayersService {
     }
   }
 
+  // Create multiple players in one owner-scoped request.
+  async createPlayersBulk(playerData: CreatePlayerData[]): Promise<{ data: Player[] | null, error: any }> {
+    if (playerData.length === 0) {
+      return { data: [], error: null };
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    const user = this.supabaseService.currentUserValue;
+    if (!user) {
+      const error = { message: 'You must be signed in to import players.' };
+      this.error.set(error.message);
+      this.loading.set(false);
+      return { data: null, error };
+    }
+
+    try {
+      const { data, error } = await this.supabaseService.db
+        .from('players')
+        .insert(playerData.map(player => ({
+          name: player.name,
+          position: player.position,
+          category: player.category,
+          subcategory: player.subcategory,
+          base_price: player.base_price || 100000,
+          image_url: player.image_url,
+          nationality: player.nationality,
+          age: player.age,
+          experience_years: player.experience_years,
+          stats: player.stats,
+          owner_id: user.id
+        })))
+        .select();
+
+      if (error) {
+        this.error.set(error.message);
+        return { data: null, error };
+      }
+
+      const importedPlayers = (data || []) as Player[];
+      this.players.update(players => [...importedPlayers, ...players]);
+      return { data: importedPlayers, error: null };
+    } catch (error: any) {
+      this.error.set(error.message);
+      return { data: null, error };
+    } finally {
+      this.loading.set(false);
+    }
+  }
   // Update player
   async updatePlayer(id: string, playerData: UpdatePlayerData): Promise<{ data: Player | null, error: any }> {
     this.loading.set(true);

@@ -32,6 +32,7 @@
     "@supabase/supabase-js": "^2.50.2",
     "@tailwindcss/postcss": "^4.1.11",
     "postcss": "^8.5.6",
+    "read-excel-file": "^9.3.10",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.1.11",
     "tslib": "^2.3.0",

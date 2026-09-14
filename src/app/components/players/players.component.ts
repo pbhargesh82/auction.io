@@ -10,6 +10,11 @@ import { AvatarComponent } from '../shared/avatar/avatar.component';
 import { SidePanelComponent } from '../shared/side-panel/side-panel.component';
 import { ToastService } from '../../services/toast.service';
 
+interface ImportFeedback {
+  kind: 'error' | 'success';
+  message: string;
+  errors: string[];
+}
 @Component({
   selector: 'app-players',
   standalone: true,
@@ -45,6 +50,8 @@ export class PlayersComponent implements OnInit {
 
   // Image upload signals
   photoPreview = signal<string | null>(null);
+  bulkImporting = signal(false);
+  importFeedback = signal<ImportFeedback | null>(null);
   uploadingPhoto = signal(false);
 
   // Scroll position preservation
@@ -372,6 +379,158 @@ export class PlayersComponent implements OnInit {
     }
   }
 
+  downloadImportTemplate() {
+    const link = document.createElement('a');
+    link.href = 'templates/player-import-template.xlsx';
+    link.download = 'player-import-template.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+
+  async onBulkImportSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.importFeedback.set(null);
+
+    try {
+      if (!/\.xlsx$/i.test(file.name)) {
+        throw new Error('Choose an Excel .xlsx file.');
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('The import file must be 5 MB or smaller.');
+      }
+
+      const { default: readExcelFile } = await import('read-excel-file/browser');
+      const sheets = await readExcelFile(file);
+      const selectedSheet = sheets.find(sheet => sheet.sheet === 'Players') || sheets[0];
+      if (!selectedSheet) {
+        throw new Error('The workbook does not contain a worksheet to import.');
+      }
+
+      const rows = selectedSheet.data;
+      const players = this.parseImportedPlayers(rows);
+
+      this.bulkImporting.set(true);
+      const { data, error } = await this.playersService.createPlayersBulk(players);
+      if (error) throw error;
+
+      this.importFeedback.set({
+        kind: 'success',
+        message: `${data?.length || 0} player${data?.length === 1 ? '' : 's'} imported successfully.`,
+        errors: []
+      });
+      this.toast.success(`${data?.length || 0} players imported successfully!`);
+    } catch (error: any) {
+      const errors = Array.isArray(error?.importErrors) ? error.importErrors : [];
+      this.importFeedback.set({
+        kind: 'error',
+        message: error?.message || 'Could not import the player file.',
+        errors
+      });
+      this.toast.error(error?.message || 'Could not import the player file.');
+    } finally {
+      this.bulkImporting.set(false);
+      input.value = '';
+    }
+  }
+
+  private parseImportedPlayers(rows: unknown[][]): CreatePlayerData[] {
+    if (rows.length < 2) {
+      throw new Error('Add at least one player row below the header row.');
+    }
+
+    const headerIndexes = new Map<string, number>();
+    rows[0].forEach((header, index) => {
+      const normalizedHeader = this.normalizeImportHeader(header);
+      if (normalizedHeader) headerIndexes.set(normalizedHeader, index);
+    });
+
+    const requiredHeaders = ['name', 'category', 'base_price'];
+    const missingHeaders = requiredHeaders.filter(header => !headerIndexes.has(header));
+    if (missingHeaders.length > 0) {
+      throw new Error(`Missing required column${missingHeaders.length === 1 ? '' : 's'}: ${missingHeaders.join(', ')}.`);
+    }
+
+    const errors: string[] = [];
+    const players: CreatePlayerData[] = [];
+    const getCell = (row: unknown[], header: string) => row[headerIndexes.get(header)!];
+
+    rows.slice(1).forEach((row, index) => {
+      if (row.every(cell => this.toImportText(cell) === '')) return;
+
+      const rowNumber = index + 2;
+      const name = this.toImportText(getCell(row, 'name'));
+      const category = this.canonicalCategory(this.toImportText(getCell(row, 'category')));
+      const specialization = this.toImportText(getCell(row, 'specialization'));
+      const basePrice = this.toImportNumber(getCell(row, 'base_price'));
+      const nationality = this.toImportText(getCell(row, 'nationality'));
+      const ageText = this.toImportText(getCell(row, 'age'));
+      const age = this.toImportNumber(ageText);
+      const experienceYearsText = this.toImportText(getCell(row, 'experience_years'));
+      const experienceYears = this.toImportNumber(experienceYearsText);
+      const imageUrl = this.toImportText(getCell(row, 'image_url'));
+
+      if (name.length < 2 || name.length > 100) errors.push(`Row ${rowNumber}: Name must be 2–100 characters.`);
+      if (!category) errors.push(`Row ${rowNumber}: Category must be Batsman, Bowler, All-Rounder, or Wicket-Keeper.`);
+      if (basePrice === null || basePrice < 1000) errors.push(`Row ${rowNumber}: Base Price must be a number of at least 1,000.`);
+      if (nationality.length > 50) errors.push(`Row ${rowNumber}: Nationality must be 50 characters or fewer.`);
+      if (ageText && (age === null || !Number.isInteger(age) || age < 16 || age > 50)) errors.push(`Row ${rowNumber}: Age must be a whole number from 16 to 50.`);
+      if (experienceYearsText && (experienceYears === null || !Number.isInteger(experienceYears) || experienceYears < 0 || experienceYears > 30)) errors.push(`Row ${rowNumber}: Experience Years must be a whole number from 0 to 30.`);
+      if (imageUrl && !/^https?:\/\//i.test(imageUrl)) errors.push(`Row ${rowNumber}: Image URL must start with http:// or https://.`);
+      if (specialization && category && !this.specializations[category].some(value => value.toLowerCase() === specialization.toLowerCase())) {
+        errors.push(`Row ${rowNumber}: "${specialization}" is not a valid ${category} specialization.`);
+      }
+
+      if (errors.some(error => error.startsWith(`Row ${rowNumber}:`))) return;
+
+      players.push({
+        name,
+        position: category!,
+        category: specialization,
+        base_price: basePrice!,
+        nationality: nationality || undefined,
+        age: age ?? undefined,
+        experience_years: experienceYears ?? undefined,
+        image_url: imageUrl || undefined
+      });
+    });
+
+    if (players.length > 500) {
+      throw new Error('Import up to 500 players at a time.');
+    }
+    if (errors.length > 0) {
+      const error = new Error(`${errors.length} row${errors.length === 1 ? '' : 's'} need attention before importing.`) as Error & { importErrors?: string[] };
+      error.importErrors = errors.slice(0, 8);
+      throw error;
+    }
+    if (players.length === 0) {
+      throw new Error('No player rows were found to import.');
+    }
+
+    return players;
+  }
+
+  private normalizeImportHeader(value: unknown): string {
+    return this.toImportText(value).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  }
+
+  private toImportText(value: unknown): string {
+    return String(value ?? '').trim();
+  }
+
+  private toImportNumber(value: unknown): number | null {
+    const text = this.toImportText(value).replace(/[₹,\s]/g, '');
+    if (!text) return null;
+    const number = Number(text);
+    return Number.isFinite(number) ? number : null;
+  }
+
+  private canonicalCategory(value: string): string | null {
+    return this.categories.find(category => category.toLowerCase() === value.toLowerCase()) || null;
+  }
   // Table operations
   async deletePlayer(player: Player) {
     if (!confirm(`Are you sure you want to delete "${player.name}"? This action cannot be undone.`)) {
