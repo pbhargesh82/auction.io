@@ -64,7 +64,8 @@ export class PlayersComponent implements OnInit {
 
   // Toast notification
   // Predefined options
-  categories = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper'];
+  readonly defaultCategory = 'Uncategorized';
+  categories = [this.defaultCategory, 'Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper'];
   specializations: { [key: string]: string[] } = {
     'Batsman': ['Right-Hand Bat', 'Left-Hand Bat', 'Opener', 'Middle Order', 'Finisher'],
     'Bowler': ['Fast Bowler', 'Medium Fast', 'Off Spinner', 'Leg Spinner', 'Left-Arm Spinner', 'Left-Arm Pace'],
@@ -173,7 +174,7 @@ export class PlayersComponent implements OnInit {
     // Initialize form with enhanced fields
     this.playerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      category: ['Batsman', Validators.required],
+      category: [this.defaultCategory],
       specialization: [''],
       base_price: [100000, [Validators.required, Validators.min(1000)]],
       image_url: [''],
@@ -233,7 +234,7 @@ export class PlayersComponent implements OnInit {
     this.photoPreview.set(null);
     this.playerForm.reset({
       name: '',
-      category: 'Batsman',
+      category: this.defaultCategory,
       specialization: '',
       base_price: 100000,
       image_url: '',
@@ -253,7 +254,7 @@ export class PlayersComponent implements OnInit {
     this.photoPreview.set(player.image_url || null);
     this.playerForm.patchValue({
       name: player.name,
-      category: player.position || 'Batsman',
+      category: player.position || this.defaultCategory,
       specialization: player.category || '',
       base_price: player.base_price,
       image_url: player.image_url || '',
@@ -448,7 +449,7 @@ export class PlayersComponent implements OnInit {
       if (normalizedHeader) headerIndexes.set(normalizedHeader, index);
     });
 
-    const requiredHeaders = ['name', 'category', 'base_price'];
+    const requiredHeaders = ['name', 'base_price'];
     const missingHeaders = requiredHeaders.filter(header => !headerIndexes.has(header));
     if (missingHeaders.length > 0) {
       throw new Error(`Missing required column${missingHeaders.length === 1 ? '' : 's'}: ${missingHeaders.join(', ')}.`);
@@ -463,7 +464,8 @@ export class PlayersComponent implements OnInit {
 
       const rowNumber = index + 2;
       const name = this.toImportText(getCell(row, 'name'));
-      const category = this.canonicalCategory(this.toImportText(getCell(row, 'category')));
+      const categoryText = this.toImportText(getCell(row, 'category'));
+      const category = this.canonicalCategory(categoryText) || this.defaultCategory;
       const specialization = this.toImportText(getCell(row, 'specialization'));
       const basePrice = this.toImportNumber(getCell(row, 'base_price'));
       const nationality = this.toImportText(getCell(row, 'nationality'));
@@ -474,13 +476,15 @@ export class PlayersComponent implements OnInit {
       const imageUrl = this.toImportText(getCell(row, 'image_url'));
 
       if (name.length < 2 || name.length > 100) errors.push(`Row ${rowNumber}: Name must be 2–100 characters.`);
-      if (!category) errors.push(`Row ${rowNumber}: Category must be Batsman, Bowler, All-Rounder, or Wicket-Keeper.`);
+      if (categoryText && category === this.defaultCategory && categoryText.toLowerCase() !== this.defaultCategory.toLowerCase()) errors.push(`Row ${rowNumber}: Category must be Batsman, Bowler, All-Rounder, or Wicket-Keeper.`);
       if (basePrice === null || basePrice < 1000) errors.push(`Row ${rowNumber}: Base Price must be a number of at least 1,000.`);
       if (nationality.length > 50) errors.push(`Row ${rowNumber}: Nationality must be 50 characters or fewer.`);
       if (ageText && (age === null || !Number.isInteger(age) || age < 16 || age > 50)) errors.push(`Row ${rowNumber}: Age must be a whole number from 16 to 50.`);
       if (experienceYearsText && (experienceYears === null || !Number.isInteger(experienceYears) || experienceYears < 0 || experienceYears > 30)) errors.push(`Row ${rowNumber}: Experience Years must be a whole number from 0 to 30.`);
       if (imageUrl && !/^https?:\/\//i.test(imageUrl)) errors.push(`Row ${rowNumber}: Image URL must start with http:// or https://.`);
-      if (specialization && category && !this.specializations[category].some(value => value.toLowerCase() === specialization.toLowerCase())) {
+      if (specialization && category === this.defaultCategory) {
+        errors.push(`Row ${rowNumber}: Choose a category before providing a specialization.`);
+      } else if (specialization && !this.specializations[category].some(value => value.toLowerCase() === specialization.toLowerCase())) {
         errors.push(`Row ${rowNumber}: "${specialization}" is not a valid ${category} specialization.`);
       }
 
@@ -488,7 +492,7 @@ export class PlayersComponent implements OnInit {
 
       players.push({
         name,
-        position: category!,
+        position: category,
         category: specialization,
         base_price: basePrice!,
         nationality: nationality || undefined,
