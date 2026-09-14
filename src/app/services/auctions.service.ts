@@ -142,62 +142,11 @@ export class AuctionsService {
     }
 
     try {
-      const { error: auctionError } = await this.supabase.db
-        .from('auctions')
-        .update({
-          status: 'draft',
-          current_player_id: null,
-          current_player_position: 0,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', auctionId);
-      if (auctionError) throw auctionError;
-
-      const { error: playersError } = await this.supabase.db
-        .from('auction_players')
-        .update({
-          status: 'available',
-          sold_price: null,
-          assigned_team_id: null,
-        })
-        .eq('auction_id', auctionId);
-      if (playersError) throw playersError;
-
-      const { data: teams, error: teamsLoadError } = await this.supabase.db
-        .from('teams')
-        .select('id')
-        .eq('auction_id', auctionId);
-      if (teamsLoadError) throw teamsLoadError;
-
-      const teamIds = (teams ?? []).map((t: { id: string }) => t.id);
-      if (teamIds.length > 0) {
-        const { error: teamPlayersError } = await this.supabase.db
-          .from('team_players')
-          .delete()
-          .in('team_id', teamIds);
-        if (teamPlayersError) throw teamPlayersError;
-
-        const { error: teamsResetError } = await this.supabase.db
-          .from('teams')
-          .update({ budget_spent: 0, players_count: 0 })
-          .in('id', teamIds);
-        if (teamsResetError) throw teamsResetError;
-      }
-
-      // Also clear any team_players rows scoped by auction_id (if column present)
-      const { error: scopedTeamPlayersError } = await this.supabase.db
-        .from('team_players')
-        .delete()
-        .eq('auction_id', auctionId);
-      if (scopedTeamPlayersError && scopedTeamPlayersError.code !== '42703') {
-        throw scopedTeamPlayersError;
-      }
-
-      const { error: historyError } = await this.supabase.db
-        .from('auction_history')
-        .delete()
-        .eq('auction_id', auctionId);
-      if (historyError) throw historyError;
+      // Resetting changes several RLS-protected tables. The database function
+      // authorizes the workspace owner and performs every change atomically.
+      const { error } = await this.supabase.db
+        .rpc('reset_auction', { p_auction_id: auctionId });
+      if (error) throw error;
 
       await this.loadAuctions();
       return { error: null };
@@ -206,7 +155,6 @@ export class AuctionsService {
       return { error: err instanceof Error ? err : new Error(err?.message || 'Failed to reset auction') };
     }
   }
-
   /**
    * Fetch a public auction by slug — no authentication required.
    * Used by PublicAuctionComponent.
