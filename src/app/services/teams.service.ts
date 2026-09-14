@@ -15,7 +15,6 @@ export interface Team {
   budget_remaining: number;
   players_count: number;
   max_players: number;
-  owner_name?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -29,7 +28,6 @@ export interface CreateTeamData {
   secondary_color?: string;
   budget_cap?: number;
   max_players?: number;
-  owner_name?: string;
 }
 
 export interface UpdateTeamData extends Partial<CreateTeamData> {

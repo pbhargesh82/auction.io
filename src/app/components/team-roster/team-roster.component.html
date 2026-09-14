@@ -27,6 +27,22 @@
   </div>
   } @else {
 
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-black tracking-tight text-[#EEEEEE]">Current Squads</h1>
+        <p class="mt-1 text-xs font-bold uppercase tracking-widest text-[#EEEEEE]/40">Export every team roster and purchase price</p>
+      </div>
+      <button (click)="exportSquadsPdf()" [disabled]="exportingPdf() || teamsWithRosters().length === 0"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4ECCA3] px-5 py-3 text-xs font-black uppercase tracking-widest text-[#232931] transition-all hover:bg-[#72e1bd] disabled:cursor-not-allowed disabled:opacity-50">
+        @if (exportingPdf()) {
+          <span class="h-4 w-4 animate-spin rounded-full border-2 border-[#232931]/30 border-b-[#232931]"></span>
+          Preparing PDF
+        } @else {
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+          Export PDF
+        }
+      </button>
+    </div>
     <!-- ── All Teams Grid ────────────────────────────────────────────────── -->
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
       

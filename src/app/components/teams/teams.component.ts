@@ -100,7 +100,6 @@ export class TeamsComponent implements OnInit {
       secondary_color: ['#424242'],
       budget_cap: [100000, [Validators.required, Validators.min(100000)]],
       max_players: [25, [Validators.required, Validators.min(8), Validators.max(50)]],
-      owner_name: ['']
     });
 
     // Use service signals directly
@@ -154,7 +153,6 @@ export class TeamsComponent implements OnInit {
       secondary_color: '#424242',
       budget_cap: 100000,
       max_players: 25,
-      owner_name: ''
     });
     this.teamForm.markAsUntouched();
     this.teamForm.updateValueAndValidity();
@@ -173,7 +171,6 @@ export class TeamsComponent implements OnInit {
       secondary_color: team.secondary_color,
       budget_cap: team.budget_cap,
       max_players: team.max_players,
-      owner_name: (team as any).owner_name || ''
     });
     this.showForm.set(true);
   }
